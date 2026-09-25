@@ -692,7 +692,7 @@ test("filterable pages wrap every entry with its tags and fail when an entry has
       { id: "a", group: "Models", title: "model" }, { id: "b", group: "Models", title: "sleep" }
     ] }));
     await writeFile(path.join(root, "outputs/tags.json"), JSON.stringify({
-      tags: [{ id: "persistent-mode", label: "Persistent mode", kind: "topic", count: 1 }, { id: "undocumented", label: "Undocumented", kind: "status", count: 2 }],
+      tags: [{ id: "persistent-mode", label: "Persistent mode", kind: "topic", feature: true, count: 1 }, { id: "undocumented", label: "Undocumented", kind: "status", count: 2 }],
       items: { a: ["undocumented"], b: ["persistent-mode", "undocumented"] }
     }));
     const catalog = [{ label: "Config", files: [{ path: "outputs/current.md", format: "markdown", filters: { records: "outputs/records.json", tags: "outputs/tags.json" } }] }];

@@ -35,7 +35,7 @@ export function wrapFilterable(html, filter) {
 }
 
 export function filterBar(filter, total) {
-  const chip = t => `<button type="button" class="chip${t.id === "persistent-mode" ? " chip-feature" : ""}" data-tag="${t.id}" aria-pressed="false">${escapeHtml(t.label)} <span class="chip-count">${t.count.toLocaleString("en-US")}</span></button>`;
+  const chip = t => `<button type="button" class="chip${t.feature ? " chip-feature" : ""}" data-tag="${t.id}" aria-pressed="false">${escapeHtml(t.label)} <span class="chip-count">${t.count.toLocaleString("en-US")}</span></button>`;
   const topics = filter.vocabulary.filter(t => t.kind === "topic");
   const status = filter.vocabulary.filter(t => t.kind !== "topic");
   return `<div class="filter-bar" data-total="${total}">

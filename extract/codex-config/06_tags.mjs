@@ -106,7 +106,7 @@ async function topicScores(item) {
   throw new Error("TypeSafe retries exhausted");
 }
 
-const topics = taxonomy.tags.map(tag => ({ id: tag.id, label: tag.label, kind: "topic", definition: tag.definition }));
+const topics = taxonomy.tags.map((tag, i) => ({ id: tag.id, label: tag.label, kind: "topic", definition: tag.definition, ...(i === 0 ? { feature: true } : {}) }));
 const seeded = new Map(seed.map(s => [s.id, s]));
 for (const name of ["codex-config", "codex-env-vars"]) {
   const records = readJson(path.join(repo, "outputs", `${name}.json`)).items;
