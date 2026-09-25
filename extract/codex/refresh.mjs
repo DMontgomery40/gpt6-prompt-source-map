@@ -22,6 +22,7 @@ import { codexApp } from "./lib/app-layout.mjs";
 import { AnchorError, extractAppPrompts } from "./lib/app-prompts.mjs";
 import { openAsar } from "./lib/asar.mjs";
 import { CatalogError, loadCatalog, SourceError } from "./lib/catalog.mjs";
+import { catalogSnapshot, metadataDiff } from "./lib/catalog-metadata.mjs";
 import { buildDocuments, OUTPUT_NAMES, OUTPUT_WHITELIST } from "./lib/documents.mjs";
 import { PrivacyError, privacyScan } from "./lib/privacy.mjs";
 import { renderDiffMarkdown, semanticDiff } from "./lib/semantic-diff.mjs";
@@ -97,6 +98,13 @@ function main() {
     if (before[key] !== after[key]) throw new CatalogError(`the app changed during the refresh (${key}); retry later`);
   }
 
+  // Catalog settings: compared with the snapshot of the last published (or quietly absorbed)
+  // run. The watcher promotes catalog-snapshot.next.json to the baseline, never a dry run.
+  const snapshot = catalogSnapshot(catalog.live);
+  const snapshotFile = path.join(workDir, "catalog-snapshot.json");
+  const baseline = fs.existsSync(snapshotFile) ? JSON.parse(fs.readFileSync(snapshotFile, "utf8")) : null;
+  const settings = baseline ? metadataDiff(baseline, snapshot) : { public: [], private: [] };
+
   const previous = readPrevious();
   const previousSources = previous.has(OUTPUT_NAMES.sources) ? JSON.parse(previous.get(OUTPUT_NAMES.sources)) : null;
   const sources = JSON.parse(docs.get(OUTPUT_NAMES.sources));
@@ -123,7 +131,8 @@ function main() {
   writeAtomically(path.join(outputsDir, OUTPUT_NAMES.sources), docs.get(OUTPUT_NAMES.sources));
 
   fs.mkdirSync(workDir, { recursive: true });
-  writeAtomically(path.join(workDir, "codex-diff.md"), renderDiffMarkdown({ previousSources, sources, documents, notes }));
+  writeAtomically(path.join(workDir, "codex-diff.md"), renderDiffMarkdown({ previousSources, sources, documents, notes, settings: settings.public }));
+  writeAtomically(path.join(workDir, "catalog-snapshot.next.json"), `${JSON.stringify(snapshot, null, 1)}\n`);
 
   for (const doc of documents) {
     const provenance = doc.status === "unchanged" && doc.bytesChanged ? " (provenance only)" : "";
@@ -132,6 +141,7 @@ function main() {
   console.log(JSON.stringify({
     changed,
     unchanged_count: documents.filter(doc => doc.status === "unchanged").length,
+    catalog_settings: { baseline: baseline != null, public: settings.public.length, private: settings.private.map(c => `${c.slug}.${c.field}`) },
     sources: {
       app_version: sources.app.version,
       app_build: sources.app.build,

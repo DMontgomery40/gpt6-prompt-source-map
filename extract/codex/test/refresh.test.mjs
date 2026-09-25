@@ -6,6 +6,7 @@ import { modulesMarkdown } from "../lib/documents.mjs";
 import { callExtracted, declaratorName, enclosingFunction, innermostLiteral, literalsOf } from "../lib/js-scan.mjs";
 import { privacyScan } from "../lib/privacy.mjs";
 import { lineDiff, renderDiffMarkdown, semanticDiff } from "../lib/semantic-diff.mjs";
+import { catalogSnapshot, metadataDiff } from "../lib/catalog-metadata.mjs";
 
 test("lexer separates regex literals, division and nested templates", () => {
   const src = "var a=/[`'\"]/g,b=`x${`y`}z`,c=4/2/1,d='q';";
@@ -74,6 +75,23 @@ test("semantic diff ignores provenance churn and reports prompt edits", () => {
   assert.deepEqual(lineDiff(changed.changes[0].before, changed.changes[0].after), ["  Keep silent.", "- Do not greet.", "+ Greet warmly."]);
 });
 
+test("CLI prompt pages diff per area and prompt, ignoring provenance and headings inside prompts", () => {
+  const page = (tag, sha, rule) => [
+    "# Codex CLI prompts", "", `Source: openai/codex \`${tag}\`.`, "", "Prompt templates compiled into the CLI.", "",
+    "# Auto-review (guardian)", "",
+    "## Policy template", "", `Source: \`codex-rs/prompts/templates/guardian/policy_template.md\`, SHA-256 \`${sha}\`.`, "",
+    "```text", "# Security Policy", rule, "```", "",
+    "## Policy", "", "Source: `codex-rs/prompts/templates/guardian/policy.md`.", "", "```text", "Be careful.", "```", ""
+  ].join("\n");
+  for (const name of ["codex-cli-prompts.md", "codex-cli-bundled-skills.md"]) {
+    const before = new Map([[name, page("rust-v0.155.0", "aaa", "Deny by default.")]]);
+    assert.deepEqual(semanticDiff(before, new Map([[name, page("rust-v0.158.0", "bbb", "Deny by default.")]])).map(d => d.status), ["unchanged"]);
+    const [changed] = semanticDiff(before, new Map([[name, page("rust-v0.155.0", "aaa", "{{ extra_policy }}")]]));
+    assert.equal(changed.status, "changed");
+    assert.deepEqual(changed.changes.map(c => c.key), ["Auto-review (guardian) › Policy template"]);
+  }
+});
+
 test("privacy scan refuses paths, e-mail, tokens and the account identity", () => {
   const scan = (text, identity) => () => privacyScan(new Map([["x.md", text]]), { identity });
   assert.doesNotThrow(scan("Treat {{ user_first_name }} as the user's name."));
@@ -98,4 +116,23 @@ test("the diff summary is empty when nothing changed semantically", () => {
   assert.equal(renderDiffMarkdown({ previousSources, sources, documents: unchanged, notes: [] }), "");
   const added = renderDiffMarkdown({ previousSources, sources: { ...sources, catalog: { ...sources.catalog, models: ["m", "n"] } }, documents: unchanged, notes: [] });
   assert.match(added, /Models added to the live catalog: `n`/);
+});
+
+test("catalog settings: public values, private names only, unknown fields private, prompts and account keys ignored", () => {
+  const model = over => ({ slug: "gpt-6-astra", base_instructions: "A", model_messages: { x: "B" }, context_window: 400000,
+    upgrade: { account_id: "acct-1", message: "Try Pro" }, visibility: "list", ...over });
+  const before = catalogSnapshot([model({})]);
+  assert.deepEqual(Object.keys(before["gpt-6-astra"]), ["context_window", "upgrade", "visibility"]);
+  assert.ok(!JSON.stringify(before).includes("acct-1"));
+  const after = catalogSnapshot([model({ base_instructions: "changed", context_window: 1000000,
+    upgrade: { account_id: "acct-2", message: "Try Max" }, brand_new_field: 1 })]);
+  const diff = metadataDiff(before, after);
+  assert.deepEqual(diff.public, [{ slug: "gpt-6-astra", field: "context_window", before: "400000", after: "1000000" }]);
+  assert.deepEqual(diff.private, [{ slug: "gpt-6-astra", field: "brand_new_field" }, { slug: "gpt-6-astra", field: "upgrade" }]);
+  assert.deepEqual(metadataDiff(before, catalogSnapshot([model({ upgrade: { account_id: "acct-9", message: "Try Pro" } })])), { public: [], private: [] });
+
+  const sources = { app: {}, cli: {}, catalog: { models: ["gpt-6-astra"], fetched_at: "t" } };
+  const text = renderDiffMarkdown({ previousSources: sources, sources, documents: [], notes: [], settings: diff.public });
+  assert.match(text, /## Model settings\n\n- `gpt-6-astra` `context_window`: `400000` → `1000000`/);
+  assert.equal(renderDiffMarkdown({ previousSources: sources, sources, documents: [], notes: [], settings: [] }), "");
 });

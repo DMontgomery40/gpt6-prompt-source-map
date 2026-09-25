@@ -288,11 +288,23 @@
    "documented",
    "auth-providers"
   ],
-  "config:model_providers.<id>.gateway_oauth.delivery.kind": [
+  "config:model_providers.<id>.gateway_oauth": [
    "undocumented",
    "auth-providers"
   ],
-  "config:model_providers.<id>.gateway_oauth": [
+  "config:model_providers.<id>.gateway_oauth.authorization_url": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.client_id": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.delivery": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.delivery.kind": [
    "undocumented",
    "auth-providers"
   ],
@@ -300,7 +312,23 @@
    "undocumented",
    "auth-providers"
   ],
-  "config:model_providers.<id>.gateway_oauth.authorization_url": [
+  "config:model_providers.<id>.gateway_oauth.delivery.scheme": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.redirect_port": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.resource": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.scopes": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.token_url": [
    "undocumented",
    "auth-providers"
   ],
@@ -312,8 +340,9 @@
    "undocumented",
    "auth-providers"
   ],
-  "config:model_providers.<id>.gateway_oauth.client_id": [
+  "config:model_providers.<id>.model_catalog_url": [
    "undocumented",
+   "model-reasoning",
    "auth-providers"
   ],
   "config:model_providers.<id>.name": [
@@ -501,9 +530,10 @@
    "prompt-instructions",
    "sandbox-approvals"
   ],
-  "config:model_providers.<id>.gateway_oauth.delivery.scheme": [
+  "config:auto_review.extra_policy": [
    "undocumented",
-   "auth-providers"
+   "prompt-instructions",
+   "sandbox-approvals"
   ],
   "config:auto_review.policy": [
    "documented",
@@ -683,9 +713,9 @@
    "documented",
    "sandbox-approvals"
   ],
-  "config:model_providers.<id>.gateway_oauth.redirect_port": [
-   "undocumented",
-   "auth-providers"
+  "config:windows.sandbox": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:mcp_enterprise_managed_auth": [
    "undocumented",
@@ -890,9 +920,9 @@
   "config:features": [
    "documented"
   ],
-  "config:model_providers.<id>.gateway_oauth.delivery": [
+  "config:features.agent_message_board": [
    "undocumented",
-   "auth-providers"
+   "stage-under-development"
   ],
   "config:features.analytics_plan_history": [
    "undocumented",
@@ -996,9 +1026,9 @@
    "documented",
    "built-in-tools"
   ],
-  "config:model_providers.<id>.gateway_oauth.scopes": [
+  "config:features.code_mode.experimental_show_cell_overhead": [
    "undocumented",
-   "auth-providers"
+   "built-in-tools"
   ],
   "config:features.code_mode_buffered_exec": [
    "undocumented",
@@ -1122,9 +1152,9 @@
    "undocumented",
    "stage-under-development"
   ],
-  "config:windows.sandbox": [
-   "documented",
-   "sandbox-approvals"
+  "config:features.daemon_auto_start": [
+   "undocumented",
+   "stage-stable"
   ],
   "config:features.default_mode_request_user_input": [
    "undocumented",
@@ -1226,9 +1256,11 @@
    "stage-under-development",
    "built-in-tools"
   ],
-  "config:features.agent_message_board": [
+  "config:features.guardian_reuse_parent_compaction": [
    "undocumented",
-   "stage-under-development"
+   "stage-stable",
+   "sandbox-approvals",
+   "memory-context"
   ],
   "config:features.guardianv2": [
    "undocumented",
@@ -1291,9 +1323,10 @@
    "undocumented",
    "sandbox-approvals"
   ],
-  "config:model_providers.<id>.gateway_oauth.token_url": [
+  "config:features.guardianv2.thread_context": [
    "undocumented",
-   "auth-providers"
+   "stage-stable",
+   "sandbox-approvals"
   ],
   "config:features.guardianv2.transcript": [
    "undocumented"
@@ -1438,9 +1471,9 @@
    "undocumented",
    "multi-agent"
   ],
-  "config:features.code_mode.experimental_show_cell_overhead": [
+  "config:features.multi_agent_v2.disable_direct_message": [
    "undocumented",
-   "built-in-tools"
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.enabled": [
    "undocumented",
@@ -1660,9 +1693,9 @@
    "stage-under-development",
    "built-in-tools"
   ],
-  "config:auto_review.extra_policy": [
+  "config:features.prefer_mxc": [
    "undocumented",
-   "prompt-instructions",
+   "stage-under-development",
    "sandbox-approvals"
   ],
   "config:features.prevent_idle_sleep": [
@@ -1964,10 +1997,10 @@
    "stage-stable",
    "built-in-tools"
   ],
-  "config:model_providers.<id>.model_catalog_url": [
+  "config:features.transcript_v2": [
    "undocumented",
-   "model-reasoning",
-   "auth-providers"
+   "telemetry-storage",
+   "ui"
   ],
   "config:features.tui_app_server": [
    "undocumented",
@@ -2517,20 +2550,19 @@
   "config:orchestrator": [
    "undocumented"
   ],
-  "config:model_providers.<id>.gateway_oauth.resource": [
+  "config:orchestrator.mcp": [
    "undocumented",
-   "auth-providers"
+   "mcp-plugins"
   ],
   "config:orchestrator.mcp.enabled": [
    "undocumented",
    "mcp-plugins",
    "multi-agent"
   ],
-  "config:features.guardian_reuse_parent_compaction": [
+  "config:orchestrator.skills": [
    "undocumented",
-   "stage-stable",
-   "sandbox-approvals",
-   "memory-context"
+   "legacy",
+   "mcp-plugins"
   ],
   "config:orchestrator.skills.enabled": [
    "undocumented",
@@ -3317,39 +3349,35 @@
    "undocumented",
    "ui"
   ],
-  "config:features.guardianv2.thread_context": [
+  "config:tui.effects": [
    "undocumented",
-   "stage-stable",
-   "sandbox-approvals"
-  ],
-  "config:features.multi_agent_v2.disable_direct_message": [
-   "undocumented",
-   "multi-agent"
-  ],
-  "config:features.prefer_mxc": [
-   "undocumented",
-   "stage-under-development",
-   "sandbox-approvals"
-  ],
-  "config:features.daemon_auto_start": [
-   "undocumented",
-   "stage-stable"
-  ],
-  "config:features.transcript_v2": [
-   "undocumented",
-   "telemetry-storage",
    "ui"
   ],
-  "config:orchestrator.mcp": [
+  "config:tui.effects.effort": [
    "undocumented",
-   "mcp-plugins"
-  ],
-  "config:orchestrator.skills": [
-   "undocumented",
-   "legacy",
-   "mcp-plugins"
+   "ui"
   ],
   "config:tui.effects.progress": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.shimmer": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.starfield": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.title": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.welcome": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.fullscreen_transcript": [
    "undocumented",
    "ui"
   ],
@@ -3392,23 +3420,23 @@
    "documented",
    "ui"
   ],
-  "config:tui.effects": [
+  "config:tui.rendering": [
    "undocumented",
    "ui"
   ],
-  "config:tui.effects.shimmer": [
+  "config:tui.rendering.lists": [
    "undocumented",
    "ui"
   ],
-  "config:tui.effects.effort": [
+  "config:tui.rendering.math": [
    "undocumented",
    "ui"
   ],
-  "config:tui.effects.title": [
+  "config:tui.rendering.mermaid": [
    "undocumented",
    "ui"
   ],
-  "config:tui.effects.starfield": [
+  "config:tui.rendering.tables": [
    "undocumented",
    "ui"
   ],
@@ -3424,7 +3452,7 @@
    "undocumented",
    "ui"
   ],
-  "config:tui.fullscreen_transcript": [
+  "config:tui.show_server_version_notice": [
    "undocumented",
    "ui"
   ],
@@ -3457,24 +3485,24 @@
    "documented",
    "ui"
   ],
-  "config:tui.effects.welcome": [
-   "undocumented",
-   "ui"
+  "config:cloud": [
+   "undocumented"
   ],
-  "config:tui.rendering": [
+  "config:cloud.skills": [
    "undocumented",
-   "ui"
+   "mcp-plugins"
   ],
-  "config:tui.rendering.mermaid": [
+  "config:cloud.skills.enabled": [
    "undocumented",
-   "ui"
+   "mcp-plugins"
   ],
-  "config:tui.rendering.tables": [
+  "config:model_post_turn_compact_threshold_percent": [
    "undocumented",
-   "ui"
+   "model-reasoning",
+   "memory-context"
   ],
-  "config:tui.rendering.lists": [
-   "undocumented",
+  "config:tui.keymap": [
+   "documented",
    "ui"
   ],
   "config:tui.keymap.agents": [
@@ -3697,8 +3725,9 @@
    "documented",
    "ui"
   ],
-  "config:cloud": [
-   "undocumented"
+  "config:tui.keymap.global": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.clear_terminal": [
    "documented",
@@ -3708,13 +3737,13 @@
    "documented",
    "ui"
   ],
-  "config:tui.show_server_version_notice": [
-   "undocumented",
+  "config:tui.keymap.global.find_transcript": [
+   "documented",
    "ui"
   ],
-  "config:cloud.skills": [
-   "undocumented",
-   "mcp-plugins"
+  "config:tui.keymap.global.focus_activity": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.open_agents": [
    "documented",
@@ -3800,9 +3829,9 @@
    "documented",
    "ui"
   ],
-  "config:cloud.skills.enabled": [
+  "config:tui.keymap.pager": [
    "undocumented",
-   "mcp-plugins"
+   "ui"
   ],
   "config:tui.keymap.pager.close": [
    "documented",
@@ -3812,7 +3841,7 @@
    "documented",
    "ui"
   ],
-  "config:tui.keymap.global": [
+  "config:tui.keymap.pager.find": [
    "documented",
    "ui"
   ],
@@ -4227,10 +4256,11 @@
    "rejected",
    "built-in-tools"
   ],
-  "config:model_post_turn_compact_threshold_percent": [
-   "undocumented",
-   "model-reasoning",
-   "memory-context"
+  "config:windows.sandbox_private_desktop": [
+   "documented",
+   "rejected",
+   "sandbox-approvals",
+   "ui"
   ],
   "config:windows_wsl_setup_acknowledged": [
    "documented",
@@ -5038,36 +5068,6 @@
    "documented",
    "requirements",
    "sandbox-approvals"
-  ],
-  "config:tui.keymap": [
-   "documented",
-   "ui"
-  ],
-  "config:tui.rendering.math": [
-   "undocumented",
-   "ui"
-  ],
-  "config:tui.keymap.pager": [
-   "undocumented",
-   "ui"
-  ],
-  "config:tui.keymap.global.find_transcript": [
-   "documented",
-   "ui"
-  ],
-  "config:windows.sandbox_private_desktop": [
-   "documented",
-   "rejected",
-   "sandbox-approvals",
-   "ui"
-  ],
-  "config:tui.keymap.global.focus_activity": [
-   "documented",
-   "ui"
-  ],
-  "config:tui.keymap.pager.find": [
-   "documented",
-   "ui"
   ]
  }
 }

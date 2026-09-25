@@ -208,6 +208,35 @@ export const categories = [
     ]
   },
   {
+    label: "Codex CLI prompts",
+    files: [
+      {
+        path: "outputs/codex-cli-prompts.md",
+        anchor: "codex-cli-prompts-md",
+        slug: "codex-cli-prompts",
+        format: "markdown",
+        title: "CLI prompt templates",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/codex-cli-bundled-skills.md",
+        anchor: "codex-cli-bundled-skills-md",
+        slug: "codex-cli-bundled-skills",
+        format: "markdown",
+        title: "CLI bundled skills",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/codex-cli-prompts.json",
+        anchor: "codex-cli-prompts-json",
+        slug: "codex-cli-prompt-provenance",
+        format: "source",
+        title: "CLI prompt provenance",
+        defaultOpen: false
+      }
+    ]
+  },
+  {
     label: "Observed runtime and tools",
     files: [
       {

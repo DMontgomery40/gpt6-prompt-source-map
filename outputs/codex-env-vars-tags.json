@@ -361,6 +361,11 @@
    "undocumented",
    "cli"
   ],
+  "env:CODEX_DAEMON_TELEMETRY_HANDOFF": [
+   "undocumented",
+   "cli",
+   "telemetry-storage"
+  ],
   "env:LOG_FORMAT": [
    "undocumented",
    "cli",
@@ -637,6 +642,10 @@
    "desktop-app",
    "sandbox-approvals"
   ],
+  "env:CODEX_DESKTOP_RELAUNCH_OPEN_EVENTS": [
+   "undocumented",
+   "desktop-app"
+  ],
   "env:CODEX_ELECTRON_AGENT_RUN_ID": [
    "undocumented",
    "desktop-app"
@@ -698,6 +707,11 @@
   "env:CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": [
    "undocumented",
    "desktop-app"
+  ],
+  "env:CODEX_TECTONIC_PATH": [
+   "undocumented",
+   "desktop-app",
+   "telemetry-storage"
   ],
   "env:CODEX_TRACE_SHORTCUT": [
    "undocumented",
@@ -1110,6 +1124,10 @@
    "desktop-app"
   ],
   "env:NODE_ENV": [
+   "undocumented",
+   "desktop-app"
+  ],
+  "env:NODE_OPTIONS": [
    "undocumented",
    "desktop-app"
   ],
@@ -1600,24 +1618,6 @@
    "undocumented",
    "desktop-app",
    "not-in-build"
-  ],
-  "env:CODEX_DESKTOP_RELAUNCH_OPEN_EVENTS": [
-   "undocumented",
-   "desktop-app"
-  ],
-  "env:NODE_OPTIONS": [
-   "undocumented",
-   "desktop-app"
-  ],
-  "env:CODEX_TECTONIC_PATH": [
-   "undocumented",
-   "desktop-app",
-   "telemetry-storage"
-  ],
-  "env:CODEX_DAEMON_TELEMETRY_HANDOFF": [
-   "undocumented",
-   "cli",
-   "telemetry-storage"
   ]
  }
 }

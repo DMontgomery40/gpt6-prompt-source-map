@@ -125,9 +125,11 @@ for (const name of ["codex-config", "codex-env-vars"]) {
     }
   });
   await Promise.all(workers);
-  const used = new Set(Object.values(items).flat());
-  const vocabulary = [...topics, ...STATUS].filter(t => used.has(t.id)).map(t => ({ ...t, count: Object.values(items).filter(list => list.includes(t.id)).length }));
-  writeFileSync(path.join(repo, "outputs", `${name}-tags.json`), `${JSON.stringify({ taxonomy_version: taxonomyVersion, threshold: THRESHOLD, tags: vocabulary, items }, null, 1)}\n`);
+  // Workers finish out of order; write entries in record order so reruns don't churn the file.
+  const ordered = Object.fromEntries(records.map(record => [record.id, items[record.id]]));
+  const used = new Set(Object.values(ordered).flat());
+  const vocabulary = [...topics, ...STATUS].filter(t => used.has(t.id)).map(t => ({ ...t, count: Object.values(ordered).filter(list => list.includes(t.id)).length }));
+  writeFileSync(path.join(repo, "outputs", `${name}-tags.json`), `${JSON.stringify({ taxonomy_version: taxonomyVersion, threshold: THRESHOLD, tags: vocabulary, items: ordered }, null, 1)}\n`);
   console.log(`${name}: ${records.length} entries, tags: ${vocabulary.map(t => `${t.id} ${t.count}`).join(", ")}`);
 }
 writeFileSync(cacheFile, JSON.stringify(cache));

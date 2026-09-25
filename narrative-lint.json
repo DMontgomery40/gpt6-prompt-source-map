@@ -1,5 +1,5 @@
 {
-  "_why": "Pages whose numbers are computed by a generator on every refresh, and dated snapshots whose numbers are historical record. Every other page is linted: typed statistics must be {{count:…}} or {{value:…}} tokens.",
+  "_why": "Pages whose numbers are computed by a generator on every refresh, and dated snapshots whose numbers are historical record. Every other page is linted: typed statistics must be {{count:\u2026}} or {{value:\u2026}} tokens.",
   "exempt": [
     "outputs/persistent-instructions.md",
     "outputs/gpt-6-astra-base-instructions.md",
@@ -18,6 +18,8 @@
     "outputs/aeon-tools-and-tool-calls.md",
     "outputs/binwalk-aeon-daybreak-report.md",
     "outputs/aeon-core-instructions.md",
-    "outputs/aeon-assembled-instructions.md"
+    "outputs/aeon-assembled-instructions.md",
+    "outputs/codex-cli-prompts.md",
+    "outputs/codex-cli-bundled-skills.md"
   ]
 }

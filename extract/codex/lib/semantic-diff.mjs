@@ -10,9 +10,12 @@ const VOLATILE_JSON_KEYS = new Set([
 
 // Headings that open a unit, per document kind. Headings inside fenced code
 // blocks never count.
+// Two-level documents: a "# group" heading, then one "## item" unit per prompt.
+const TWO_LEVEL = new Set(["other-catalog-models.md", "codex-cli-prompts.md", "codex-cli-bundled-skills.md"]);
+
 function unitHeading(name, line) {
   if (name === "gpt-6-instruction-modules.md") return /^## [a-z_]+\.[a-z0-9_.]+$/.test(line);
-  if (name === "other-catalog-models.md") return /^#{1,2} \S/.test(line);
+  if (TWO_LEVEL.has(name)) return /^#{1,2} \S/.test(line);
   return /^# \S/.test(line);
 }
 
@@ -39,8 +42,8 @@ export function markdownUnits(name, text) {
     } else if (unitHeading(name, line)) {
       flush();
       const heading = line.replace(/^#+ /, "");
-      if (name === "other-catalog-models.md" && line.startsWith("# ")) parent = heading;
-      key = name === "other-catalog-models.md" && line.startsWith("## ") ? `${parent} › ${heading}` : heading;
+      if (TWO_LEVEL.has(name) && line.startsWith("# ")) parent = heading;
+      key = TWO_LEVEL.has(name) && line.startsWith("## ") ? `${parent} › ${heading}` : heading;
       lines = [];
       continue;
     }
@@ -146,12 +149,12 @@ const clip = value => (value.length > 300 ? `${value.slice(0, 300)}…` : value)
 const fenceFor = lines => "`".repeat(Math.max(3, 1 + Math.max(0, ...lines.flatMap(line => [...line.matchAll(/`+/g)].map(match => match[0].length)))));
 
 // Markdown summary of semantic changes; the empty string when there are none.
-export function renderDiffMarkdown({ previousSources, sources, documents, notes }) {
+export function renderDiffMarkdown({ previousSources, sources, documents, notes, settings = [] }) {
   const beforeModels = previousSources?.catalog?.models ?? [];
   const added = sources.catalog.models.filter(slug => previousSources && !beforeModels.includes(slug));
   const removed = beforeModels.filter(slug => !sources.catalog.models.includes(slug));
   const changed = documents.filter(doc => doc.status !== "unchanged");
-  if (!changed.length && !added.length && !removed.length) return "";
+  if (!changed.length && !added.length && !removed.length && !settings.length) return "";
 
   const lines = ["# Codex refresh diff", ""];
   const pairs = [
@@ -166,8 +169,19 @@ export function renderDiffMarkdown({ previousSources, sources, documents, notes 
   if (added.length) lines.push(`- Models added to the live catalog: ${added.map(slug => `\`${slug}\``).join(", ")}`);
   if (removed.length) lines.push(`- Models removed from the live catalog: ${removed.map(slug => `\`${slug}\``).join(", ")}`);
   for (const note of notes) lines.push(`- ${note}`);
+  if (settings.length) {
+    lines.push("", "## Model settings", "");
+    for (const c of settings) lines.push(`- \`${c.slug}\` \`${c.field}\`: \`${clip(c.before)}\` → \`${clip(c.after)}\``);
+  }
+  lines.push("", renderChangedDocuments(changed));
+  return `${lines.join("\n").trimEnd()}\n`;
+}
 
-  lines.push("", "## Changed documents", "");
+// The "Changed documents" section alone, for callers with their own header.
+export function renderChangedDocuments(documents) {
+  const changed = documents.filter(doc => doc.status !== "unchanged");
+  if (!changed.length) return "";
+  const lines = ["## Changed documents", ""];
   for (const doc of changed) {
     const units = doc.changes.length ? ` (${doc.changes.map(change => `${change.kind}: ${change.key}`).join("; ")})` : "";
     lines.push(`- \`outputs/${doc.name}\`: ${doc.status}${units}`);

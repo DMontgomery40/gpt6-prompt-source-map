@@ -8,6 +8,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "outputs"
 FILES = ["codex-config.json", "codex-env-vars.json", "codex-config.md", "codex-env-vars.md"]
+# Written by 07_cli_prompts.mjs: leak patterns, JSON shape and exact-match provenance only.
+CLI_PROMPT_FILES = ["codex-cli-prompts.md", "codex-cli-bundled-skills.md", "codex-cli-prompts.json"]
 LEAK_PATTERNS = {
     "home path": re.compile(r"/Users/|/home/[a-z]"),
     "local username": re.compile(r"davidmontgomery|dmontg", re.I),
@@ -16,6 +18,7 @@ LEAK_PATTERNS = {
     "clap env value": re.compile(r"\[env: [A-Z0-9_]+=[^\]]+\]"),
     "bearer token": re.compile(r"Bearer [A-Za-z0-9._-]{20,}"),
 }
+re_sha = re.compile(r"[0-9a-f]{64}")
 REQUIRED = ("id", "title", "group", "kind", "text", "when", "documented", "details", "provenance")
 
 errors = []
@@ -45,6 +48,17 @@ for name in FILES:
         if it["documented"] and not it["details"].get("docs_urls"):
             errors.append(f"{name}: {it['id']} documented without a docs URL")
     print(f"{name}: {len(doc['items'])} items, {sum(i['documented'] for i in doc['items'])} documented")
+
+for name in CLI_PROMPT_FILES:
+    text = (OUT / name).read_text()
+    for label, rx in LEAK_PATTERNS.items():
+        for m in rx.finditer(text):
+            errors.append(f"{name}: possible {label} leak: {text[max(0, m.start() - 40): m.end() + 20]!r}")
+cli = json.loads((OUT / "codex-cli-prompts.json").read_text())
+for it in cli["items"]:
+    if not (it.get("source") and it.get("executable") and re_sha.fullmatch(it.get("sha256", ""))):
+        errors.append(f"codex-cli-prompts.json: {it.get('id')} lacks source, executable or sha256")
+print(f"codex-cli-prompts.json: {len(cli['items'])} items verified in {cli['source']['cli_version']}")
 
 if errors:
     print(f"{len(errors)} problem(s):")
