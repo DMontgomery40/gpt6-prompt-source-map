@@ -656,10 +656,10 @@ test("narrative numbers come from data tokens, and an unknown field fails the bu
   await withFixture(async (root, outFile) => {
     await writeFile(path.join(root, "outputs/current.json"), JSON.stringify({
       version: "1.0.0",
-      tools: { cli: 31, betas: ["a-1", "b-2"] },
+      tools: { cli: 31, betas: ["a-1", "b-2"], none: [] },
       items: [
-        { id: "a", kind: "setting", documented: "https://x", details: { hidden: true } },
-        { id: "b", kind: "setting", documented: null, group: "Safe env keys" },
+        { id: "a", kind: "setting", documented: "https://x", details: { hidden: true, path: "a.b", name: "x" } },
+        { id: "b", kind: "setting", documented: null, group: "Safe env keys", details: { path: "b", name: "x" } },
         { id: "c", kind: "env-var", documented: null }
       ]
     }));
@@ -668,8 +668,20 @@ test("narrative numbers come from data tokens, and an unknown field fails the bu
     const html = await readFile(outFile, "utf8");
     assert.match(html, /2 settings, 1 undocumented, 1 hidden, 1 safe; 31 tools; betas a-1, b-2\./);
 
-    await writeFile(path.join(root, "outputs/current.md"), "# Title\n\n{{value:current tools.missing}}\n");
-    await assert.rejects(buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog }), /tools\.missing is not in outputs\/current\.json/);
+    await writeFile(path.join(root, "outputs/current.md"), "# Title\n\n{{count:current kind!=setting}} other, {{count:current details.path=*.*}} nested, {{count:current kind=setting details.path!=*.*}} top; {{distinct:current details.name kind=setting}} names; {{value:current tools.betas as=code}}; {{value:current tools.none as=list}}.\n");
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    assert.match(await readFile(outFile, "utf8"), /1 other, 1 nested, 1 top; 1 names; <code>a-1<\/code> and <code>b-2<\/code>; none\./);
+
+    for (const [bad, message] of [
+      ["{{value:current tools.missing}}", /tools\.missing is not in outputs\/current\.json/],
+      ["{{value:current tools.cli as=table}}", /at most one as=code, as=list or as=raw/],
+      ["{{distinct:current details.nowhere}}", /no record has details\.nowhere/],
+      ["{{count:current kind}}", /filters are path=value/],
+      ["{{count:absent kind=setting}}", /needs outputs\/absent\.json/]
+    ]) {
+      await writeFile(path.join(root, "outputs/current.md"), `# Title\n\n${bad}\n`);
+      await assert.rejects(buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog }), message);
+    }
   });
 });
 

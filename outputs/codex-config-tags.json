@@ -1,7 +1,98 @@
 {
- "taxonomy_version": "b35b1ec1c0c7",
+ "taxonomy_version": "02977bfe7901",
  "threshold": 0.7,
  "tags": [
+  {
+   "id": "persistent-mode",
+   "label": "Persistent mode",
+   "kind": "topic",
+   "definition": "Settings that turn on Codex persistent mode, gate the tools it relies on, or tune its long-running follow-up behavior. Counts: the main thread's reasoning-effort key and its managed new-thread default (the value `persistent` enables the mode); model catalogs that supply persistent-mode instructions or tools; async user-message tools (send_user_message_async, send_message_to_user_async); clock, clock.sleep and current-time reminder settings; automatic idle continuation and goals; automations; keeping the machine awake during a running turn. Applies in any group, including features.* flags and requirements: variants. Does NOT include reasoning effort for guardian or reviewer sessions, sub-agents or plan mode; other model, verbosity, provider or service-tier settings; settings that merely say persistent or persistence (saved approvals, transcript history); async hooks; or keybindings.",
+   "count": 22
+  },
+  {
+   "id": "prompt-instructions",
+   "label": "Prompt and instructions",
+   "kind": "topic",
+   "definition": "Settings that supply, replace or toggle text injected into the model's context: base or developer instructions, instruction files, AGENTS.md / project-doc discovery and size limits, compaction or startup prompts, and switches that include or omit context blocks (environment, permissions, apps, collaboration-mode instructions). It applies in any group, including features.* flags and requirements: variants. It does not cover settings that only change model behavior without adding text, or that store transcripts.",
+   "count": 33
+  },
+  {
+   "id": "model-reasoning",
+   "label": "Model and reasoning",
+   "kind": "topic",
+   "definition": "Settings that choose which model runs or how it thinks and answers: model slug, reasoning effort and summaries, verbosity, context window and auto-compaction limit, service tier, model catalogs, and per-role or managed defaults for these. It applies in any group, including features.* flags and requirements: variants. It does not cover provider endpoints, credentials or keybindings that change effort.",
+   "count": 33
+  },
+  {
+   "id": "auth-providers",
+   "label": "Auth, providers and network",
+   "kind": "topic",
+   "definition": "Settings and environment variables for signing in and reaching model backends: login method and credential storage, API keys and access tokens, model provider definitions and base URLs, cloud-provider credentials (such as AWS/Bedrock), HTTP proxies, CA certificates and request headers. It applies in any group, including requirements: variants. It does not cover the sandbox's network allowlist for commands the agent runs, or MCP-server-specific auth.",
+   "count": 89
+  },
+  {
+   "id": "sandbox-approvals",
+   "label": "Sandbox and approvals",
+   "kind": "topic",
+   "definition": "Settings that limit or approve what the agent may execute or touch: sandbox mode and permission profiles, filesystem and network access for commands, approval policy and approvals reviewer (including guardian auto-review), exec-policy / prefix rules, shell environment policy, and variables Codex sets to mark or escalate sandboxed processes. It applies in any group, including features.* flags and requirements: variants. It does not cover keybindings in approval dialogs or generic terminal-detection variables.",
+   "count": 166
+  },
+  {
+   "id": "built-in-tools",
+   "label": "Built-in tools",
+   "kind": "topic",
+   "definition": "Settings for tools that ship with Codex and that the model calls directly: shell / unified exec and background terminals, apply_patch, plan updates, web search, browser use, computer use, image generation and viewing, JS REPL and code mode, clock/sleep and async user-message tools, and tool discovery or suggestion. It applies in any group, including features.* flags and requirements: variants. It does not cover external MCP servers or approval policy in general.",
+   "count": 166
+  },
+  {
+   "id": "mcp-plugins",
+   "label": "MCP, plugins and skills",
+   "kind": "topic",
+   "definition": "Settings for extending Codex with external or packaged capabilities: MCP server definitions (command, URL, auth, timeouts, per-tool limits), plugins and marketplaces, skills, and connected apps. It applies in any group, including features.* flags and requirements: variants. It does not cover tools built into Codex such as web search or shell, or sub-agent coordination.",
+   "count": 169
+  },
+  {
+   "id": "multi-agent",
+   "label": "Multi-agent",
+   "kind": "topic",
+   "definition": "Settings for spawning and coordinating sub-agents: multi-agent features, agent roles and nicknames, thread and depth limits, default sub-agent model or effort, and orchestrator behavior. It applies in any group, including features.* flags and requirements: variants. It does not cover skills or plugins by themselves, or IDs Codex exports to child processes.",
+   "count": 32
+  },
+  {
+   "id": "memory-context",
+   "label": "Memory, context and compaction",
+   "kind": "topic",
+   "definition": "Settings that decide what the model remembers across turns and sessions: generated memories, context-window budgets and reminders, automatic compaction and context rollover, and history/notes carried across windows. It applies in any group, including features.* flags and requirements: variants. It does not cover saving transcripts to disk for the user, telemetry, or clock and current-time reminder settings.",
+   "count": 48
+  },
+  {
+   "id": "hooks-notifications",
+   "label": "Hooks and notifications",
+   "kind": "topic",
+   "definition": "Settings for lifecycle hooks (commands or prompts that run on events, their matchers, trust state and timeouts) and for notifying the user (notify commands, desktop or terminal notifications and when they fire). It applies in any group, including requirements: variants. It does not cover telemetry exporters, UI features that only display status, or current-time reminders injected into the model's context.",
+   "count": 36
+  },
+  {
+   "id": "realtime-voice",
+   "label": "Realtime voice",
+   "kind": "topic",
+   "definition": "Settings for realtime speech sessions and audio devices: realtime transport, model, voice, startup instructions or context, and microphone or speaker selection. It applies in any group, including features.* flags. It does not cover ordinary streaming timeouts or terminal sounds.",
+   "count": 15
+  },
+  {
+   "id": "telemetry-storage",
+   "label": "Telemetry, logs and storage",
+   "kind": "topic",
+   "definition": "Settings and environment variables for observability and local state: OpenTelemetry exporters and trace context, analytics and feedback, log levels and formats, transcript/history persistence, rollout and session files, and Codex home or database paths. It applies in any group, including features.* flags and requirements: variants. It does not cover the model's memory of past sessions or lifecycle hooks.",
+   "count": 104
+  },
+  {
+   "id": "ui",
+   "label": "Terminal and desktop UI",
+   "kind": "topic",
+   "definition": "Settings and environment variables that change how the terminal UI or desktop app looks and behaves for the user: TUI options, keymaps and vim mode, themes and rendering, notices and prompts, desktop-app window or runtime behavior, and terminal detection. It applies in any group. It does not cover what the model can do, or third-party library variables that only happen to be read by the desktop bundle.",
+   "count": 224
+  },
   {
    "id": "documented",
    "label": "Documented",
@@ -64,574 +155,776 @@
   }
  ],
  "items": {
-  "config:chatgpt_base_url": [
-   "documented"
-  ],
-  "config:model": [
-   "documented"
-  ],
-  "config:model_auto_compact_token_limit": [
-   "documented"
-  ],
-  "config:model_auto_compact_token_limit_scope": [
-   "documented"
+  "config:model_provider": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_catalog_json": [
-   "documented"
+   "documented",
+   "model-reasoning",
+   "persistent-mode"
+  ],
+  "config:model_auto_compact_token_limit": [
+   "documented",
+   "model-reasoning",
+   "memory-context"
   ],
   "config:model_context_window": [
-   "documented"
+   "documented",
+   "model-reasoning",
+   "memory-context"
   ],
-  "config:model_provider": [
-   "documented"
+  "config:model": [
+   "documented",
+   "model-reasoning"
+  ],
+  "config:chatgpt_base_url": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>": [
-   "documented"
+  "config:model_auto_compact_token_limit_scope": [
+   "documented",
+   "model-reasoning",
+   "memory-context"
   ],
   "config:model_providers.<id>.auth": [
-   "documented"
-  ],
-  "config:model_providers.<id>.auth.args": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.auth.command": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.auth.cwd": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>.auth.refresh_interval_ms": [
-   "documented"
-  ],
-  "config:model_providers.<id>.auth.timeout_ms": [
-   "documented"
+  "config:model_providers.<id>.auth.args": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.aws": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>": [
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.auth.refresh_interval_ms": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.aws.auth_refresh": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>.aws.auth_refresh.args": [
-   "undocumented"
-  ],
-  "config:model_providers.<id>.aws.auth_refresh.command": [
-   "undocumented"
+  "config:model_providers.<id>.auth.timeout_ms": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.aws.auth_refresh.timeout_ms": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>.aws.credential_export": [
-   "undocumented"
+  "config:model_providers.<id>.aws.auth_refresh.args": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.aws.credential_export.args": [
-   "undocumented"
-  ],
-  "config:model_providers.<id>.aws.credential_export.command": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.aws.credential_export.timeout_ms": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>.aws.profile": [
-   "documented"
+  "config:model_providers.<id>.aws.credential_export": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.aws.credential_export.command": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.aws.auth_refresh.command": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.aws.region": [
-   "documented"
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.aws.profile": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.base_url": [
-   "documented"
-  ],
-  "config:model_providers.<id>.env_http_headers": [
-   "documented"
-  ],
-  "config:model_providers.<id>.env_http_headers.<header>": [
-   "undocumented"
-  ],
-  "config:model_providers.<id>.env_key": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.env_key_instructions": [
-   "documented"
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.env_key": [
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.env_http_headers": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.experimental_bearer_token": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>.http_headers": [
-   "documented"
+  "config:model_providers.<id>.env_http_headers.<header>": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.http_headers.<header>": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.name": [
-   "documented"
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.http_headers": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.query_params": [
-   "documented"
-  ],
-  "config:model_providers.<id>.query_params.<key>": [
-   "undocumented"
-  ],
-  "config:model_providers.<id>.request_max_retries": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.requires_openai_auth": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>.stream_idle_timeout_ms": [
-   "documented"
+  "config:model_providers.<id>.request_max_retries": [
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.query_params.<key>": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.stream_max_retries": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
-  "config:model_providers.<id>.supports_standalone_web_search": [
-   "documented"
+  "config:model_providers.<id>.stream_idle_timeout_ms": [
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.supports_websockets": [
-   "documented"
-  ],
-  "config:model_providers.<id>.websocket_connect_timeout_ms": [
-   "undocumented"
+   "documented",
+   "auth-providers"
   ],
   "config:model_providers.<id>.wire_api": [
-   "documented"
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.supports_standalone_web_search": [
+   "documented",
+   "auth-providers",
+   "built-in-tools"
+  ],
+  "config:model_providers.<id>.websocket_connect_timeout_ms": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:model_reasoning_effort": [
-   "documented"
-  ],
-  "config:model_reasoning_summary": [
-   "documented"
-  ],
-  "config:model_verbosity": [
-   "documented"
+   "documented",
+   "model-reasoning",
+   "persistent-mode"
   ],
   "config:openai_base_url": [
-   "documented"
+   "documented",
+   "auth-providers"
+  ],
+  "config:model_reasoning_summary": [
+   "documented",
+   "model-reasoning"
+  ],
+  "config:model_verbosity": [
+   "documented",
+   "model-reasoning"
   ],
   "config:oss_provider": [
    "documented"
+  ],
+  "config:plan_mode_reasoning_effort": [
+   "documented",
+   "model-reasoning"
+  ],
+  "config:responses_api_metadata.<key>": [
+   "undocumented"
   ],
   "config:personality": [
    "documented",
    "legacy"
   ],
-  "config:plan_mode_reasoning_effort": [
-   "documented"
+  "config:service_tier": [
+   "documented",
+   "model-reasoning"
   ],
   "config:responses_api_metadata": [
    "undocumented"
   ],
-  "config:responses_api_metadata.<key>": [
-   "undocumented"
+  "config:compact_prompt": [
+   "documented",
+   "prompt-instructions",
+   "memory-context"
   ],
   "config:review_model": [
-   "documented"
-  ],
-  "config:service_tier": [
-   "documented"
-  ],
-  "config:compact_prompt": [
-   "documented"
+   "documented",
+   "model-reasoning"
   ],
   "config:developer_instructions": [
-   "documented"
-  ],
-  "config:experimental_compact_prompt_file": [
-   "documented"
+   "documented",
+   "prompt-instructions"
   ],
   "config:include_apps_instructions": [
-   "undocumented"
-  ],
-  "config:include_collaboration_mode_instructions": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions"
   ],
   "config:include_environment_context": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions"
+  ],
+  "config:include_collaboration_mode_instructions": [
+   "undocumented",
+   "prompt-instructions"
   ],
   "config:include_permissions_instructions": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions"
+  ],
+  "config:experimental_compact_prompt_file": [
+   "documented",
+   "prompt-instructions",
+   "memory-context"
   ],
   "config:instructions": [
-   "documented"
+   "documented",
+   "prompt-instructions"
   ],
   "config:model_instructions_file": [
-   "documented"
-  ],
-  "config:project_doc_fallback_filenames": [
-   "documented"
-  ],
-  "config:project_doc_max_bytes": [
-   "documented"
+   "documented",
+   "prompt-instructions"
   ],
   "config:project_root_markers": [
    "documented"
   ],
-  "config:allow_login_shell": [
-   "documented"
+  "config:project_doc_fallback_filenames": [
+   "documented",
+   "prompt-instructions"
   ],
   "config:approval_policy": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:project_doc_max_bytes": [
+   "documented",
+   "prompt-instructions"
   ],
   "config:approval_policy.granular": [
-   "undocumented"
+   "undocumented",
+   "sandbox-approvals"
+  ],
+  "config:allow_login_shell": [
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:approval_policy.granular.mcp_elicitations": [
-   "documented"
-  ],
-  "config:approval_policy.granular.request_permissions": [
-   "documented"
-  ],
-  "config:approval_policy.granular.rules": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
   "config:approval_policy.granular.sandbox_approval": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:approval_policy.granular.rules": [
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:approval_policy.granular.request_permissions": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:approval_policy.granular.skill_approval": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
   "config:approvals_reviewer": [
-   "documented"
-  ],
-  "config:auto_review": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:auto_review.experimental_policy_template": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions",
+   "sandbox-approvals"
+  ],
+  "config:auto_review": [
+   "documented",
+   "prompt-instructions",
+   "sandbox-approvals"
   ],
   "config:auto_review.policy": [
-   "documented"
-  ],
-  "config:default_permissions": [
-   "documented"
+   "documented",
+   "prompt-instructions",
+   "sandbox-approvals"
   ],
   "config:permissions": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.description": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.extends": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:default_permissions": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.filesystem": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.filesystem.\":workspace_roots\".<subpath-or-glob>": [
-   "documented"
-  ],
-  "config:permissions.<name>.filesystem.<path-or-glob>": [
-   "documented"
-  ],
-  "config:permissions.<name>.filesystem.glob_scan_max_depth": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.allow_local_binding": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:permissions.<name>.network.allow_upstream_proxy": [
-   "documented"
+  "config:permissions.<name>.filesystem.<path-or-glob>": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.dangerously_allow_all_unix_sockets": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:permissions.<name>.network.dangerously_allow_non_loopback_proxy": [
-   "documented"
-  ],
-  "config:permissions.<name>.network.domains": [
-   "documented"
+  "config:permissions.<name>.filesystem.glob_scan_max_depth": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.domains.<pattern>": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:permissions.<name>.network.dangerously_allow_non_loopback_proxy": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.enable_socks5": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:permissions.<name>.network.enable_socks5_udp": [
-   "documented"
+  "config:permissions.<name>.network.domains": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.enabled": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:permissions.<name>.network.allow_upstream_proxy": [
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:permissions.<name>.network.enable_socks5_udp": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.mode": [
-   "documented"
-  ],
-  "config:permissions.<name>.network.proxy_url": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.socks_url": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:permissions.<name>.network.unix_sockets": [
-   "documented"
+  "config:permissions.<name>.network.proxy_url": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.network.unix_sockets.<path>": [
-   "documented"
-  ],
-  "config:permissions.<name>.workspace_roots": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:permissions.<name>.workspace_roots.<path>": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:sandbox_mode": [
-   "documented"
+  "config:permissions.<name>.network.unix_sockets": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:sandbox_workspace_write": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:sandbox_workspace_write.exclude_slash_tmp": [
-   "documented"
+  "config:permissions.<name>.workspace_roots": [
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:sandbox_workspace_write.exclude_tmpdir_env_var": [
-   "documented"
+  "config:sandbox_mode": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:sandbox_workspace_write.network_access": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:sandbox_workspace_write.exclude_tmpdir_env_var": [
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:sandbox_workspace_write.exclude_slash_tmp": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:sandbox_workspace_write.writable_roots": [
-   "documented"
-  ],
-  "config:shell_environment_policy": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:shell_environment_policy.exclude": [
    "documented",
-   "legacy"
+   "legacy",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
-  "config:shell_environment_policy.experimental_use_profile": [
-   "documented"
+  "config:shell_environment_policy": [
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:shell_environment_policy.filters": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
-  "config:shell_environment_policy.filters.<key>": [
-   "undocumented"
+  "config:shell_environment_policy.experimental_use_profile": [
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:shell_environment_policy.ignore_default_excludes": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:shell_environment_policy.filters.<key>": [
+   "undocumented",
+   "sandbox-approvals"
+  ],
+  "config:shell_environment_policy.inherit": [
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:windows.sandbox": [
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:windows": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:shell_environment_policy.include_only": [
    "documented",
-   "legacy"
-  ],
-  "config:shell_environment_policy.inherit": [
-   "documented"
-  ],
-  "config:shell_environment_policy.set": [
-   "documented"
+   "legacy",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:shell_environment_policy.set.<key>": [
-   "undocumented"
-  ],
-  "config:windows": [
-   "documented"
-  ],
-  "config:windows.sandbox": [
-   "documented"
-  ],
-  "config:windows.sandbox_private_desktop": [
-   "documented"
+   "undocumented",
+   "sandbox-approvals"
   ],
   "config:mcp_enterprise_managed_auth": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:windows.sandbox_private_desktop": [
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:shell_environment_policy.set": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:mcp_enterprise_managed_auth.idp": [
-   "undocumented"
-  ],
-  "config:mcp_enterprise_managed_auth.idp.client_id": [
-   "undocumented"
-  ],
-  "config:mcp_enterprise_managed_auth.idp.issuer": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_oauth_callback_port": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
-  "config:mcp_oauth_callback_url": [
-   "documented"
+  "config:mcp_enterprise_managed_auth.idp.client_id": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_oauth_credentials_store": [
-   "documented"
+   "documented",
+   "mcp-plugins",
+   "telemetry-storage"
   ],
-  "config:mcp_optional_startup_grace_ms": [
-   "documented"
+  "config:mcp_enterprise_managed_auth.idp.issuer": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers": [
-   "documented"
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_oauth_callback_url": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>": [
-   "undocumented"
-  ],
-  "config:mcp_servers.<id>.args": [
-   "documented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.auth": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
-  "config:mcp_servers.<id>.bearer_token_env_var": [
-   "documented"
+  "config:mcp_optional_startup_grace_ms": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.command": [
-   "documented"
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.bearer_token_env_var": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.cwd": [
-   "documented"
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.args": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.default_tools_approval_mode": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.disabled_tools": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.enabled": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.enabled_tools": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.env": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.env.<VAR>": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
-  "config:mcp_servers.<id>.env_http_headers": [
-   "documented"
+  "config:mcp_servers.<id>.enabled": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.enabled_tools": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.env": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.env_http_headers.<header>": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.env_vars": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
-  "config:mcp_servers.<id>.env_vars[].name": [
-   "undocumented"
-  ],
-  "config:mcp_servers.<id>.env_vars[].source": [
-   "undocumented"
+  "config:mcp_servers.<id>.env_http_headers": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.environment_id": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
-  "config:mcp_servers.<id>.http_headers": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.http_headers.<header>": [
-   "undocumented"
+  "config:mcp_servers.<id>.env_vars[].source": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.http_headers_helper": [
-   "documented"
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.http_headers.<header>": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.http_headers": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.name": [
    "undocumented",
-   "legacy"
+   "legacy",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.env_vars[].name": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.oauth": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.oauth.authorization_server_issuer": [
-   "undocumented"
-  ],
-  "config:mcp_servers.<id>.oauth.callback_port": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.oauth.callback_url": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.oauth.client_id": [
-   "documented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.oauth_resource": [
-   "documented"
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.oauth.callback_port": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.omit_tools_from": [
-   "undocumented"
-  ],
-  "config:mcp_servers.<id>.required": [
-   "documented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.scopes": [
-   "documented"
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.oauth.callback_url": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.startup_timeout_ms": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
-  "config:mcp_servers.<id>.startup_timeout_sec": [
-   "documented"
+  "config:mcp_servers.<id>.oauth.client_id": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.required": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.supports_parallel_tool_calls": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:mcp_servers.<id>.startup_timeout_sec": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.tool_timeout_sec": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.tools": [
-   "undocumented"
+   "documented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.tools.<tool>": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:mcp_servers.<id>.tools.<tool>.approval_mode": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
-  "config:mcp_servers.<id>.tools.<tool>.output_token_limit": [
-   "documented"
-  ],
-  "config:mcp_servers.<id>.url": [
-   "documented"
+  "config:mcp_servers.<id>.tools": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:features": [
    "documented"
   ],
+  "config:mcp_servers.<id>.url": [
+   "documented",
+   "mcp-plugins"
+  ],
   "config:features.analytics_plan_history": [
    "undocumented",
-   "stage-experimental"
+   "stage-experimental",
+   "telemetry-storage"
   ],
   "config:features.api_key_model_discovery": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "auth-providers"
   ],
-  "config:features.apply_patch_freeform": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.apply_patch_preserve_line_endings": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.apply_patch_streaming_events": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.apps": [
+  "config:mcp_servers.<id>.tools.<tool>.output_token_limit": [
    "documented",
-   "stage-stable"
+   "mcp-plugins"
   ],
   "config:features.apps_mcp_path_override": [
    "undocumented",
-   "removed"
+   "removed",
+   "mcp-plugins"
+  ],
+  "config:features.apply_patch_freeform": [
+   "undocumented",
+   "removed",
+   "built-in-tools"
+  ],
+  "config:features.apply_patch_preserve_line_endings": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
+  ],
+  "config:features.apply_patch_streaming_events": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
+  ],
+  "config:features.apps": [
+   "documented",
+   "stage-stable",
+   "mcp-plugins"
   ],
   "config:features.apps_mcp_path_override.enabled": [
-   "undocumented"
-  ],
-  "config:features.apps_mcp_path_override.path": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:features.artifact": [
    "undocumented",
    "stage-under-development"
   ],
+  "config:features.apps_mcp_path_override.path": [
+   "undocumented",
+   "mcp-plugins"
+  ],
   "config:features.auth_elicitation": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "mcp-plugins"
   ],
   "config:features.background_paginated_rollout_migration": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "telemetry-storage"
   ],
   "config:features.bedrock_setup_wizard": [
    "undocumented",
@@ -639,605 +932,752 @@
   ],
   "config:features.browser_use": [
    "undocumented",
-   "stage-stable"
-  ],
-  "config:features.browser_use_external": [
-   "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "built-in-tools"
   ],
   "config:features.browser_use_full_cdp_access": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "built-in-tools"
+  ],
+  "config:features.code_mode.default_exec_yield_time_ms": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:features.chronicle": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "memory-context"
+  ],
+  "config:features.browser_use_external": [
+   "undocumented",
+   "stage-stable",
+   "built-in-tools"
+  ],
+  "config:features.code_mode.enabled": [
+   "documented",
+   "built-in-tools"
   ],
   "config:features.code_mode": [
    "documented",
-   "stage-under-development"
-  ],
-  "config:features.code_mode.default_exec_yield_time_ms": [
-   "undocumented"
+   "stage-under-development",
+   "built-in-tools"
   ],
   "config:features.code_mode.direct_only_tool_namespaces": [
-   "documented"
+   "documented",
+   "built-in-tools"
   ],
-  "config:features.code_mode.enabled": [
-   "documented"
+  "config:features.code_mode_host.disable_in_process_fallback": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:features.code_mode.excluded_tool_namespaces": [
-   "documented"
+   "documented",
+   "built-in-tools"
   ],
-  "config:features.code_mode_buffered_exec": [
+  "config:features.code_mode_host.enabled": [
    "undocumented",
-   "removed"
+   "built-in-tools"
   ],
   "config:features.code_mode_host": [
    "undocumented",
-   "stage-stable"
-  ],
-  "config:features.code_mode_host.disable_in_process_fallback": [
-   "undocumented"
-  ],
-  "config:features.code_mode_host.enabled": [
-   "undocumented"
-  ],
-  "config:features.code_mode_interrupt": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.code_mode_only": [
-   "undocumented",
-   "stage-under-development"
+   "stage-stable",
+   "built-in-tools"
   ],
   "config:features.code_mode_prewarm": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "built-in-tools"
   ],
-  "config:features.codex_apps_mcp_2026_07_28": [
+  "config:features.code_mode_buffered_exec": [
    "undocumented",
-   "stage-under-development"
+   "removed",
+   "built-in-tools"
+  ],
+  "config:features.code_mode_interrupt": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
+  ],
+  "config:features.code_mode_only": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
   ],
   "config:features.codex_git_commit": [
    "undocumented",
    "removed"
   ],
+  "config:features.computer_use": [
+   "undocumented",
+   "stage-stable",
+   "built-in-tools"
+  ],
+  "config:features.compaction_image_budget": [
+   "undocumented",
+   "stage-stable",
+   "memory-context"
+  ],
   "config:features.codex_hooks": [
    "undocumented",
-   "legacy"
+   "legacy",
+   "hooks-notifications"
+  ],
+  "config:features.codex_apps_mcp_2026_07_28": [
+   "undocumented",
+   "stage-under-development",
+   "mcp-plugins"
   ],
   "config:features.collab": [
    "undocumented",
-   "legacy"
+   "legacy",
+   "multi-agent"
   ],
   "config:features.collaboration_modes": [
    "undocumented",
    "removed"
   ],
-  "config:features.compaction_image_budget": [
+  "config:features.content_item_kinds": [
    "undocumented",
    "stage-stable"
   ],
-  "config:features.computer_use": [
-   "undocumented",
-   "stage-stable"
+  "config:features.context_management.experimental_mode": [
+   "documented",
+   "memory-context"
   ],
-  "config:features.concurrent_reasoning_summaries": [
+  "config:features.current_time_reminder.clock_source": [
    "undocumented",
-   "stage-under-development"
+   "persistent-mode",
+   "built-in-tools"
   ],
   "config:features.connectors": [
    "undocumented",
    "legacy"
   ],
-  "config:features.content_item_kinds": [
-   "undocumented",
-   "stage-stable"
-  ],
   "config:features.context_management": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "memory-context"
   ],
-  "config:features.context_management.experimental_mode": [
-   "documented"
+  "config:features.concurrent_reasoning_summaries": [
+   "undocumented",
+   "stage-under-development",
+   "model-reasoning"
   ],
   "config:features.current_time_reminder": [
    "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.current_time_reminder.clock_source": [
-   "undocumented"
+   "stage-under-development",
+   "persistent-mode",
+   "prompt-instructions",
+   "built-in-tools"
   ],
   "config:features.current_time_reminder.delivery_mode": [
-   "undocumented"
+   "undocumented",
+   "persistent-mode"
   ],
   "config:features.current_time_reminder.enabled": [
-   "undocumented"
-  ],
-  "config:features.current_time_reminder.reminder_interval_seconds": [
-   "undocumented"
+   "undocumented",
+   "persistent-mode",
+   "built-in-tools"
   ],
   "config:features.current_time_reminder.sleep_tool": [
-   "undocumented"
-  ],
-  "config:features.cwd_relative_turn_diffs": [
    "undocumented",
-   "stage-under-development"
+   "persistent-mode",
+   "built-in-tools"
   ],
   "config:features.default_mode_request_user_input": [
    "undocumented",
    "stage-under-development"
   ],
+  "config:features.current_time_reminder.reminder_interval_seconds": [
+   "undocumented",
+   "persistent-mode"
+  ],
+  "config:features.elevated_windows_sandbox": [
+   "undocumented",
+   "removed",
+   "sandbox-approvals"
+  ],
   "config:features.deferred_executor": [
    "undocumented",
+   "stage-under-development",
+   "built-in-tools"
+  ],
+  "config:features.cwd_relative_turn_diffs": [
+   "undocumented",
    "stage-under-development"
+  ],
+  "config:features.enable_experimental_windows_sandbox": [
+   "undocumented",
+   "legacy",
+   "sandbox-approvals"
   ],
   "config:features.deferred_tool_world_state": [
    "undocumented",
    "stage-under-development"
   ],
-  "config:features.elevated_windows_sandbox": [
+  "config:features.enable_mcp_apps": [
    "undocumented",
-   "removed"
+   "stage-under-development",
+   "mcp-plugins"
   ],
-  "config:features.enable_experimental_windows_sandbox": [
+  "config:features.exec_permission_approvals": [
    "undocumented",
-   "legacy"
+   "stage-under-development",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:features.enable_fanout": [
    "undocumented",
    "removed"
   ],
-  "config:features.enable_mcp_apps": [
+  "config:features.executor_capability_discovery": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "built-in-tools",
+   "mcp-plugins"
   ],
   "config:features.enable_request_compression": [
    "documented",
    "stage-stable"
   ],
-  "config:features.exec_permission_approvals": [
+  "config:features.experimental_windows_sandbox": [
    "undocumented",
-   "stage-under-development"
+   "removed",
+   "sandbox-approvals"
   ],
   "config:features.executed_tool_call_metadata": [
    "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.executor_capability_discovery": [
-   "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "telemetry-storage"
   ],
   "config:features.experimental_use_unified_exec_tool": [
    "undocumented",
-   "legacy"
-  ],
-  "config:features.experimental_windows_sandbox": [
-   "undocumented",
-   "removed"
+   "legacy",
+   "built-in-tools"
   ],
   "config:features.external_agent_memory_import": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "memory-context"
+  ],
+  "config:features.goals": [
+   "documented",
+   "stage-stable",
+   "persistent-mode"
   ],
   "config:features.external_migration": [
    "undocumented",
    "removed"
   ],
+  "config:features.guardian_ext": [
+   "undocumented",
+   "removed"
+  ],
   "config:features.fast_mode": [
    "documented",
-   "stage-stable"
+   "stage-stable",
+   "model-reasoning"
   ],
-  "config:features.goals": [
-   "documented",
-   "stage-stable"
+  "config:features.guardian_node_repl_transcript_images": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
   ],
   "config:features.guardian_approval": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "sandbox-approvals"
+  ],
+  "config:features.guardian_reuse_parent_compaction": [
+   "undocumented",
+   "stage-under-development",
+   "memory-context"
   ],
   "config:features.guardian_enhanced_node_repl_transcripts": [
    "undocumented",
    "stage-under-development"
   ],
-  "config:features.guardian_ext": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.guardian_node_repl_transcript_images": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.guardian_reuse_parent_compaction": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.guardianv2": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.guardianv2.classifier_instructions": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.enabled": [
-   "undocumented"
-  ],
   "config:features.guardianv2.free_guardian": [
    "undocumented",
    "legacy"
   ],
+  "config:features.guardianv2": [
+   "undocumented",
+   "stage-under-development",
+   "sandbox-approvals"
+  ],
+  "config:features.guardianv2.classifier_instructions": [
+   "undocumented",
+   "prompt-instructions"
+  ],
   "config:features.guardianv2.max_action_tokens": [
    "undocumented"
   ],
-  "config:features.guardianv2.max_classifier_instruction_tokens": [
-   "undocumented"
+  "config:features.guardianv2.enabled": [
+   "undocumented",
+   "sandbox-approvals"
   ],
   "config:features.guardianv2.max_parent_compaction_tokens": [
-   "undocumented"
+   "undocumented",
+   "memory-context"
   ],
-  "config:features.guardianv2.max_tool_call_lag": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.persist_scores": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.reasoning_effort": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.reuse_parent_compaction": [
-   "undocumented"
+  "config:features.guardianv2.max_classifier_instruction_tokens": [
+   "undocumented",
+   "prompt-instructions"
   ],
   "config:features.guardianv2.review_scope": [
-   "undocumented"
+   "undocumented",
+   "sandbox-approvals"
   ],
-  "config:features.guardianv2.review_scope.computer_use_only": [
-   "undocumented"
+  "config:features.guardianv2.reasoning_effort": [
+   "undocumented",
+   "model-reasoning"
+  ],
+  "config:features.guardianv2.persist_scores": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:features.guardianv2.review_scope.sandboxed_exec_commands": [
-   "undocumented"
+   "undocumented",
+   "sandbox-approvals"
   ],
-  "config:features.guardianv2.review_threshold": [
-   "undocumented"
+  "config:features.guardianv2.max_tool_call_lag": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:features.guardianv2.thread_context": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "sandbox-approvals"
   ],
   "config:features.guardianv2.transcript": [
    "undocumented"
+  ],
+  "config:features.guardianv2.review_threshold": [
+   "undocumented",
+   "sandbox-approvals"
+  ],
+  "config:features.guardianv2.reuse_parent_compaction": [
+   "undocumented",
+   "memory-context"
+  ],
+  "config:features.guardianv2.review_scope.computer_use_only": [
+   "undocumented",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:features.guardianv2.transcript.max_message_transcript_tokens": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:features.guardianv2.transcript.max_tool_entry_tokens": [
+   "undocumented"
+  ],
+  "config:features.guardianv2.transcript.max_recent_non_user_entries": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:features.guardianv2.transcript.max_tool_transcript_tokens": [
+   "undocumented",
+   "memory-context",
+   "telemetry-storage"
   ],
   "config:features.guardianv2.transcript.include_images": [
    "undocumented"
   ],
   "config:features.guardianv2.transcript.max_message_entry_tokens": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.transcript.max_message_transcript_tokens": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.transcript.max_recent_non_user_entries": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.transcript.max_tool_entry_tokens": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.transcript.max_tool_transcript_tokens": [
-   "undocumented"
-  ],
-  "config:features.guardianv2.transcript.sources": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:features.hooks": [
    "documented",
-   "stage-stable"
+   "stage-stable",
+   "hooks-notifications"
+  ],
+  "config:features.image_generation": [
+   "undocumented",
+   "stage-stable",
+   "built-in-tools"
+  ],
+  "config:features.guardianv2.transcript.sources": [
+   "undocumented"
   ],
   "config:features.image_detail_original": [
    "undocumented",
    "removed"
   ],
-  "config:features.image_generation": [
+  "config:features.in_app_browser": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "ui"
   ],
   "config:features.image_resize_notice": [
    "undocumented",
    "stage-under-development"
   ],
-  "config:features.imagegenext": [
-   "undocumented",
-   "legacy"
-  ],
-  "config:features.in_app_browser": [
+  "config:features.in_app_dictation": [
    "undocumented",
    "stage-stable"
   ],
   "config:features.in_app_chat": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "ui"
   ],
-  "config:features.in_app_dictation": [
+  "config:features.imagegenext": [
    "undocumented",
-   "stage-stable"
-  ],
-  "config:features.in_app_local_automation": [
-   "undocumented",
-   "stage-stable"
+   "legacy",
+   "built-in-tools"
   ],
   "config:features.in_app_updates": [
    "undocumented",
    "stage-stable"
   ],
+  "config:features.in_app_local_automation": [
+   "undocumented",
+   "stage-stable",
+   "persistent-mode"
+  ],
+  "config:features.js_repl": [
+   "undocumented",
+   "removed",
+   "built-in-tools"
+  ],
+  "config:features.mcp_2026_07_28": [
+   "undocumented",
+   "stage-under-development",
+   "mcp-plugins"
+  ],
+  "config:features.local_thread_store_compression": [
+   "undocumented",
+   "stage-under-development",
+   "telemetry-storage"
+  ],
+  "config:features.local_thread_store_shared_compression": [
+   "undocumented",
+   "removed",
+   "telemetry-storage"
+  ],
   "config:features.item_ids": [
    "undocumented",
    "removed"
   ],
-  "config:features.js_repl": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.js_repl_tools_only": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.local_thread_store_compression": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.local_thread_store_shared_compression": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.mcp_2026_07_28": [
-   "undocumented",
-   "stage-under-development"
-  ],
   "config:features.mcp_oauth_refresh_coordination": [
    "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.memories": [
-   "documented",
-   "stage-stable"
+   "stage-under-development",
+   "mcp-plugins"
   ],
   "config:features.memory_tool": [
    "undocumented",
-   "legacy"
+   "legacy",
+   "memory-context"
+  ],
+  "config:features.memories": [
+   "documented",
+   "stage-stable",
+   "memory-context"
   ],
   "config:features.mentions_v2": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "ui"
   ],
   "config:features.multi_agent": [
    "documented",
-   "stage-stable"
+   "stage-stable",
+   "multi-agent"
   ],
-  "config:features.multi_agent_mode": [
+  "config:features.multi_agent_v2.default_wait_timeout_ms": [
    "undocumented",
-   "removed"
+   "multi-agent"
   ],
   "config:features.multi_agent_v2": [
    "undocumented",
-   "stage-stable"
-  ],
-  "config:features.multi_agent_v2.default_wait_timeout_ms": [
-   "undocumented"
-  ],
-  "config:features.multi_agent_v2.enabled": [
-   "undocumented"
+   "stage-stable",
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.expose_spawn_agent_model_overrides": [
-   "undocumented"
+   "undocumented",
+   "model-reasoning",
+   "multi-agent"
   ],
-  "config:features.multi_agent_v2.hide_spawn_agent_metadata": [
-   "undocumented"
+  "config:features.multi_agent_mode": [
+   "undocumented",
+   "removed",
+   "multi-agent"
+  ],
+  "config:features.multi_agent_v2.enabled": [
+   "undocumented",
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.max_concurrent_threads_per_session": [
-   "undocumented"
+   "undocumented",
+   "multi-agent"
+  ],
+  "config:features.multi_agent_v2.hide_spawn_agent_metadata": [
+   "undocumented",
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.max_wait_timeout_ms": [
-   "undocumented"
-  ],
-  "config:features.multi_agent_v2.min_wait_timeout_ms": [
-   "undocumented"
-  ],
-  "config:features.multi_agent_v2.multi_agent_mode_hint_text": [
-   "undocumented"
-  ],
-  "config:features.multi_agent_v2.non_code_mode_only": [
-   "undocumented"
+   "undocumented",
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.root_agent_usage_hint_text": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions",
+   "multi-agent"
+  ],
+  "config:features.multi_agent_v2.non_code_mode_only": [
+   "undocumented",
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.subagent_developer_instructions": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions",
+   "multi-agent"
+  ],
+  "config:features.multi_agent_v2.min_wait_timeout_ms": [
+   "undocumented",
+   "multi-agent"
+  ],
+  "config:features.multi_agent_v2.multi_agent_mode_hint_text": [
+   "undocumented",
+   "prompt-instructions",
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.subagent_usage_hint_text": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions",
+   "multi-agent"
+  ],
+  "config:features.js_repl_tools_only": [
+   "undocumented",
+   "removed",
+   "built-in-tools"
   ],
   "config:features.multi_agent_v2.tool_namespace": [
-   "undocumented"
-  ],
-  "config:features.multi_agent_v2.usage_hint_enabled": [
    "undocumented",
-   "legacy"
-  ],
-  "config:features.multi_agent_v2.usage_hint_text": [
-   "undocumented"
+   "multi-agent"
   ],
   "config:features.multi_agent_v2.wait_agent_enabled": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools",
+   "multi-agent"
   ],
   "config:features.network_proxy": [
    "documented",
-   "stage-experimental"
+   "stage-experimental",
+   "sandbox-approvals"
   ],
-  "config:features.network_proxy.allow_local_binding": [
-   "documented"
+  "config:features.multi_agent_v2.usage_hint_enabled": [
+   "undocumented",
+   "legacy",
+   "multi-agent"
   ],
-  "config:features.network_proxy.allow_upstream_proxy": [
-   "documented"
+  "config:features.multi_agent_v2.usage_hint_text": [
+   "undocumented",
+   "multi-agent"
   ],
   "config:features.network_proxy.credential_broker": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
   "config:features.network_proxy.credentials": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:features.network_proxy.allow_local_binding": [
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:features.network_proxy.allow_upstream_proxy": [
+   "documented",
+   "auth-providers"
   ],
   "config:features.network_proxy.credentials.<key>": [
-   "undocumented"
-  ],
-  "config:features.network_proxy.credentials.<key>.auth": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
   "config:features.network_proxy.credentials.<key>.env": [
-   "undocumented"
-  ],
-  "config:features.network_proxy.credentials.<key>.header": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
   "config:features.network_proxy.credentials.<key>.patterns": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
-  "config:features.network_proxy.credentials.<key>.prefix": [
-   "undocumented"
+  "config:features.network_proxy.credentials.<key>.auth": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:features.network_proxy.credentials.<key>.url_prefix_from_env": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:features.network_proxy.credentials.<key>.header": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:features.network_proxy.credentials.<key>.url_prefixes": [
-   "undocumented"
-  ],
-  "config:features.network_proxy.dangerously_allow_all_unix_sockets": [
-   "documented"
-  ],
-  "config:features.network_proxy.dangerously_allow_non_loopback_proxy": [
-   "documented"
+   "undocumented",
+   "auth-providers"
   ],
   "config:features.network_proxy.domains": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:features.network_proxy.credentials.<key>.prefix": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:features.network_proxy.dangerously_allow_non_loopback_proxy": [
+   "documented",
+   "auth-providers"
+  ],
+  "config:features.network_proxy.dangerously_allow_all_unix_sockets": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:features.network_proxy.domains.<domain>": [
-   "undocumented"
-  ],
-  "config:features.network_proxy.enable_socks5": [
-   "documented"
+   "undocumented",
+   "sandbox-approvals"
   ],
   "config:features.network_proxy.enable_socks5_udp": [
-   "documented"
+   "documented",
+   "auth-providers"
   ],
-  "config:features.network_proxy.enabled": [
-   "documented"
+  "config:features.network_proxy.enable_socks5": [
+   "documented",
+   "auth-providers"
   ],
   "config:features.network_proxy.mode": [
-   "undocumented"
+   "undocumented",
+   "auth-providers"
   ],
-  "config:features.network_proxy.proxy_url": [
-   "documented"
-  ],
-  "config:features.network_proxy.socks_url": [
-   "documented"
+  "config:features.network_proxy.enabled": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:features.network_proxy.unix_sockets": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
-  "config:features.network_proxy.unix_sockets.<path>": [
-   "undocumented"
+  "config:features.network_proxy.socks_url": [
+   "documented",
+   "auth-providers"
   ],
   "config:features.non_prefixed_mcp_tool_names": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "mcp-plugins"
+  ],
+  "config:features.network_proxy.unix_sockets.<path>": [
+   "undocumented",
+   "sandbox-approvals"
+  ],
+  "config:features.network_proxy.proxy_url": [
+   "documented",
+   "auth-providers",
+   "sandbox-approvals"
   ],
   "config:features.non_prefixed_mcp_tool_names.enabled": [
-   "undocumented"
-  ],
-  "config:features.non_prefixed_mcp_tool_names.server_names": [
-   "undocumented"
-  ],
-  "config:features.nonfatal_clock_read_errors": [
    "undocumented",
-   "stage-under-development"
+   "mcp-plugins"
   ],
   "config:features.omit_app_server_notification_media": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "hooks-notifications",
+   "ui"
+  ],
+  "config:features.non_prefixed_mcp_tool_names.server_names": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:features.nonfatal_clock_read_errors": [
+   "undocumented",
+   "stage-under-development",
+   "persistent-mode",
+   "built-in-tools"
+  ],
+  "config:features.plugin_hooks": [
+   "undocumented",
+   "removed",
+   "mcp-plugins"
+  ],
+  "config:features.plugin_sharing": [
+   "undocumented",
+   "stage-stable",
+   "mcp-plugins"
   ],
   "config:features.personality": [
    "documented",
    "removed"
   ],
-  "config:features.plugin_hooks": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.plugin_sharing": [
-   "undocumented",
-   "stage-stable"
-  ],
   "config:features.plugins": [
    "documented",
-   "stage-stable"
-  ],
-  "config:features.powershell_shell_version": [
-   "undocumented",
-   "stage-under-development"
+   "stage-stable",
+   "mcp-plugins"
   ],
   "config:features.prevent_idle_sleep": [
    "documented",
-   "stage-experimental"
+   "stage-experimental",
+   "persistent-mode",
+   "built-in-tools"
+  ],
+  "config:features.powershell_shell_version": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
   ],
   "config:features.psp": [
    "undocumented",
    "stage-under-development"
   ],
-  "config:features.realtime_conversation": [
-   "undocumented",
-   "stage-stable"
-  ],
   "config:features.reasoning_effort_override": [
    "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.recommended_plugins": [
-   "undocumented",
-   "stage-stable"
-  ],
-  "config:features.remote_compaction_v2": [
-   "undocumented",
-   "removed"
+   "stage-under-development",
+   "model-reasoning",
+   "persistent-mode"
   ],
   "config:features.remote_control": [
    "undocumented",
    "removed"
   ],
+  "config:features.remote_compaction_v2": [
+   "undocumented",
+   "removed"
+  ],
+  "config:features.recommended_plugins": [
+   "undocumented",
+   "stage-stable",
+   "prompt-instructions",
+   "mcp-plugins"
+  ],
+  "config:features.remote_plugin": [
+   "documented",
+   "stage-stable",
+   "mcp-plugins"
+  ],
+  "config:features.realtime_conversation": [
+   "undocumented",
+   "stage-stable",
+   "realtime-voice"
+  ],
   "config:features.remote_models": [
    "undocumented",
    "removed"
   ],
-  "config:features.remote_plugin": [
-   "documented",
-   "stage-stable"
+  "config:features.request_rule": [
+   "undocumented",
+   "removed",
+   "sandbox-approvals"
   ],
   "config:features.request_permissions": [
    "undocumented",
-   "legacy"
-  ],
-  "config:features.request_permissions_tool": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.request_rule": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.resize_all_images": [
-   "undocumented",
-   "removed"
-  ],
-  "config:features.respect_system_proxy": [
-   "undocumented",
-   "stage-under-development"
+   "legacy",
+   "sandbox-approvals"
   ],
   "config:features.responses_websockets": [
    "undocumented",
@@ -1247,178 +1687,244 @@
    "undocumented",
    "removed"
   ],
-  "config:features.retain_client_developer_messages": [
+  "config:features.resize_all_images": [
    "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.rollout_budget": [
-   "documented",
-   "stage-under-development"
+   "removed"
   ],
   "config:features.rollout_budget.enabled": [
-   "documented"
+   "documented",
+   "memory-context"
+  ],
+  "config:features.retain_client_developer_messages": [
+   "undocumented",
+   "stage-under-development",
+   "memory-context"
   ],
   "config:features.rollout_budget.limit_tokens": [
    "documented"
   ],
-  "config:features.rollout_budget.prefill_token_weight": [
-   "documented"
+  "config:features.rollout_budget": [
+   "documented",
+   "stage-under-development",
+   "memory-context"
+  ],
+  "config:features.respect_system_proxy": [
+   "undocumented",
+   "stage-under-development",
+   "auth-providers"
+  ],
+  "config:features.request_permissions_tool": [
+   "undocumented",
+   "stage-under-development",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:features.rollout_budget.reminder_at_remaining_tokens": [
-   "undocumented"
+   "undocumented",
+   "memory-context"
+  ],
+  "config:features.rollout_budget.prefill_token_weight": [
+   "documented",
+   "memory-context"
+  ],
+  "config:features.secret_auth_storage": [
+   "undocumented",
+   "stage-stable",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:features.rollout_budget.sampling_token_weight": [
    "documented"
-  ],
-  "config:features.runtime_metrics": [
-   "undocumented",
-   "stage-under-development"
   ],
   "config:features.search_tool": [
    "undocumented",
    "removed"
   ],
-  "config:features.secret_auth_storage": [
+  "config:features.runtime_metrics": [
    "undocumented",
-   "stage-stable"
+   "stage-under-development",
+   "telemetry-storage"
   ],
   "config:features.send_async_message": [
    "undocumented",
-   "removed"
+   "removed",
+   "built-in-tools",
+   "persistent-mode"
   ],
   "config:features.send_message_to_user_async": [
    "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.shell_snapshot": [
-   "documented",
-   "stage-stable"
-  ],
-  "config:features.shell_snapshot_v2": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.shell_tool": [
-   "documented",
-   "stage-stable"
-  ],
-  "config:features.shell_zsh_fork": [
-   "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "persistent-mode",
+   "built-in-tools"
   ],
   "config:features.skill_env_var_dependency_prompt": [
    "undocumented",
-   "removed"
+   "removed",
+   "mcp-plugins"
   ],
-  "config:features.skill_mcp_dependency_install": [
+  "config:features.shell_snapshot": [
    "documented",
-   "stage-stable"
+   "stage-stable",
+   "built-in-tools"
+  ],
+  "config:features.shell_zsh_fork": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
+  ],
+  "config:features.shell_snapshot_v2": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
   ],
   "config:features.skill_search": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "mcp-plugins"
+  ],
+  "config:features.shell_tool": [
+   "documented",
+   "stage-stable",
+   "built-in-tools"
   ],
   "config:features.skip_host_skill_discovery": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "mcp-plugins"
   ],
-  "config:features.sleep_tool": [
-   "undocumented",
-   "stage-stable"
+  "config:features.skill_mcp_dependency_install": [
+   "documented",
+   "stage-stable",
+   "mcp-plugins"
   ],
   "config:features.sleep_tool.enabled": [
-   "undocumented"
-  ],
-  "config:features.sleep_tool.mode": [
-   "undocumented"
-  ],
-  "config:features.sqlite": [
    "undocumented",
-   "removed"
-  ],
-  "config:features.standalone_web_search": [
-   "undocumented",
-   "stage-under-development"
+   "persistent-mode",
+   "built-in-tools"
   ],
   "config:features.steer": [
    "undocumented",
-   "removed"
+   "removed",
+   "ui"
+  ],
+  "config:features.sleep_tool": [
+   "undocumented",
+   "stage-stable",
+   "persistent-mode",
+   "built-in-tools"
   ],
   "config:features.step_model_switching": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "model-reasoning"
   ],
   "config:features.system_proxy_fallback": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "auth-providers"
+  ],
+  "config:features.sqlite": [
+   "undocumented",
+   "removed",
+   "telemetry-storage"
+  ],
+  "config:features.standalone_web_search": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
+  ],
+  "config:features.terminal_visualization_instructions": [
+   "undocumented",
+   "stage-under-development",
+   "prompt-instructions",
+   "ui"
   ],
   "config:features.telepathy": [
    "undocumented",
    "legacy"
   ],
+  "config:features.sleep_tool.mode": [
+   "undocumented",
+   "persistent-mode",
+   "built-in-tools"
+  ],
   "config:features.terminal_resize_reflow": [
    "undocumented",
-   "removed"
+   "removed",
+   "built-in-tools",
+   "ui"
   ],
-  "config:features.terminal_visualization_instructions": [
+  "config:features.token_budget.auto_compact_fallback_buffer_tokens": [
    "undocumented",
-   "stage-under-development"
+   "model-reasoning",
+   "memory-context"
   ],
   "config:features.token_budget": [
    "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.token_budget.auto_compact_fallback_buffer_tokens": [
-   "undocumented"
-  ],
-  "config:features.token_budget.auto_compact_fallback_prompt": [
-   "undocumented"
+   "stage-under-development",
+   "prompt-instructions",
+   "model-reasoning",
+   "memory-context"
   ],
   "config:features.token_budget.enabled": [
-   "undocumented"
+   "undocumented",
+   "memory-context"
   ],
-  "config:features.token_budget.guidance_message": [
-   "undocumented"
+  "config:features.token_budget.auto_compact_fallback_prompt": [
+   "undocumented",
+   "prompt-instructions",
+   "model-reasoning",
+   "memory-context"
   ],
   "config:features.token_budget.reminder_message_template": [
-   "undocumented"
+   "undocumented",
+   "memory-context"
   ],
   "config:features.token_budget.reminder_threshold_tokens": [
-   "undocumented"
+   "undocumented",
+   "model-reasoning",
+   "memory-context"
+  ],
+  "config:features.token_budget.guidance_message": [
+   "undocumented",
+   "prompt-instructions",
+   "memory-context"
   ],
   "config:features.token_budget.use_history_notes_extension": [
-   "undocumented"
-  ],
-  "config:features.tool_call_mcp_elicitation": [
    "undocumented",
-   "stage-stable"
+   "memory-context"
   ],
-  "config:features.tool_registry": [
+  "config:features.tool_search": [
+   "undocumented",
+   "removed",
+   "built-in-tools"
+  ],
+  "config:features.tool_registry.turn_metadata_includes_tool_info": [
    "undocumented"
   ],
   "config:features.tool_registry.error_on_tool_collisions": [
    "undocumented"
   ],
-  "config:features.tool_registry.turn_metadata_includes_tool_info": [
+  "config:features.tool_registry": [
    "undocumented"
-  ],
-  "config:features.tool_search": [
-   "undocumented",
-   "removed"
   ],
   "config:features.tool_search_always_defer_mcp_tools": [
    "undocumented",
-   "removed"
+   "removed",
+   "mcp-plugins"
+  ],
+  "config:features.tool_call_mcp_elicitation": [
+   "undocumented",
+   "stage-stable",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
   "config:features.tool_suggest": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "built-in-tools"
   ],
-  "config:features.transcript_v2": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:features.tui_app_server": [
+  "config:features.undo": [
    "undocumented",
    "removed"
   ],
@@ -1428,307 +1934,411 @@
   ],
   "config:features.unbounded_connection_retries": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "telemetry-storage"
   ],
-  "config:features.undo": [
+  "config:features.tui_app_server": [
    "undocumented",
-   "removed"
-  ],
-  "config:features.unified_exec": [
-   "documented",
-   "stage-stable"
+   "removed",
+   "ui"
   ],
   "config:features.unified_exec_tty": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "built-in-tools"
+  ],
+  "config:features.transcript_v2": [
+   "undocumented",
+   "stage-under-development"
+  ],
+  "config:features.unified_exec": [
+   "documented",
+   "stage-stable",
+   "built-in-tools"
   ],
   "config:features.unified_exec_zsh_fork": [
    "undocumented",
-   "removed"
-  ],
-  "config:features.unified_image_budget": [
-   "undocumented",
-   "stage-under-development"
+   "removed",
+   "built-in-tools"
   ],
   "config:features.use_agent_identity": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "auth-providers"
   ],
   "config:features.use_legacy_landlock": [
-   "undocumented"
-  ],
-  "config:features.use_linux_sandbox_bwrap": [
    "undocumented",
-   "removed"
-  ],
-  "config:features.use_xaa": [
-   "undocumented",
-   "stage-under-development"
+   "sandbox-approvals"
   ],
   "config:features.view_image": [
    "undocumented",
-   "stage-stable"
+   "stage-stable",
+   "built-in-tools",
+   "ui"
   ],
-  "config:features.web_search": [
-   "documented",
-   "legacy"
+  "config:features.use_linux_sandbox_bwrap": [
+   "undocumented",
+   "removed",
+   "sandbox-approvals"
   ],
-  "config:features.web_search_cached": [
-   "documented"
+  "config:features.use_xaa": [
+   "undocumented",
+   "stage-under-development",
+   "mcp-plugins"
   ],
-  "config:features.web_search_request": [
-   "documented"
+  "config:features.unified_image_budget": [
+   "undocumented",
+   "stage-under-development",
+   "built-in-tools"
   ],
   "config:features.windows_sandbox_service": [
    "undocumented",
-   "stage-under-development"
+   "stage-under-development",
+   "sandbox-approvals"
+  ],
+  "config:features.web_search": [
+   "documented",
+   "legacy",
+   "built-in-tools"
   ],
   "config:features.workspace_dependencies": [
    "undocumented",
    "stage-stable"
   ],
+  "config:features.write_stdin_approval": [
+   "undocumented",
+   "stage-under-development",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:features.web_search_cached": [
+   "documented",
+   "built-in-tools"
+  ],
+  "config:features.web_search_request": [
+   "documented",
+   "built-in-tools"
+  ],
+  "config:background_terminal_max_timeout": [
+   "documented",
+   "built-in-tools"
+  ],
   "config:features.workspace_owner_usage_nudge": [
    "undocumented",
    "removed"
+  ],
+  "config:browser_use.default_origin_policy": [
+   "documented",
+   "built-in-tools"
+  ],
+  "config:browser_use.default_origin_policy.access": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:features.worktrees": [
    "undocumented",
    "stage-stable"
   ],
-  "config:features.write_stdin_approval": [
-   "undocumented",
-   "stage-under-development"
-  ],
-  "config:background_terminal_max_timeout": [
-   "documented"
-  ],
   "config:browser_use": [
-   "documented"
+   "documented",
+   "built-in-tools"
   ],
   "config:browser_use.allow_history_access": [
-   "documented"
-  ],
-  "config:browser_use.default_origin_policy": [
-   "documented"
-  ],
-  "config:browser_use.default_origin_policy.access": [
-   "undocumented"
-  ],
-  "config:browser_use.default_origin_policy.downloads": [
-   "undocumented"
+   "documented",
+   "built-in-tools"
   ],
   "config:browser_use.default_origin_policy.full_cdp_access": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
   "config:browser_use.default_origin_policy.uploads": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
   "config:browser_use.origins": [
-   "documented"
+   "documented",
+   "built-in-tools"
   ],
-  "config:browser_use.origins.<pattern>": [
-   "documented"
+  "config:browser_use.default_origin_policy.downloads": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:browser_use.origins.<pattern>.access": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
-  "config:browser_use.origins.<pattern>.downloads": [
-   "undocumented"
-  ],
-  "config:browser_use.origins.<pattern>.full_cdp_access": [
-   "undocumented"
-  ],
-  "config:browser_use.origins.<pattern>.uploads": [
-   "undocumented"
+  "config:browser_use.origins.<pattern>": [
+   "documented",
+   "built-in-tools"
   ],
   "config:computer_use": [
-   "documented"
+   "documented",
+   "built-in-tools"
   ],
-  "config:computer_use.default_app_access": [
-   "documented"
+  "config:browser_use.origins.<pattern>.full_cdp_access": [
+   "undocumented",
+   "built-in-tools"
+  ],
+  "config:browser_use.origins.<pattern>.downloads": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:computer_use.macos": [
-   "documented"
+   "documented",
+   "built-in-tools"
+  ],
+  "config:browser_use.origins.<pattern>.uploads": [
+   "undocumented",
+   "built-in-tools"
+  ],
+  "config:computer_use.default_app_access": [
+   "documented",
+   "built-in-tools"
   ],
   "config:computer_use.macos.bundle_ids": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:computer_use.macos.bundle_ids.<bundle-id>": [
-   "undocumented"
-  ],
-  "config:computer_use.windows": [
-   "documented"
-  ],
-  "config:computer_use.windows.aumids": [
-   "documented"
-  ],
-  "config:computer_use.windows.aumids.<aumid>": [
-   "undocumented"
+   "undocumented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:computer_use.windows.exes": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:computer_use.windows.exes[].access": [
-   "undocumented"
+   "undocumented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
-  "config:computer_use.windows.exes[].binary_name": [
-   "undocumented"
+  "config:computer_use.windows": [
+   "documented",
+   "built-in-tools"
   ],
-  "config:computer_use.windows.exes[].product_name": [
-   "undocumented"
+  "config:computer_use.windows.aumids": [
+   "documented",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:computer_use.windows.exes[].publisher_name": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
-  "config:experimental_use_unified_exec_tool": [
-   "documented"
+  "config:computer_use.windows.exes[].product_name": [
+   "undocumented",
+   "built-in-tools"
+  ],
+  "config:computer_use.windows.aumids.<aumid>": [
+   "undocumented",
+   "built-in-tools"
+  ],
+  "config:computer_use.windows.exes[].binary_name": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tool_output_token_limit": [
-   "documented"
+   "documented",
+   "built-in-tools",
+   "memory-context",
+   "telemetry-storage"
   ],
-  "config:tool_suggest": [
-   "documented"
+  "config:experimental_use_unified_exec_tool": [
+   "documented",
+   "built-in-tools"
   ],
   "config:tool_suggest.disabled_tools": [
-   "documented"
+   "documented",
+   "built-in-tools"
   ],
   "config:tool_suggest.disabled_tools[].id": [
-   "undocumented"
-  ],
-  "config:tool_suggest.disabled_tools[].type": [
-   "undocumented"
-  ],
-  "config:tool_suggest.discoverables": [
-   "documented"
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tool_suggest.discoverables[].id": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
-  "config:tool_suggest.discoverables[].type": [
-   "undocumented"
+  "config:tool_suggest": [
+   "documented",
+   "built-in-tools"
+  ],
+  "config:tool_suggest.discoverables": [
+   "documented",
+   "built-in-tools"
   ],
   "config:tools": [
-   "documented"
+   "documented",
+   "built-in-tools"
+  ],
+  "config:tool_suggest.discoverables[].type": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tools.experimental_request_user_input": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tools.experimental_request_user_input.enabled": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
-  "config:tools.update_plan": [
-   "undocumented"
-  ],
-  "config:tools.update_plan.enabled": [
-   "undocumented"
+  "config:tool_suggest.disabled_tools[].type": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tools.web_search": [
-   "documented"
+   "documented",
+   "built-in-tools"
+  ],
+  "config:tools.update_plan.enabled": [
+   "undocumented",
+   "built-in-tools"
+  ],
+  "config:tools.update_plan": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tools.web_search.allowed_domains": [
-   "documented"
+   "documented",
+   "built-in-tools"
   ],
   "config:tools.web_search.context_size": [
-   "undocumented"
-  ],
-  "config:tools.web_search.location": [
-   "undocumented"
-  ],
-  "config:tools.web_search.location.city": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tools.web_search.location.country": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
+  ],
+  "config:tools.web_search.location": [
+   "undocumented",
+   "built-in-tools"
+  ],
+  "config:tools.web_search.location.city": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tools.web_search.location.region": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools"
   ],
   "config:tools.web_search.location.timezone": [
-   "undocumented"
-  ],
-  "config:web_search": [
-   "documented"
+   "undocumented",
+   "built-in-tools"
   ],
   "config:agents": [
-   "documented"
+   "documented",
+   "multi-agent"
   ],
   "config:agents.<role>": [
-   "documented"
+   "documented",
+   "multi-agent"
   ],
   "config:agents.<role>.config_file": [
    "documented"
   ],
-  "config:agents.<role>.description": [
-   "documented"
-  ],
-  "config:agents.<role>.nickname_candidates": [
-   "undocumented"
-  ],
   "config:agents.default_subagent_model": [
-   "documented"
+   "documented",
+   "model-reasoning",
+   "multi-agent"
+  ],
+  "config:web_search": [
+   "documented",
+   "built-in-tools"
   ],
   "config:agents.default_subagent_reasoning_effort": [
-   "documented"
+   "documented",
+   "model-reasoning",
+   "multi-agent"
   ],
   "config:agents.enabled": [
-   "documented"
+   "documented",
+   "multi-agent"
+  ],
+  "config:agents.<role>.description": [
+   "documented",
+   "prompt-instructions",
+   "multi-agent"
   ],
   "config:agents.interrupt_message": [
    "documented"
   ],
+  "config:apps": [
+   "documented",
+   "mcp-plugins"
+  ],
   "config:agents.max_concurrent_threads_per_session": [
-   "documented"
+   "documented",
+   "multi-agent"
   ],
   "config:agents.max_depth": [
-   "undocumented"
+   "undocumented",
+   "multi-agent"
   ],
-  "config:apps": [
-   "documented"
+  "config:agents.<role>.nickname_candidates": [
+   "undocumented",
+   "multi-agent"
   ],
   "config:apps.<id>": [
-   "undocumented"
-  ],
-  "config:apps.<id>.approvals_reviewer": [
-   "documented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:apps.<id>.default_tools_approval_mode": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:apps.<id>.enabled": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:apps.<id>.approvals_reviewer": [
+   "documented",
+   "sandbox-approvals"
+  ],
+  "config:apps.<id>.links": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:apps.<id>.destructive_enabled": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:apps.<id>.links.<key>.default_tools_approval_mode": [
+   "undocumented",
+   "sandbox-approvals"
   ],
   "config:apps.<id>.default_tools_enabled": [
    "documented"
   ],
-  "config:apps.<id>.destructive_enabled": [
-   "documented"
-  ],
-  "config:apps.<id>.enabled": [
-   "documented"
-  ],
-  "config:apps.<id>.links": [
-   "undocumented"
-  ],
   "config:apps.<id>.links.<key>": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:apps.<id>.links.<key>.approvals_reviewer": [
-   "undocumented"
-  ],
-  "config:apps.<id>.links.<key>.default_tools_approval_mode": [
-   "undocumented"
-  ],
-  "config:apps.<id>.omit_tools_from": [
-   "undocumented"
-  ],
-  "config:apps.<id>.open_world_enabled": [
-   "documented"
-  ],
-  "config:apps.<id>.tools": [
-   "undocumented"
+   "undocumented",
+   "sandbox-approvals"
   ],
   "config:apps.<id>.tools.<tool>": [
    "undocumented"
   ],
+  "config:apps.<id>.omit_tools_from": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:apps.<id>.tools": [
+   "undocumented"
+  ],
+  "config:apps.<id>.open_world_enabled": [
+   "documented",
+   "mcp-plugins"
+  ],
   "config:apps.<id>.tools.<tool>.approval_mode": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:apps.<id>.tools.<tool>.enabled": [
    "documented"
@@ -1736,254 +2346,344 @@
   "config:apps._default": [
    "documented"
   ],
-  "config:apps._default.approvals_reviewer": [
-   "documented"
-  ],
   "config:apps._default.default_tools_approval_mode": [
-   "documented"
+   "documented",
+   "sandbox-approvals"
   ],
   "config:apps._default.destructive_enabled": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
-  "config:apps._default.enabled": [
-   "documented"
-  ],
-  "config:apps._default.open_world_enabled": [
-   "documented"
+  "config:apps._default.approvals_reviewer": [
+   "documented",
+   "sandbox-approvals"
   ],
   "config:apps_mcp_product_sku": [
-   "documented"
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:apps._default.enabled": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:goals": [
-   "undocumented"
+   "undocumented",
+   "persistent-mode"
   ],
   "config:goals.max_goal_token_budget": [
-   "undocumented"
+   "undocumented",
+   "persistent-mode"
   ],
-  "config:marketplaces": [
-   "documented"
+  "config:apps._default.open_world_enabled": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:marketplaces.<name>": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:marketplaces.<name>.last_revision": [
-   "undocumented"
-  ],
-  "config:marketplaces.<name>.last_updated": [
-   "undocumented"
-  ],
-  "config:marketplaces.<name>.ref": [
-   "documented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:marketplaces.<name>.source": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
-  "config:marketplaces.<name>.source_type": [
-   "documented"
+  "config:marketplaces.<name>.ref": [
+   "documented",
+   "mcp-plugins"
   ],
-  "config:marketplaces.<name>.sparse_paths": [
-   "documented"
+  "config:marketplaces": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:marketplaces.<name>.last_updated": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:memories": [
-   "documented"
+   "documented",
+   "memory-context"
+  ],
+  "config:marketplaces.<name>.sparse_paths": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:marketplaces.<name>.source_type": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:memories.consolidation_model": [
-   "documented"
-  ],
-  "config:memories.dedicated_tools": [
-   "undocumented"
-  ],
-  "config:memories.disable_on_external_context": [
-   "documented"
+   "documented",
+   "model-reasoning",
+   "memory-context"
   ],
   "config:memories.dual_write": [
-   "undocumented"
+   "undocumented",
+   "memory-context"
   ],
-  "config:memories.extract_model": [
-   "documented"
+  "config:memories.dedicated_tools": [
+   "undocumented",
+   "memory-context"
   ],
-  "config:memories.generate_memories": [
-   "documented"
-  ],
-  "config:memories.max_raw_memories_for_consolidation": [
-   "documented"
+  "config:memories.disable_on_external_context": [
+   "documented",
+   "memory-context"
   ],
   "config:memories.max_rollout_age_days": [
-   "documented"
+   "documented",
+   "memory-context"
+  ],
+  "config:memories.max_raw_memories_for_consolidation": [
+   "documented",
+   "memory-context"
   ],
   "config:memories.max_rollouts_per_startup": [
    "documented"
   ],
-  "config:memories.max_unused_days": [
-   "documented"
-  ],
-  "config:memories.min_rate_limit_remaining_percent": [
-   "documented"
+  "config:memories.extract_model": [
+   "documented",
+   "model-reasoning",
+   "memory-context"
   ],
   "config:memories.min_rollout_idle_hours": [
-   "documented"
+   "documented",
+   "memory-context"
   ],
-  "config:memories.use_memories": [
-   "documented"
+  "config:memories.min_rate_limit_remaining_percent": [
+   "documented",
+   "memory-context"
+  ],
+  "config:memories.generate_memories": [
+   "documented",
+   "memory-context"
+  ],
+  "config:memories.max_unused_days": [
+   "documented",
+   "memory-context"
   ],
   "config:memories.version": [
-   "undocumented"
+   "undocumented",
+   "memory-context"
+  ],
+  "config:orchestrator.mcp": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:memories.use_memories": [
+   "documented",
+   "prompt-instructions",
+   "memory-context"
+  ],
+  "config:orchestrator.skills": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:orchestrator": [
    "undocumented"
   ],
-  "config:orchestrator.mcp": [
-   "undocumented"
+  "config:plugins.<plugin>": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:orchestrator.mcp.enabled": [
-   "undocumented"
-  ],
-  "config:orchestrator.skills": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins",
+   "multi-agent"
   ],
   "config:orchestrator.skills.enabled": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:plugins": [
-   "documented"
-  ],
-  "config:plugins.<plugin>": [
-   "undocumented"
-  ],
-  "config:plugins.<plugin>.enabled": [
-   "documented"
-  ],
-  "config:plugins.<plugin>.mcp_servers": [
-   "undocumented"
-  ],
-  "config:plugins.<plugin>.mcp_servers.<id>": [
-   "undocumented"
+   "documented",
+   "mcp-plugins"
   ],
   "config:plugins.<plugin>.mcp_servers.<id>.default_tools_approval_mode": [
-   "documented"
+   "documented",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
-  "config:plugins.<plugin>.mcp_servers.<id>.disabled_tools": [
-   "documented"
+  "config:plugins.<plugin>.mcp_servers.<id>": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:plugins.<plugin>.enabled": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:plugins.<plugin>.mcp_servers.<id>.ema_auth": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:plugins.<plugin>.mcp_servers": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.authorization_server_issuer": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
-  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.client_id": [
-   "undocumented"
-  ],
-  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.resource": [
-   "undocumented"
-  ],
-  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.scopes": [
-   "undocumented"
-  ],
-  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.url": [
-   "undocumented"
+  "config:plugins.<plugin>.mcp_servers.<id>.disabled_tools": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:plugins.<plugin>.mcp_servers.<id>.enabled": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
-  "config:plugins.<plugin>.mcp_servers.<id>.enabled_tools": [
-   "documented"
+  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.url": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.scopes": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.resource": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:plugins.<plugin>.mcp_servers.<id>.ema_auth.client_id": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:plugins.<plugin>.mcp_servers.<id>.tools": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:plugins.<plugin>.mcp_servers.<id>.enabled_tools": [
+   "documented",
+   "mcp-plugins"
   ],
   "config:plugins.<plugin>.mcp_servers.<id>.tools.<tool>": [
-   "undocumented"
-  ],
-  "config:plugins.<plugin>.mcp_servers.<id>.tools.<tool>.approval_mode": [
-   "documented"
-  ],
-  "config:plugins.<plugin>.mcp_servers.<id>.tools.<tool>.output_token_limit": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:skills": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
   "config:skills.bundled": [
-   "undocumented"
+   "undocumented",
+   "mcp-plugins"
   ],
-  "config:skills.bundled.enabled": [
-   "undocumented"
-  ],
-  "config:skills.config": [
-   "documented"
+  "config:plugins.<plugin>.mcp_servers.<id>.tools.<tool>.output_token_limit": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:skills.config[].enabled": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
-  "config:skills.config[].name": [
-   "undocumented"
+  "config:plugins.<plugin>.mcp_servers.<id>.tools.<tool>.approval_mode": [
+   "documented",
+   "sandbox-approvals",
+   "mcp-plugins"
+  ],
+  "config:skills.bundled.enabled": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:skills.config[].path": [
-   "documented"
+   "documented",
+   "mcp-plugins"
   ],
   "config:skills.include_instructions": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions",
+   "mcp-plugins"
   ],
   "config:skills.max_context_tokens": [
-   "documented"
-  ],
-  "config:hooks": [
-   "documented"
-  ],
-  "config:hooks.<Event>": [
-   "documented"
-  ],
-  "config:hooks.<Event>[].hooks": [
-   "documented"
+   "documented",
+   "mcp-plugins",
+   "memory-context"
   ],
   "config:hooks.<Event>[].hooks[].additionalContextLimit": [
-   "documented"
+   "documented",
+   "hooks-notifications"
   ],
-  "config:hooks.<Event>[].hooks[].async": [
-   "documented"
+  "config:hooks.<Event>[].hooks": [
+   "documented",
+   "hooks-notifications"
+  ],
+  "config:hooks": [
+   "documented",
+   "hooks-notifications"
+  ],
+  "config:skills.config[].name": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:skills.config": [
+   "documented",
+   "mcp-plugins"
+  ],
+  "config:hooks.<Event>": [
+   "documented",
+   "hooks-notifications"
   ],
   "config:hooks.<Event>[].hooks[].command": [
-   "undocumented"
+   "undocumented",
+   "hooks-notifications"
   ],
   "config:hooks.<Event>[].hooks[].commandWindows": [
-   "documented"
+   "documented",
+   "hooks-notifications"
   ],
   "config:hooks.<Event>[].hooks[].input": [
-   "undocumented"
+   "undocumented",
+   "hooks-notifications"
   ],
-  "config:hooks.<Event>[].hooks[].server": [
-   "undocumented"
-  ],
-  "config:hooks.<Event>[].hooks[].statusMessage": [
-   "undocumented"
+  "config:hooks.<Event>[].hooks[].async": [
+   "documented",
+   "hooks-notifications"
   ],
   "config:hooks.<Event>[].hooks[].timeout": [
-   "undocumented"
+   "undocumented",
+   "hooks-notifications"
   ],
-  "config:hooks.<Event>[].hooks[].tool": [
-   "undocumented"
+  "config:hooks.<Event>[].hooks[].server": [
+   "undocumented",
+   "hooks-notifications"
   ],
-  "config:hooks.<Event>[].hooks[].type": [
-   "undocumented"
-  ],
-  "config:hooks.<Event>[].matcher": [
-   "undocumented"
-  ],
-  "config:hooks.state": [
-   "documented"
+  "config:hooks.<Event>[].hooks[].statusMessage": [
+   "undocumented",
+   "hooks-notifications"
   ],
   "config:hooks.state.<key>": [
-   "undocumented"
+   "undocumented",
+   "hooks-notifications"
+  ],
+  "config:hooks.<Event>[].hooks[].tool": [
+   "undocumented",
+   "hooks-notifications"
+  ],
+  "config:hooks.<Event>[].hooks[].type": [
+   "undocumented",
+   "hooks-notifications"
+  ],
+  "config:hooks.state": [
+   "documented",
+   "hooks-notifications"
   ],
   "config:hooks.state.<key>.enabled": [
-   "undocumented"
-  ],
-  "config:hooks.state.<key>.trusted_hash": [
-   "undocumented"
+   "undocumented",
+   "hooks-notifications"
   ],
   "config:notify": [
-   "documented"
+   "documented",
+   "hooks-notifications"
+  ],
+  "config:hooks.state.<key>.trusted_hash": [
+   "undocumented",
+   "hooks-notifications"
+  ],
+  "config:hooks.<Event>[].matcher": [
+   "undocumented",
+   "hooks-notifications"
   ],
   "config:profile": [
    "documented"
@@ -1991,1082 +2691,1433 @@
   "config:profiles": [
    "documented"
   ],
-  "config:profiles.<name>": [
+  "config:projects.<path>": [
    "undocumented"
   ],
-  "config:projects": [
-   "documented"
-  ],
-  "config:projects.<path>": [
+  "config:profiles.<name>": [
    "undocumented"
   ],
   "config:projects.<path>.trust_level": [
    "documented"
   ],
-  "config:cli_auth_credentials_store": [
-   "documented"
-  ],
   "config:forced_chatgpt_workspace_id": [
+   "documented",
+   "auth-providers"
+  ],
+  "config:cli_auth_credentials_store": [
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
+  ],
+  "config:projects": [
    "documented"
   ],
   "config:forced_login_method": [
-   "documented"
-  ],
-  "config:audio": [
-   "undocumented"
-  ],
-  "config:audio.microphone": [
-   "undocumented"
-  ],
-  "config:audio.speaker": [
-   "undocumented"
+   "documented",
+   "auth-providers"
   ],
   "config:experimental_realtime_start_instructions": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions",
+   "realtime-voice"
   ],
-  "config:experimental_realtime_webrtc_call_base_url": [
-   "undocumented"
+  "config:audio.microphone": [
+   "undocumented",
+   "realtime-voice"
   ],
-  "config:experimental_realtime_ws_backend_prompt": [
-   "undocumented"
+  "config:audio": [
+   "undocumented",
+   "realtime-voice"
   ],
-  "config:experimental_realtime_ws_base_url": [
-   "documented"
+  "config:audio.speaker": [
+   "undocumented",
+   "realtime-voice"
   ],
   "config:experimental_realtime_ws_model": [
-   "undocumented"
+   "undocumented",
+   "model-reasoning",
+   "realtime-voice"
+  ],
+  "config:experimental_realtime_webrtc_call_base_url": [
+   "undocumented",
+   "realtime-voice"
   ],
   "config:experimental_realtime_ws_startup_context": [
-   "undocumented"
+   "undocumented",
+   "prompt-instructions",
+   "realtime-voice"
+  ],
+  "config:experimental_realtime_ws_backend_prompt": [
+   "undocumented",
+   "prompt-instructions",
+   "realtime-voice"
   ],
   "config:realtime": [
-   "undocumented"
-  ],
-  "config:realtime.transport": [
-   "undocumented"
+   "undocumented",
+   "realtime-voice"
   ],
   "config:realtime.type": [
-   "undocumented"
-  ],
-  "config:realtime.version": [
-   "undocumented"
-  ],
-  "config:realtime.voice": [
-   "undocumented"
+   "undocumented",
+   "realtime-voice"
   ],
   "config:allow_symlinked_codex_home": [
-   "undocumented"
+   "undocumented",
+   "sandbox-approvals",
+   "telemetry-storage"
+  ],
+  "config:realtime.voice": [
+   "undocumented",
+   "realtime-voice"
+  ],
+  "config:realtime.version": [
+   "undocumented",
+   "realtime-voice"
   ],
   "config:analytics": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
   "config:analytics.enabled": [
-   "documented"
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:realtime.transport": [
+   "undocumented",
+   "realtime-voice"
+  ],
+  "config:experimental_thread_store.type": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:experimental_thread_store": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:feedback": [
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:ghost_snapshot": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:check_for_update_on_startup": [
    "documented"
   ],
-  "config:experimental_thread_store": [
-   "undocumented"
-  ],
-  "config:experimental_thread_store.type": [
-   "undocumented"
-  ],
-  "config:feedback": [
-   "documented"
-  ],
   "config:feedback.enabled": [
-   "documented"
-  ],
-  "config:ghost_snapshot": [
-   "undocumented"
+   "documented",
+   "telemetry-storage"
   ],
   "config:ghost_snapshot.disable_warnings": [
    "undocumented",
-   "legacy"
+   "legacy",
+   "telemetry-storage"
   ],
   "config:ghost_snapshot.ignore_large_untracked_dirs": [
    "undocumented",
-   "legacy"
+   "legacy",
+   "telemetry-storage"
   ],
   "config:ghost_snapshot.ignore_large_untracked_files": [
    "undocumented",
-   "legacy"
-  ],
-  "config:history": [
-   "documented"
-  ],
-  "config:history.max_bytes": [
-   "documented"
+   "legacy",
+   "telemetry-storage"
   ],
   "config:history.persistence": [
-   "documented"
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:history": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:log_dir": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
-  "config:otel": [
-   "documented"
+  "config:history.max_bytes": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.environment": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
-  "config:otel.exporter": [
-   "documented"
+  "config:experimental_realtime_ws_base_url": [
+   "documented",
+   "auth-providers",
+   "realtime-voice"
+  ],
+  "config:otel": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-grpc": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
-  "config:otel.exporter.otlp-grpc.endpoint": [
-   "documented"
+  "config:otel.exporter": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-grpc.headers": [
-   "documented"
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
+  ],
+  "config:otel.exporter.otlp-grpc.endpoint": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-grpc.headers.<key>": [
-   "undocumented"
-  ],
-  "config:otel.exporter.otlp-grpc.tls": [
-   "undocumented"
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-grpc.tls.ca-certificate": [
-   "documented"
-  ],
-  "config:otel.exporter.otlp-grpc.tls.client-certificate": [
-   "documented"
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-grpc.tls.client-private-key": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
-  "config:otel.exporter.otlp-http": [
-   "undocumented"
+  "config:otel.exporter.otlp-grpc.tls": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:otel.exporter.otlp-grpc.tls.client-certificate": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-http.endpoint": [
-   "documented"
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.exporter.otlp-http": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-http.headers": [
-   "documented"
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-http.headers.<key>": [
-   "undocumented"
-  ],
-  "config:otel.exporter.otlp-http.protocol": [
-   "documented"
-  ],
-  "config:otel.exporter.otlp-http.tls": [
-   "undocumented"
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.exporter.otlp-http.tls.ca-certificate": [
-   "documented"
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
   ],
-  "config:otel.exporter.otlp-http.tls.client-certificate": [
-   "documented"
-  ],
-  "config:otel.exporter.otlp-http.tls.client-private-key": [
-   "documented"
-  ],
-  "config:otel.log_user_prompt": [
-   "documented"
+  "config:otel.exporter.otlp-http.tls": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter": [
-   "documented"
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.exporter.otlp-http.protocol": [
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.exporter.otlp-http.tls.client-private-key": [
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.exporter.otlp-http.tls.client-certificate": [
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.log_user_prompt": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter.otlp-grpc": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-grpc.endpoint": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-grpc.headers": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter.otlp-grpc.headers.<key>": [
-   "undocumented"
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter.otlp-grpc.tls": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter.otlp-grpc.tls.ca-certificate": [
-   "undocumented"
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
+  ],
+  "config:otel.metrics_exporter.otlp-grpc.endpoint": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter.otlp-grpc.tls.client-certificate": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
-  "config:otel.metrics_exporter.otlp-grpc.tls.client-private-key": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-http": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-http.endpoint": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-http.headers": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-http.headers.<key>": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-http.protocol": [
-   "undocumented"
+  "config:otel.metrics_exporter.otlp-grpc.headers": [
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter.otlp-http.tls": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:otel.metrics_exporter.otlp-grpc.tls.client-private-key": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:otel.metrics_exporter.otlp-http.endpoint": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:otel.metrics_exporter.otlp-http.protocol": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:otel.metrics_exporter.otlp-http.headers": [
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
+  ],
+  "config:otel.metrics_exporter.otlp-http": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.metrics_exporter.otlp-http.tls.ca-certificate": [
-   "undocumented"
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
   ],
-  "config:otel.metrics_exporter.otlp-http.tls.client-certificate": [
-   "undocumented"
-  ],
-  "config:otel.metrics_exporter.otlp-http.tls.client-private-key": [
-   "undocumented"
-  ],
-  "config:otel.span_attributes": [
-   "undocumented"
+  "config:otel.metrics_exporter.otlp-http.headers.<key>": [
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.span_attributes.<key>": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:otel.metrics_exporter.otlp-http.tls.client-private-key": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.tool_result": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.tool_result.max_bytes": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
-  "config:otel.trace_exporter": [
-   "documented"
+  "config:otel.metrics_exporter.otlp-http.tls.client-certificate": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-grpc": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-grpc.endpoint": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-grpc.headers": [
-   "documented"
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-grpc.headers.<key>": [
-   "undocumented"
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
+  ],
+  "config:otel.trace_exporter": [
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.span_attributes": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-grpc.tls": [
-   "undocumented"
-  ],
-  "config:otel.trace_exporter.otlp-grpc.tls.ca-certificate": [
-   "documented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-grpc.tls.client-certificate": [
-   "documented"
-  ],
-  "config:otel.trace_exporter.otlp-grpc.tls.client-private-key": [
-   "documented"
-  ],
-  "config:otel.trace_exporter.otlp-http": [
-   "undocumented"
-  ],
-  "config:otel.trace_exporter.otlp-http.endpoint": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-http.headers": [
-   "documented"
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
+  ],
+  "config:otel.trace_exporter.otlp-grpc.tls.ca-certificate": [
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
+  ],
+  "config:otel.trace_exporter.otlp-grpc.tls.client-private-key": [
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.trace_exporter.otlp-http": [
+   "undocumented",
+   "telemetry-storage"
+  ],
+  "config:otel.trace_exporter.otlp-http.endpoint": [
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-http.headers.<key>": [
-   "undocumented"
+   "undocumented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-http.protocol": [
-   "documented"
-  ],
-  "config:otel.trace_exporter.otlp-http.tls": [
-   "undocumented"
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-http.tls.ca-certificate": [
-   "documented"
+   "documented",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-http.tls.client-certificate": [
-   "documented"
+   "documented",
+   "telemetry-storage"
+  ],
+  "config:otel.trace_exporter.otlp-http.tls": [
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.trace_exporter.otlp-http.tls.client-private-key": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
   "config:otel.tracestate": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:otel.tracestate.<key>": [
-   "undocumented"
-  ],
-  "config:otel.tracestate.<key>.<key>": [
-   "undocumented"
+   "undocumented",
+   "telemetry-storage"
   ],
   "config:sqlite_home": [
-   "documented"
+   "documented",
+   "telemetry-storage"
   ],
-  "config:thread_unload_delay_secs": [
-   "undocumented"
+  "config:otel.tracestate.<key>.<key>": [
+   "undocumented",
+   "telemetry-storage"
   ],
-  "config:desktop": [
-   "documented"
-  ],
-  "config:desktop.custom_file_handlers.<id>": [
+  "config:desktop.custom_file_handlers.<id>.command": [
    "documented"
   ],
   "config:desktop.custom_file_handlers.<id>.args": [
    "documented"
   ],
-  "config:desktop.custom_file_handlers.<id>.command": [
-   "documented"
-  ],
-  "config:desktop.custom_file_handlers.<id>.icon": [
-   "documented"
-  ],
   "config:desktop.custom_file_handlers.<id>.input": [
    "documented"
   ],
-  "config:desktop.custom_file_handlers.<id>.label": [
+  "config:desktop.custom_file_handlers.<id>": [
    "documented"
   ],
-  "config:desktop.custom_file_handlers.<id>.supports_ssh": [
-   "documented"
+  "config:desktop": [
+   "documented",
+   "ui"
+  ],
+  "config:desktop.custom_file_handlers.<id>.icon": [
+   "documented",
+   "ui"
+  ],
+  "config:thread_unload_delay_secs": [
+   "undocumented"
+  ],
+  "config:desktop.custom_file_handlers.<id>.label": [
+   "documented",
+   "ui"
   ],
   "config:disable_paste_burst": [
    "documented",
-   "legacy"
+   "legacy",
+   "ui"
   ],
-  "config:file_opener": [
-   "documented"
-  ],
-  "config:hide_agent_reasoning": [
-   "documented"
-  ],
-  "config:notice": [
-   "documented"
+  "config:desktop.custom_file_handlers.<id>.supports_ssh": [
+   "documented",
+   "ui"
   ],
   "config:notice.external_config_migration_prompts": [
    "undocumented",
-   "hidden"
+   "hidden",
+   "ui"
   ],
-  "config:notice.external_config_migration_prompts.home": [
-   "undocumented",
-   "hidden"
+  "config:file_opener": [
+   "documented",
+   "ui"
+  ],
+  "config:hide_agent_reasoning": [
+   "documented",
+   "ui"
   ],
   "config:notice.external_config_migration_prompts.home_last_prompted_at": [
    "undocumented",
-   "hidden"
+   "hidden",
+   "ui"
+  ],
+  "config:notice": [
+   "documented",
+   "ui"
   ],
   "config:notice.external_config_migration_prompts.project_last_prompted_at": [
    "undocumented",
-   "hidden"
+   "hidden",
+   "ui"
+  ],
+  "config:notice.external_config_migration_prompts.home": [
+   "undocumented",
+   "hidden",
+   "ui"
   ],
   "config:notice.external_config_migration_prompts.project_last_prompted_at.<key>": [
    "undocumented",
-   "hidden"
-  ],
-  "config:notice.external_config_migration_prompts.projects": [
-   "undocumented",
-   "hidden"
+   "hidden",
+   "ui"
   ],
   "config:notice.external_config_migration_prompts.projects.<path>": [
    "undocumented",
-   "hidden"
+   "hidden",
+   "hooks-notifications",
+   "ui"
+  ],
+  "config:notice.external_config_migration_prompts.projects": [
+   "undocumented",
+   "hidden",
+   "ui"
   ],
   "config:notice.fast_default_opt_out": [
    "undocumented",
-   "hidden"
-  ],
-  "config:notice.hide_full_access_warning": [
-   "documented",
-   "hidden"
-  ],
-  "config:notice.hide_gpt-5.1-codex-max_migration_prompt": [
-   "documented",
-   "hidden"
-  ],
-  "config:notice.hide_gpt5_1_migration_prompt": [
-   "documented",
-   "hidden"
+   "hidden",
+   "ui"
   ],
   "config:notice.hide_rate_limit_model_nudge": [
    "documented",
-   "hidden"
+   "hidden",
+   "ui"
   ],
-  "config:notice.hide_world_writable_warning": [
+  "config:notice.hide_gpt-5.1-codex-max_migration_prompt": [
    "documented",
-   "hidden"
+   "hidden",
+   "ui"
+  ],
+  "config:notice.hide_full_access_warning": [
+   "documented",
+   "hidden",
+   "ui"
+  ],
+  "config:notice.hide_gpt5_1_migration_prompt": [
+   "documented",
+   "hidden",
+   "ui"
   ],
   "config:notice.model_migrations": [
    "documented",
-   "hidden"
+   "hidden",
+   "ui"
+  ],
+  "config:notice.hide_world_writable_warning": [
+   "documented",
+   "hidden",
+   "ui"
   ],
   "config:notice.model_migrations.<key>": [
    "undocumented",
-   "hidden"
+   "hidden",
+   "ui"
+  ],
+  "config:suppress_unstable_features_warning": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.alternate_screen": [
+   "documented",
+   "ui"
   ],
   "config:show_raw_agent_reasoning": [
    "documented"
   ],
-  "config:suppress_unstable_features_warning": [
-   "documented"
-  ],
   "config:tui": [
-   "documented"
-  ],
-  "config:tui.alternate_screen": [
-   "documented"
-  ],
-  "config:tui.animations": [
-   "documented"
-  ],
-  "config:tui.auto_recap": [
-   "undocumented"
+   "documented",
+   "hooks-notifications",
+   "ui"
   ],
   "config:tui.disable_paste_burst": [
-   "undocumented"
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.auto_recap": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.animations": [
+   "documented",
+   "ui"
   ],
   "config:tui.model_availability_nux": [
-   "documented"
-  ],
-  "config:tui.model_availability_nux.<key>": [
-   "documented"
-  ],
-  "config:tui.notification_condition": [
-   "documented"
-  ],
-  "config:tui.notification_method": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.notifications": [
-   "documented"
+   "documented",
+   "hooks-notifications",
+   "ui"
+  ],
+  "config:tui.notification_method": [
+   "documented",
+   "hooks-notifications",
+   "ui"
+  ],
+  "config:tui.model_availability_nux.<key>": [
+   "documented",
+   "ui"
   ],
   "config:tui.pet": [
-   "undocumented"
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.notification_condition": [
+   "documented",
+   "hooks-notifications",
+   "ui"
   ],
   "config:tui.pet_anchor": [
-   "undocumented"
-  ],
-  "config:tui.question_esc_back": [
-   "undocumented"
+   "undocumented",
+   "ui"
   ],
   "config:tui.raw_output_mode": [
-   "documented"
-  ],
-  "config:tui.resume_cwd": [
-   "documented"
-  ],
-  "config:tui.screen_reader_detection_done": [
-   "undocumented"
+   "documented",
+   "ui"
   ],
   "config:tui.session_picker_view": [
-   "undocumented"
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.resume_cwd": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.screen_reader_detection_done": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.question_esc_back": [
+   "undocumented",
+   "ui"
   ],
   "config:tui.show_server_version_notice": [
-   "undocumented"
+   "undocumented",
+   "ui"
   ],
   "config:tui.show_tooltips": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.status_line": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.status_line_use_colors": [
-   "undocumented"
+   "undocumented",
+   "ui"
   ],
   "config:tui.terminal_resize_reflow_max_rows": [
-   "undocumented"
+   "undocumented",
+   "built-in-tools",
+   "ui"
   ],
   "config:tui.terminal_title": [
-   "documented"
-  ],
-  "config:tui.theme": [
-   "documented"
-  ],
-  "config:tui.vim_mode_default": [
-   "documented"
-  ],
-  "config:tui.whimsy": [
-   "undocumented"
-  ],
-  "config:tui.keymap": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.agents": [
-   "undocumented"
+   "undocumented",
+   "ui"
   ],
-  "config:tui.keymap.agents.archive": [
-   "documented"
+  "config:tui.whimsy": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.vim_mode_default": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.agents.delete": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.agents.hide": [
-   "documented"
+  "config:tui.keymap.agents.archive": [
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.agents.new_task": [
-   "documented"
+  "config:tui.keymap": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.agents.new_worktree": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.agents.rename": [
-   "documented"
+  "config:tui.theme": [
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.agents.resume": [
-   "documented"
+  "config:tui.keymap.agents.hide": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.agents.new_task": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.agents.search": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.agents.stop": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.agents.toggle_grouping": [
-   "documented"
+  "config:tui.keymap.agents.rename": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.approval": [
-   "undocumented"
-  ],
-  "config:tui.keymap.approval.approve": [
-   "documented"
+   "undocumented",
+   "ui"
   ],
   "config:tui.keymap.approval.approve_for_prefix": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.agents.toggle_grouping": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.agents.resume": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.approval.approve": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.approval.approve_for_session": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.approval.cancel": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.approval.decline": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.approval.deny": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.approval.open_fullscreen": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.approval.open_thread": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.chat": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.chat.decrease_reasoning_effort": [
-   "documented"
-  ],
-  "config:tui.keymap.chat.edit_queued_message": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.chat.increase_reasoning_effort": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.chat.interrupt_turn": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.chat.next_permission_mode": [
-   "documented"
-  ],
-  "config:tui.keymap.chat.previous_permission_mode": [
-   "documented"
-  ],
-  "config:tui.keymap.chat.prompt_stack_back": [
-   "documented"
+  "config:tui.keymap.chat.edit_queued_message": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.chat.skip_question": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.chat.previous_permission_mode": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.chat.next_permission_mode": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.chat.toggle_voice": [
-   "documented"
-  ],
-  "config:tui.keymap.chat.toggle_voice_mute": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.composer": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.composer.history_search_next": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.composer.history_search_previous": [
-   "documented"
+  "config:tui.keymap.chat.toggle_voice_mute": [
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.composer.queue": [
-   "documented"
-  ],
-  "config:tui.keymap.composer.submit": [
-   "documented"
+  "config:tui.keymap.chat.prompt_stack_back": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.composer.toggle_shortcuts": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.editor": [
-   "undocumented"
+  "config:tui.keymap.composer.submit": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.delete_backward": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.editor.delete_backward_word": [
-   "documented"
+  "config:tui.keymap.composer.queue": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.delete_forward": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.editor.delete_forward_word": [
-   "documented"
+  "config:tui.keymap.composer.history_search_previous": [
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.editor.insert_newline": [
-   "documented"
+  "config:tui.keymap.editor": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.keymap.editor.delete_backward_word": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.kill_line_end": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.editor.kill_line_start": [
-   "documented"
+  "config:tui.keymap.editor.delete_forward_word": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.kill_whole_line": [
-   "documented"
-  ],
-  "config:tui.keymap.editor.move_down": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.move_left": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.editor.move_line_end": [
-   "documented"
+  "config:tui.keymap.editor.move_down": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.editor.insert_newline": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.editor.kill_line_start": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.move_line_start": [
-   "documented"
-  ],
-  "config:tui.keymap.editor.move_right": [
-   "documented"
-  ],
-  "config:tui.keymap.editor.move_up": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.move_word_left": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.editor.move_word_right": [
-   "documented"
+  "config:tui.keymap.editor.move_right": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.editor.yank": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.editor.move_line_end": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.editor.move_up": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.editor.move_word_right": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global": [
-   "documented"
-  ],
-  "config:tui.keymap.global.clear_terminal": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.copy": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.open_agents": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.global.open_external_editor": [
-   "documented"
-  ],
-  "config:tui.keymap.global.open_transcript": [
-   "documented"
+  "config:tui.keymap.global.clear_terminal": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.queue": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.submit": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.global.toggle_fast_mode": [
-   "documented"
+  "config:tui.keymap.global.open_transcript": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.toggle_raw_output": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.toggle_shortcuts": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.global.open_external_editor": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.global.toggle_fast_mode": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.global.toggle_side_conversation": [
-   "documented"
-  ],
-  "config:tui.keymap.global.toggle_vim_mode": [
-   "documented"
-  ],
-  "config:tui.keymap.list": [
-   "undocumented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.list.accept": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.global.toggle_vim_mode": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.list.cancel": [
-   "documented"
-  ],
-  "config:tui.keymap.list.jump_bottom": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.list.jump_top": [
-   "documented"
-  ],
-  "config:tui.keymap.list.move_down": [
-   "documented"
-  ],
-  "config:tui.keymap.list.move_left": [
-   "documented"
-  ],
-  "config:tui.keymap.list.move_right": [
-   "documented"
-  ],
-  "config:tui.keymap.list.move_up": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.list.page_down": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.list.page_up": [
-   "documented"
+  "config:tui.keymap.list.move_down": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.list.move_up": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.list.jump_bottom": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.list.move_right": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.list.move_left": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.list": [
+   "undocumented",
+   "ui"
   ],
   "config:tui.keymap.pager": [
-   "undocumented"
+   "undocumented",
+   "ui"
   ],
-  "config:tui.keymap.pager.close": [
-   "documented"
+  "config:tui.keymap.list.page_up": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.pager.close_transcript": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.pager.half_page_down": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.pager.half_page_up": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.pager.jump_bottom": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.pager.close": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.pager.jump_top": [
-   "documented"
-  ],
-  "config:tui.keymap.pager.page_down": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.pager.page_up": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.pager.scroll_down": [
-   "documented"
-  ],
-  "config:tui.keymap.pager.scroll_up": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal": [
-   "undocumented"
+  "config:tui.keymap.pager.page_down": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.append_after_cursor": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.pager.scroll_up": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.keymap.pager.scroll_down": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.append_line_end": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.cancel_operator": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.change_to_line_end": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.delete_char": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.delete_to_line_end": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.enter_insert": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.enter_replace_mode": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_normal.find_backward": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.find_forward": [
-   "documented"
+  "config:tui.keymap.vim_normal.cancel_operator": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.insert_line_start": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.enter_insert": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.find_backward": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.find_forward": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.jump_bottom": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.jump_top": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.move_down": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.move_left": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.move_line_end": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.move_line_start": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.move_right": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.move_down": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.move_up": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.change_to_line_end": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.jump_top": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.move_word_backward": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.move_word_end": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.move_word_forward": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.open_line_above": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.open_line_below": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.paste_after": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.redo": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.move_line_start": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.move_word_end": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.move_word_forward": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.repeat_last_change": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_normal.replace_char": [
-   "documented"
+  "config:tui.keymap.vim_normal.open_line_below": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.start_change_operator": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.start_delete_operator": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.start_yank_operator": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.replace_char": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.substitute_char": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_normal.till_backward": [
-   "documented"
+  "config:tui.keymap.vim_normal.start_delete_operator": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_normal.till_forward": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_normal.undo": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_normal.yank_line": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_operator": [
-   "undocumented"
+  "config:tui.keymap.vim_normal.till_backward": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.cancel": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.yank_line": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_normal.undo": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_operator": [
+   "undocumented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.delete_line": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_down": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_operator.motion_find_backward": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_operator.motion_find_forward": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_jump_bottom": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_jump_top": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_operator.motion_find_backward": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_operator.motion_find_forward": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_left": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_line_end": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_line_start": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_operator.motion_right": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_operator.motion_till_backward": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_till_forward": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_operator.motion_right": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_up": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_operator.motion_word_backward": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.motion_word_end": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_operator.motion_word_forward": [
-   "documented"
+  "config:tui.keymap.vim_operator.motion_till_backward": [
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_operator.select_around_text_object": [
-   "documented"
+  "config:tui.keymap.vim_operator.motion_word_backward": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_operator.select_inner_text_object": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_operator.yank_line": [
-   "documented"
+  "config:tui.keymap.vim_operator.motion_word_forward": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_operator.select_around_text_object": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_search": [
-   "undocumented"
+   "undocumented",
+   "ui"
   ],
-  "config:tui.keymap.vim_search.backward": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_search.forward": [
-   "documented"
+  "config:tui.keymap.vim_operator.yank_line": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_search.next": [
-   "documented"
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_search.previous": [
-   "documented"
+  "config:tui.keymap.vim_search.forward": [
+   "documented",
+   "ui"
   ],
-  "config:tui.keymap.vim_text_object": [
-   "undocumented"
-  ],
-  "config:tui.keymap.vim_text_object.backtick": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_text_object.big_word": [
-   "documented"
+  "config:tui.keymap.vim_search.backward": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_text_object.braces": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_text_object": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_text_object.backtick": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_text_object.brackets": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_text_object.cancel": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_text_object.double_quote": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_text_object.parentheses": [
-   "documented"
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.vim_text_object.cancel": [
+   "documented",
+   "ui"
   ],
   "config:tui.keymap.vim_text_object.single_quote": [
-   "documented"
-  ],
-  "config:tui.keymap.vim_text_object.word": [
-   "documented"
+   "documented",
+   "ui"
   ],
   "config:agents.job_max_runtime_seconds": [
    "undocumented",
    "hidden"
   ],
+  "config:tui.keymap.vim_search.previous": [
+   "documented",
+   "ui"
+  ],
   "config:agents.max_threads": [
    "documented",
    "hidden",
-   "legacy"
+   "legacy",
+   "multi-agent"
   ],
-  "config:experimental_thread_store.type = \"in_memory\"": [
-   "undocumented",
-   "hidden"
+  "config:tui.keymap.vim_text_object.word": [
+   "documented",
+   "ui"
   ],
   "config:experimental_thread_store_endpoint": [
    "undocumented",
-   "hidden"
-  ],
-  "config:ghost_snapshot.ignore_untracked_files_over_bytes": [
-   "undocumented",
    "hidden",
-   "legacy"
+   "telemetry-storage"
   ],
   "config:ghost_snapshot.large_untracked_dir_warning_threshold": [
    "undocumented",
    "hidden",
    "legacy"
   ],
-  "config:js_repl_node_module_dirs": [
+  "config:experimental_thread_store.type = \"in_memory\"": [
    "undocumented",
-   "hidden"
+   "hidden",
+   "telemetry-storage"
   ],
-  "config:js_repl_node_path": [
-   "undocumented",
-   "hidden"
+  "config:tui.keymap.vim_text_object.big_word": [
+   "documented",
+   "ui"
   ],
-  "config:mcp_servers.<id>.bearer_token": [
-   "undocumented",
-   "hidden"
-  ],
-  "config:memories.no_memories_if_mcp_or_web_search": [
+  "config:ghost_snapshot.ignore_untracked_files_over_bytes": [
    "undocumented",
    "hidden",
    "legacy"
   ],
+  "config:mcp_servers.<id>.bearer_token": [
+   "undocumented",
+   "hidden",
+   "mcp-plugins"
+  ],
+  "config:js_repl_node_path": [
+   "undocumented",
+   "hidden",
+   "built-in-tools"
+  ],
+  "config:memories.no_memories_if_mcp_or_web_search": [
+   "undocumented",
+   "hidden",
+   "legacy",
+   "memory-context"
+  ],
+  "config:js_repl_node_module_dirs": [
+   "undocumented",
+   "hidden",
+   "built-in-tools"
+  ],
   "config:profiles.<name>.js_repl_node_module_dirs": [
    "undocumented",
-   "hidden"
+   "hidden",
+   "built-in-tools"
   ],
   "config:profiles.<name>.js_repl_node_path": [
    "undocumented",
-   "hidden"
-  ],
-  "config:computer_use.windows.always_allowed_app_ids": [
-   "documented",
-   "rejected"
-  ],
-  "config:features.rollout_budget.reminder_interval_tokens": [
-   "documented",
-   "rejected"
-  ],
-  "config:mcp_servers.<id>.experimental_environment": [
-   "documented",
-   "rejected"
+   "hidden",
+   "built-in-tools"
   ],
   "config:model_supports_reasoning_summaries": [
    "documented",
-   "rejected"
+   "rejected",
+   "model-reasoning"
   ],
-  "config:tools.view_image": [
+  "config:mcp_servers.<id>.experimental_environment": [
    "documented",
-   "rejected"
+   "rejected",
+   "mcp-plugins"
   ],
-  "config:windows_wsl_setup_acknowledged": [
+  "config:computer_use.windows.always_allowed_app_ids": [
    "documented",
-   "rejected"
+   "rejected",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:features.rollout_budget.reminder_interval_tokens": [
+   "documented",
+   "rejected",
+   "memory-context"
   ],
   "config:requirements:allow_appshots": [
    "documented",
    "requirements"
   ],
+  "config:tools.view_image": [
+   "documented",
+   "rejected",
+   "built-in-tools"
+  ],
+  "config:windows_wsl_setup_acknowledged": [
+   "documented",
+   "rejected"
+  ],
   "config:requirements:allow_browser_and_computer_use": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:allow_login_shell": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:allow_managed_hooks_only": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:allow_remote_control": [
    "documented",
@@ -3074,135 +4125,195 @@
   ],
   "config:requirements:allowed_approval_policies": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:allowed_approvals_reviewers": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
-  "config:requirements:allowed_chatgpt_workspaces": [
+  "config:requirements:allow_login_shell": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:allowed_login_methods": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:allowed_permission_profiles": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:allowed_permission_profiles.<name>": [
-   "documented",
-   "requirements"
+   "requirements",
+   "auth-providers"
   ],
   "config:requirements:allowed_sandbox_modes": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:allow_managed_hooks_only": [
+   "documented",
+   "requirements",
+   "hooks-notifications"
+  ],
+  "config:requirements:allowed_permission_profiles": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:allowed_permission_profiles.<name>": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:allowed_web_search_modes": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
+  ],
+  "config:requirements:allowed_chatgpt_workspaces": [
+   "documented",
+   "requirements",
+   "auth-providers"
+  ],
+  "config:requirements:apps.<id>.enabled": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:apps": [
    "documented",
    "requirements"
   ],
-  "config:requirements:apps.<id>.enabled": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:apps.<id>.tools.<tool>.approval_mode": [
-   "documented",
-   "requirements"
-  ],
   "config:requirements:browser_use": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:browser_use.allow_global_persistent_approval": [
-   "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.allow_history_access": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
-  "config:requirements:browser_use.default_origin_policy": [
+  "config:requirements:apps.<id>.tools.<tool>.approval_mode": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:browser_use.default_origin_policy.access": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:requirements:browser_use.allow_global_persistent_approval": [
+   "documented",
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:requirements:browser_use.default_origin_policy": [
+   "documented",
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.default_origin_policy.access_approval_lifetime": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:browser_use.default_origin_policy.auto_review": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:browser_use.default_origin_policy.downloads": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:browser_use.default_origin_policy.full_cdp_access": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:browser_use.default_origin_policy.persistent_approval": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
-  "config:requirements:browser_use.default_origin_policy.uploads": [
+  "config:requirements:browser_use.default_origin_policy.downloads": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
-  "config:requirements:browser_use.disable_auto_review": [
+  "config:requirements:browser_use.default_origin_policy.full_cdp_access": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.origins": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
+  ],
+  "config:requirements:browser_use.disable_auto_review": [
+   "documented",
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.origins.<pattern>": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.origins.<pattern>.access": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:browser_use.origins.<pattern>.access_approval_lifetime": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:browser_use.origins.<pattern>.auto_review": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.origins.<pattern>.downloads": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
-  "config:requirements:browser_use.origins.<pattern>.full_cdp_access": [
+  "config:requirements:browser_use.origins.<pattern>.access_approval_lifetime": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:requirements:browser_use.default_origin_policy.uploads": [
+   "documented",
+   "requirements",
+   "built-in-tools"
+  ],
+  "config:requirements:browser_use.origins.<pattern>.auto_review": [
+   "documented",
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.origins.<pattern>.persistent_approval": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
+  ],
+  "config:requirements:browser_use.origins.<pattern>.full_cdp_access": [
+   "documented",
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:browser_use.origins.<pattern>.uploads": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:chatgpt_base_url": [
    "documented",
-   "requirements"
+   "requirements",
+   "auth-providers"
+  ],
+  "config:requirements:computer_use.allow_locked_computer_use": [
+   "documented",
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:check_for_update_on_startup": [
    "documented",
@@ -3210,71 +4321,85 @@
   ],
   "config:requirements:cli_auth_credentials_store": [
    "documented",
-   "requirements"
+   "requirements",
+   "auth-providers",
+   "telemetry-storage"
   ],
   "config:requirements:computer_use": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:computer_use.allow_locked_computer_use": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:computer_use.allow_persistent_approval": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:computer_use.default_app_access": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:computer_use.macos": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:computer_use.macos.bundle_ids": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:computer_use.macos.bundle_ids.<bundle-id>": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
-  "config:requirements:computer_use.windows": [
+  "config:requirements:computer_use.macos": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:computer_use.windows.aumids": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
-  "config:requirements:computer_use.windows.aumids.<aumid>": [
+  "config:requirements:computer_use.windows": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:computer_use.windows.exes": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:computer_use.windows.exes[].access": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:computer_use.windows.exes[].binary_name": [
-   "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:computer_use.windows.exes[].product_name": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
+  ],
+  "config:requirements:computer_use.windows.aumids.<aumid>": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:computer_use.windows.exes": [
+   "documented",
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:computer_use.windows.exes[].publisher_name": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
-  "config:requirements:default_permissions": [
+  "config:requirements:computer_use.windows.exes[].access": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:computer_use.windows.exes[].binary_name": [
+   "documented",
+   "requirements",
+   "sandbox-approvals",
+   "built-in-tools"
   ],
   "config:requirements:enforce_residency": [
    "documented",
@@ -3282,57 +4407,63 @@
   ],
   "config:requirements:experimental_network": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:experimental_network.allow_local_binding": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:experimental_network.allow_upstream_proxy": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:experimental_network.allowed_domains": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:experimental_network.dangerously_allow_all_unix_sockets": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
-  "config:requirements:experimental_network.dangerously_allow_non_loopback_proxy": [
+  "config:requirements:experimental_network.allowed_domains": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:experimental_network.allow_local_binding": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:default_permissions": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:experimental_network.allow_upstream_proxy": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:experimental_network.denied_domains": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:experimental_network.domains": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:experimental_network.enabled": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:experimental_network.http_port": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:experimental_network.managed_allowed_domains_only": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:experimental_network.socks_port": [
    "documented",
    "requirements"
   ],
-  "config:requirements:experimental_network.unix_sockets": [
+  "config:requirements:experimental_network.enabled": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:experimental_network.http_port": [
    "documented",
    "requirements"
   ],
-  "config:requirements:features": [
+  "config:requirements:experimental_network.unix_sockets": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:experimental_network.dangerously_allow_non_loopback_proxy": [
    "documented",
    "requirements"
   ],
@@ -3340,349 +4471,446 @@
    "documented",
    "requirements"
   ],
-  "config:requirements:features.apps": [
+  "config:requirements:features": [
    "documented",
    "requirements"
   ],
-  "config:requirements:features.browser_use": [
+  "config:requirements:experimental_network.managed_allowed_domains_only": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:features.apps": [
    "documented",
    "requirements"
   ],
   "config:requirements:features.browser_use_external": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:features.browser_use_full_cdp_access": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:features.computer_use": [
-   "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:features.fast_mode": [
    "documented",
    "requirements"
   ],
+  "config:requirements:features.browser_use": [
+   "documented",
+   "requirements",
+   "built-in-tools"
+  ],
+  "config:requirements:features.browser_use_full_cdp_access": [
+   "documented",
+   "requirements",
+   "built-in-tools"
+  ],
   "config:requirements:features.guardian_approval": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:features.computer_use": [
+   "documented",
+   "requirements",
+   "built-in-tools"
   ],
   "config:requirements:features.in_app_browser": [
    "documented",
-   "requirements"
+   "requirements",
+   "built-in-tools",
+   "ui"
+  ],
+  "config:requirements:features.multi_agent": [
+   "documented",
+   "requirements",
+   "multi-agent"
   ],
   "config:requirements:features.in_app_updates": [
    "documented",
    "requirements"
   ],
-  "config:requirements:features.memories": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:features.multi_agent": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:features.plugin_sharing": [
-   "documented",
-   "requirements"
-  ],
   "config:requirements:features.plugins": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:features.remote_plugin": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:features.workspace_dependencies": [
    "documented",
    "requirements"
   ],
+  "config:requirements:features.remote_plugin": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:features.memories": [
+   "documented",
+   "requirements",
+   "memory-context"
+  ],
   "config:requirements:feedback": [
    "documented",
-   "requirements"
+   "requirements",
+   "telemetry-storage"
   ],
   "config:requirements:feedback.enabled": [
    "documented",
-   "requirements"
+   "requirements",
+   "telemetry-storage"
   ],
   "config:requirements:guardian_policy_config": [
    "documented",
-   "requirements"
+   "requirements",
+   "prompt-instructions",
+   "sandbox-approvals"
   ],
-  "config:requirements:hooks": [
+  "config:requirements:features.plugin_sharing": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:hooks.<Event>": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:hooks.<Event>[].hooks": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins",
+   "hooks-notifications"
   ],
-  "config:requirements:hooks.<Event>[].hooks[].additionalContextLimit": [
+  "config:requirements:hooks.<Event>": [
    "documented",
-   "requirements"
+   "requirements",
+   "hooks-notifications"
   ],
   "config:requirements:hooks.<Event>[].hooks[].async": [
    "documented",
-   "requirements"
+   "requirements",
+   "hooks-notifications"
   ],
   "config:requirements:hooks.<Event>[].hooks[].commandWindows": [
    "documented",
-   "requirements"
+   "requirements",
+   "hooks-notifications"
+  ],
+  "config:requirements:hooks": [
+   "documented",
+   "requirements",
+   "hooks-notifications"
+  ],
+  "config:requirements:hooks.<Event>[].hooks[].additionalContextLimit": [
+   "documented",
+   "requirements",
+   "hooks-notifications"
   ],
   "config:requirements:hooks.managed_dir": [
    "documented",
-   "requirements"
+   "requirements",
+   "hooks-notifications"
   ],
   "config:requirements:hooks.windows_managed_dir": [
    "documented",
-   "requirements"
+   "requirements",
+   "hooks-notifications"
+  ],
+  "config:requirements:in_app_browser.allow_external_browser_settings_import": [
+   "documented",
+   "requirements",
+   "built-in-tools"
+  ],
+  "config:requirements:log_dir": [
+   "documented",
+   "requirements",
+   "telemetry-storage"
   ],
   "config:requirements:in_app_browser": [
    "documented",
    "requirements"
   ],
-  "config:requirements:in_app_browser.allow_external_browser_settings_import": [
+  "config:requirements:marketplaces.allowed_sources.<name>.host_pattern": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:log_dir": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:marketplaces": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:marketplaces.allowed_sources": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:marketplaces.allowed_sources.<name>": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:marketplaces.allowed_sources.<name>.host_pattern": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:marketplaces.allowed_sources.<name>.path": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:marketplaces.allowed_sources.<name>.ref": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:marketplaces.allowed_sources.<name>.source": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:marketplaces.allowed_sources.<name>.url": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:marketplaces.restrict_to_allowed_sources": [
+  "config:requirements:marketplaces.allowed_sources.<name>.ref": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:marketplaces.allowed_sources.<name>.path": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:mcp_servers": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:mcp_servers.<id>.identity": [
+  "config:requirements:marketplaces.restrict_to_allowed_sources": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:mcp_servers.<id>.identity.command": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:mcp_servers.<id>.identity.command.args": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:mcp_servers.<id>.identity.command": [
+   "documented",
+   "requirements",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
   "config:requirements:mcp_servers.<id>.identity.command.args[].expression": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:mcp_servers.<id>.identity.command.args[].match": [
+  "config:requirements:mcp_servers.<id>.identity": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:mcp_servers.<id>.identity.command.args[].value": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:mcp_servers.<id>.identity.command.args[].match": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:mcp_servers.<id>.identity.command.executable": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:mcp_servers.<id>.identity.url": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:mcp_servers.<id>.identity.url.expression": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:mcp_servers.<id>.identity.url.match": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:mcp_servers.<id>.identity.url.value": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:mcp_servers.<id>.identity.url.expression": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:model_catalog_json": [
    "documented",
-   "requirements"
+   "requirements",
+   "model-reasoning",
+   "persistent-mode"
   ],
   "config:requirements:models": [
    "documented",
-   "requirements"
+   "requirements",
+   "model-reasoning"
   ],
-  "config:requirements:models.new_thread": [
+  "config:requirements:mcp_servers.<id>.identity.url.match": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:mcp_servers.<id>.identity.url": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:models.new_thread.model": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:models.new_thread.model_reasoning_effort": [
-   "documented",
-   "requirements"
+   "requirements",
+   "model-reasoning"
   ],
   "config:requirements:models.new_thread.service_tier": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:permissions": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:permissions.<name>": [
-   "documented",
-   "requirements"
+   "requirements",
+   "model-reasoning"
   ],
   "config:requirements:permissions.filesystem.deny_read": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
-  "config:requirements:plugins": [
+  "config:requirements:models.new_thread": [
    "documented",
-   "requirements"
+   "requirements",
+   "model-reasoning"
   ],
-  "config:requirements:plugins.<plugin>.mcp_servers": [
+  "config:requirements:models.new_thread.model_reasoning_effort": [
    "documented",
-   "requirements"
+   "requirements",
+   "persistent-mode",
+   "model-reasoning"
+  ],
+  "config:requirements:permissions.<name>": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:permissions": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command": [
+  "config:requirements:plugins": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.args": [
+  "config:requirements:plugins.<plugin>.mcp_servers": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.args[].expression": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.args[].match": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.args[].value": [
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.args": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.executable": [
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals",
+   "mcp-plugins"
   ],
   "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.url": [
    "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.url.expression": [
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.args[].expression": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.url.match": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.url.value": [
-   "documented",
-   "requirements"
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:remote_sandbox_config": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.url.expression": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.executable": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.url.value": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:remote_sandbox_config[].allowed_sandbox_modes": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.url.match": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
+  ],
+  "config:requirements:plugins.<plugin>.mcp_servers.<server>.identity.command.args[].value": [
+   "documented",
+   "requirements",
+   "mcp-plugins"
   ],
   "config:requirements:remote_sandbox_config[].hostname_patterns": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:rules": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:rules.prefix_rules": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:rules.prefix_rules[].decision": [
-   "documented",
-   "requirements"
-  ],
-  "config:requirements:rules.prefix_rules[].justification": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:rules.prefix_rules[].pattern": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:rules.prefix_rules": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:rules.prefix_rules[].pattern[].any_of": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:rules": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:rules.prefix_rules[].decision": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:rules.prefix_rules[].justification": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:rules.prefix_rules[].pattern[].token": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:sqlite_home": [
    "documented",
-   "requirements"
+   "requirements",
+   "telemetry-storage"
   ],
   "config:requirements:windows": [
    "documented",
-   "requirements"
-  ],
-  "config:requirements:windows.allowed_sandbox_implementations": [
-   "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
   ],
   "config:requirements:windows.sandbox_private_desktop": [
    "documented",
-   "requirements"
+   "requirements",
+   "sandbox-approvals"
+  ],
+  "config:requirements:windows.allowed_sandbox_implementations": [
+   "documented",
+   "requirements",
+   "sandbox-approvals"
   ]
  }
 }

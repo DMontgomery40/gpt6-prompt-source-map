@@ -46,7 +46,7 @@ export function filterBar(filter, total) {
 }
 
 export const filterStyles = `
-    .filter-bar{position:sticky;top:0;z-index:5;margin:0 0 28px;padding:16px 18px;border:1px solid var(--line);border-radius:6px;background:#171816f5}
+    .filter-bar{margin:0 0 28px;padding:16px 18px;border:1px solid var(--line);border-radius:6px;background:#171816}
     .filter-row{display:grid;grid-template-columns:64px 1fr;gap:10px;margin-bottom:10px}
     .filter-label{padding-top:5px;color:#c6c9c2;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
     .filter-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -82,6 +82,12 @@ export const filterScript = `
         for (const chip of scope.querySelectorAll(".chip[data-tag]")) chip.setAttribute("aria-pressed", String(selected.has(chip.dataset.tag)));
         count.textContent = selected.size ? \`Showing \${shown.toLocaleString("en-US")} of \${total.toLocaleString("en-US")}\` : \`Showing all \${total.toLocaleString("en-US")}\`;
         clear.hidden = !selected.size;
+        // The contents sidebar lists only what the filter shows.
+        for (const link of document.querySelectorAll(".toc a[href*='#']")) {
+          const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+          if (target && scope.contains(target)) link.parentElement.hidden = Boolean(target.closest("[hidden]"));
+        }
+        document.dispatchEvent(new Event("filterchange"));
         const url = new URL(location.href);
         if (selected.size) url.searchParams.set("tags", [...selected].join(",")); else url.searchParams.delete("tags");
         history.replaceState(history.state, "", url);

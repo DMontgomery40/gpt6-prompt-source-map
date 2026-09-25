@@ -202,10 +202,12 @@ export const tocScript = `
           const box = entry.target.getBoundingClientRect();
           return [box.top, box.bottom];
         }
-        if (!entry.panel || !shown(entry.panel)) return null;
+        if (!entry.panel || !shown(entry.panel) || entry.target.closest("[hidden]")) return null;
         const top = entry.target.getBoundingClientRect().top;
-        const bottom = entry.next
-          ? entry.next.target.getBoundingClientRect().top
+        let next = entry.next;
+        while (next && next.target.closest("[hidden]")) next = next.next;
+        const bottom = next
+          ? next.target.getBoundingClientRect().top
           : entry.panel.getBoundingClientRect().bottom;
         return [top, bottom];
       }
@@ -311,6 +313,7 @@ export const tocScript = `
       document.addEventListener("toggle", () => { syncClosedDocuments(); schedule(); }, true);
       addEventListener("scroll", schedule, { passive: true });
       addEventListener("resize", schedule);
+      document.addEventListener("filterchange", schedule);
       syncClosedDocuments();
       update();
     })();`;
