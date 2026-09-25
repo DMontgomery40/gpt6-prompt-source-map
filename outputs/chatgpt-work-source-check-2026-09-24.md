@@ -28,6 +28,6 @@ The loaded Work JavaScript assets contained no `You are ChatGPT` base prompt. Pr
 
 ## Separate installed-app and cache check
 
-The native ChatGPT/Codex desktop package at `/Applications/ChatGPT.app` was inspected separately from the live Work browser session. A Safari web-app wrapper at `/Users/davidmontgomery/Applications/ChatGPT.app` and the native app's `system-hints` and `models` cache response files were also checked without reading conversations or drafts. The system-hints cache contained routing and UI hint data; no GPT-6 Work instruction text was recovered. The model cache produced no prompt-like or codename string hit. These are negative local-artifact findings, not proof about server-side configuration.
+The native ChatGPT/Codex desktop package at `/Applications/ChatGPT.app` was inspected separately from the live Work browser session. A Safari web-app wrapper at `~/Applications/ChatGPT.app` and the native app's `system-hints` and `models` cache response files were also checked without reading conversations or drafts. The system-hints cache contained routing and UI hint data; no GPT-6 Work instruction text was recovered. The model cache produced no prompt-like or codename string hit. These are negative local-artifact findings, not proof about server-side configuration.
 
 Historical names such as Aeon, Daybreak, Mewfour, Nathree, and Persian were used only as discovery terms. They are not asserted as current Work model identities.

@@ -1,7 +1,7 @@
 {
-  "captured_at": "2026-09-24",
-  "source": "/Applications/ChatGPT.app/Contents/Resources/codex debug models",
+  "source": "ChatGPT.app/Contents/Resources/codex debug models",
   "surface": "Authenticated Codex model catalog; this is not the ChatGPT Work model catalog.",
+  "hash_rule": "SHA-256 over the UTF-8 bytes of Python json.dumps(value, sort_keys=True, ensure_ascii=False) for each model_messages field.",
   "models": {
     "gpt-6-astra": {
       "persistent_instructions": {

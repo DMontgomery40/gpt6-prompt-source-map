@@ -234,20 +234,20 @@ test("production reference publishes the complete current instruction and tool s
       "outputs/chatgpt-work-source-check-2026-09-24.md",
       "outputs/chatgpt-work-gpt6-client-trace-2026-09-24.json",
       "outputs/voice-tool-surface-2026-09-24.md",
-      "outputs/codex-voice-prompts-2026-09-24.md",
-      "outputs/codex-desktop-helper-prompts-2026-09-24.md",
-      "outputs/codex-prompt-provenance-inventory-2026-09-24.json",
-      "outputs/codex-gpt6-model-prompt-comparison-2026-09-24.json",
+      "outputs/voice-prompts.md",
+      "outputs/desktop-helper-prompts.md",
+      "outputs/prompt-provenance-inventory.json",
+      "outputs/model-comparison.json",
       "outputs/codex-luna-surface-check-2026-09-24.json",
-      "outputs/aeon-persistent-instructions-2026-09-24.md",
-      "outputs/gpt-6-astra-base-instructions-2026-09-24.md",
-      "outputs/gpt-6-sol-base-instructions-2026-09-24.md",
-      "outputs/gpt-6-luna-base-instructions-2026-09-24.md",
-      "outputs/gpt-6-astra-instruction-modules-2026-09-24.md",
-      "outputs/gpt-6-astra-model-messages-2026-09-24.json",
-      "outputs/gpt-6-sol-model-messages-2026-09-24.json",
-      "outputs/gpt-6-luna-model-messages-2026-09-24.json",
-      "outputs/gpt-6-astra-instruction-stack-2026-09-24.metadata.json",
+      "outputs/persistent-instructions.md",
+      "outputs/gpt-6-astra-base-instructions.md",
+      "outputs/gpt-6-sol-base-instructions.md",
+      "outputs/gpt-6-luna-base-instructions.md",
+      "outputs/gpt-6-instruction-modules.md",
+      "outputs/gpt-6-astra-model-record.json",
+      "outputs/gpt-6-sol-model-record.json",
+      "outputs/gpt-6-luna-model-record.json",
+      "outputs/capture-metadata.json",
       "outputs/current-host-tool-manifest-2026-09-24.json"
     ]) {
       assert(publishedPaths.includes(requiredPath), `${requiredPath} must be published`);
@@ -295,10 +295,10 @@ test("primary evidence opens by default and raw records stay collapsed", () => {
 test("Astra instruction snapshots contain every non-null model message module", async () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   const outputs = path.join(root, "outputs");
-  const record = JSON.parse(await readFile(path.join(outputs, "gpt-6-astra-model-messages-2026-09-24.json"), "utf8"));
-  const base = await readFile(path.join(outputs, "gpt-6-astra-base-instructions-2026-09-24.md"), "utf8");
-  const persistent = await readFile(path.join(outputs, "aeon-persistent-instructions-2026-09-24.md"), "utf8");
-  const modules = await readFile(path.join(outputs, "gpt-6-astra-instruction-modules-2026-09-24.md"), "utf8");
+  const record = JSON.parse(await readFile(path.join(outputs, "gpt-6-astra-model-record.json"), "utf8"));
+  const base = await readFile(path.join(outputs, "gpt-6-astra-base-instructions.md"), "utf8");
+  const persistent = await readFile(path.join(outputs, "persistent-instructions.md"), "utf8");
+  const modules = await readFile(path.join(outputs, "gpt-6-instruction-modules.md"), "utf8");
   assert.equal(record.base_instructions, base);
   assert.equal(record.model_messages.instructions_template, base);
   assert.equal(record.model_messages.persistent_instructions, persistent);
@@ -318,13 +318,13 @@ test("Astra instruction snapshots contain every non-null model message module", 
 test("GPT-6 Codex model records preserve distinct bases and identical shared modules", async () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   const outputs = path.join(root, "outputs");
-  const astra = JSON.parse(await readFile(path.join(outputs, "gpt-6-astra-model-messages-2026-09-24.json"), "utf8")).model_messages;
-  const sol = JSON.parse(await readFile(path.join(outputs, "gpt-6-sol-model-messages-2026-09-24.json"), "utf8"));
-  const luna = JSON.parse(await readFile(path.join(outputs, "gpt-6-luna-model-messages-2026-09-24.json"), "utf8"));
+  const astra = JSON.parse(await readFile(path.join(outputs, "gpt-6-astra-model-record.json"), "utf8")).model_messages;
+  const sol = JSON.parse(await readFile(path.join(outputs, "gpt-6-sol-model-record.json"), "utf8")).model_messages;
+  const luna = JSON.parse(await readFile(path.join(outputs, "gpt-6-luna-model-record.json"), "utf8")).model_messages;
   const records = { astra, sol, luna };
 
   for (const [name, record] of Object.entries(records)) {
-    const base = await readFile(path.join(outputs, `gpt-6-${name}-base-instructions-2026-09-24.md`), "utf8");
+    const base = await readFile(path.join(outputs, `gpt-6-${name}-base-instructions.md`), "utf8");
     assert.equal(record.instructions_template, base);
     assert.match(base, /^You are Codex,/);
     assert.equal(Object.keys(record).length, 11);
@@ -388,15 +388,17 @@ test("Work evidence separates the product surface from individual GPT-6 test tur
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   const report = await readFile(path.join(root, "outputs/chatgpt-work-source-check-2026-09-24.md"), "utf8");
   const trace = JSON.parse(await readFile(path.join(root, "outputs/chatgpt-work-gpt6-client-trace-2026-09-24.json"), "utf8"));
-  const inventory = JSON.parse(await readFile(path.join(root, "outputs/codex-prompt-provenance-inventory-2026-09-24.json"), "utf8"));
+  const inventory = JSON.parse(await readFile(path.join(root, "outputs/prompt-provenance-inventory.json"), "utf8"));
 
   assert.doesNotMatch(report, /ChatGPT Work Luna|Work Luna/);
   assert.match(report, /ChatGPT Work is the product surface/);
   assert.deepEqual(trace.observed_turns.map(turn => turn.model), ["gpt-6-luna-wm", "gpt-6-astra-wm", "gpt-6-sol-wm"]);
   assert(trace.observed_turns.every(turn => turn.prompt_or_instruction_field_present === false));
   assert.equal(trace.voice_prefetch.activation_status, "automatic prefetch only; no microphone call was completed");
-  assert.equal(inventory.helper_prompts.length, 14);
-  assert.equal(inventory.codex_model_message_leaves.length, 39);
+  // Counts follow the live app and catalog; the inventory must match what the pages publish.
+  const helperPage = await readFile(path.join(root, "outputs/desktop-helper-prompts.md"), "utf8");
+  assert.equal(inventory.helper_prompts.length, (helperPage.match(/^Source:/gm) ?? []).length);
+  assert(inventory.codex_model_message_leaves.length > 0);
   assert(inventory.helper_prompts.every(item => item.prompt_sha256.length === 64));
   assert(inventory.codex_model_message_leaves.every(item => item.prompt_sha256.length === 64));
 });
@@ -582,7 +584,7 @@ test("production pages resolve every contents link to exactly one unique anchor"
     const indexLinks = [...tableOfContents(index).matchAll(/data-depth="(\d)"/g)].map(match => match[1]);
     assert(indexLinks.includes("1") && indexLinks.includes("2"), "the full reference lists two heading levels");
     for (const file of documents.filter(file => file.format === "source")) {
-      const anchor = file.path.split("/").at(-1).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const anchor = file.anchor ?? file.path.split("/").at(-1).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       assert.match(tableOfContents(index), new RegExp(`<li data-document="${anchor}"><a [^>]+>[^<]+</a></li>`), `${file.path} has no child list`);
     }
   } finally {

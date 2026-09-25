@@ -1,0 +1,9 @@
+{
+  "last_changed": "2026-09-25T07:55:08.012Z",
+  "checked": "hourly",
+  "sources": {
+    "app_version": "26.917.71314",
+    "app_build": "10954",
+    "cli_version": "codex-cli 0.155.0-alpha.16.4"
+  }
+}

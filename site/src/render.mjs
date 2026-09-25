@@ -179,7 +179,7 @@ function stripEditorialTitle(source) {
 
 function renderDocument(document, ids) {
   const name = fileName(document.path);
-  const anchor = fileAnchor(document.path);
+  const anchor = document.anchor ?? fileAnchor(document.path);
   const source = !document.instructionProfile || document.instructionProfile === "voice"
     ? stripEditorialTitle(document.source)
     : document.source;
@@ -197,6 +197,7 @@ function renderDocument(document, ids) {
     category: document.category,
     title: document.title ?? name,
     slug: document.slug,
+    snapshot: document.snapshot,
     profile: document.instructionProfile,
     source: document.source,
     defaultOpen: document.defaultOpen,
@@ -205,11 +206,17 @@ function renderDocument(document, ids) {
   };
 }
 
+// One-time observations are labeled with their date; everything else is regenerated
+// from the current sources.
+function kicker(document) {
+  return document.snapshot ? `${document.category} · Snapshot from ${document.snapshot}` : document.category;
+}
+
 function documentPanel(document) {
   return `
     <details class="document" id="${document.anchor}" aria-labelledby="${document.anchor}-title"${document.defaultOpen ? " open" : ""}>
       <summary class="document-summary">
-        <div class="document-kicker">${escapeHtml(document.category)}</div>
+        <div class="document-kicker">${escapeHtml(kicker(document))}</div>
         <h2 id="${document.anchor}-title">${escapeHtml(document.title)}</h2>
       </summary>
       <div class="document-content">${document.content}</div>
@@ -220,7 +227,7 @@ function documentArticle(document, routes) {
   return `
       <article class="document-page" id="${document.anchor}" aria-labelledby="${document.anchor}-title">
         <header class="document-page-header">
-          <div class="document-kicker">${escapeHtml(document.category)}</div>
+          <div class="document-kicker">${escapeHtml(kicker(document))}</div>
           <h1 class="page-title" id="${document.anchor}-title">${escapeHtml(document.title)}</h1>
           <a class="full-reference-link" href="../">Full reference</a>
         </header>
@@ -228,22 +235,29 @@ function documentArticle(document, routes) {
       </article>`;
 }
 
+// "Updated <date> · checked hourly", from outputs/status.json written by the watcher.
+function statusLine(status) {
+  if (!status?.last_changed) return "";
+  const date = new Date(status.last_changed).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "America/Denver" });
+  return status.checked ? `Updated ${date} · checked ${status.checked}` : `Updated ${date}`;
+}
+
 // Renders the single-page reference at index.html plus one page per document at
 // <slug>/index.html.
-export function renderSite({ categories, documents }) {
+export function renderSite({ categories, documents, status = null }) {
   const ids = new Set();
   const rendered = documents.map(document => renderDocument(document, ids));
   const routes = createRoutes(rendered);
   return [
-    { path: "index.html", html: renderPage({ categories, rendered, routes }) },
+    { path: "index.html", html: renderPage({ categories, rendered, routes, status }) },
     ...rendered.map(current => ({
       path: `${routes.slug(current.anchor)}/index.html`,
-      html: renderPage({ categories, rendered, routes, current })
+      html: renderPage({ categories, rendered, routes, current, status })
     }))
   ];
 }
 
-function renderPage({ categories, rendered, routes, current = null }) {
+function renderPage({ categories, rendered, routes, current = null, status = null }) {
   const anchors = new Map(rendered.map(document => [document.path, document.anchor]));
   const outlines = current
     ? new Map([[current.path, current.outline.map(item => ({ ...item, id: routes.localId(item.id, current.anchor) }))]])
@@ -402,7 +416,7 @@ ${current ? "" : `  <div class="intro" id="intro" role="dialog" aria-modal="true
   <main id="content" class="main">
     <div class="content">
 ${current ? documentArticle(current, routes) : `      <header>
-        <div class="date">September 24, 2026</div>
+        <div class="date">${escapeHtml(statusLine(status))}</div>
         <h1 class="page-title">GPT-6 Prompt Source Map</h1>
         <p class="dek">ChatGPT Work, Codex GPT-6 instructions, desktop helpers, and voice evidence in one reference.</p>
 ${renderGuide(rendered)}

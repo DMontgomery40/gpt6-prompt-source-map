@@ -43,7 +43,8 @@ export async function buildSite({ sourceRoot, outFile, categories }) {
   const outDir = path.dirname(outFile);
   await mkdir(outDir, { recursive: true });
   await removeDocumentPages(outDir);
-  for (const page of renderSite({ categories, documents })) {
+  const status = await readFile(path.join(sourceRoot, "outputs/status.json"), "utf8").then(JSON.parse, () => null);
+  for (const page of renderSite({ categories, documents, status })) {
     const file = page.path === "index.html" ? outFile : path.join(outDir, page.path);
     await mkdir(path.dirname(file), { recursive: true });
     await writeFile(file, page.html, "utf8");

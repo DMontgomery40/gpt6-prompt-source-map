@@ -1,10 +1,9 @@
 {
-  "extracted_at": "2026-09-25T02:34:23.495Z",
   "source": {
     "app_version": "26.917.71314",
     "app_build": "10954",
     "cli_version": "codex-cli 0.155.0-alpha.16.4",
-    "binary_path": "/Applications/ChatGPT.app/Contents/Resources/codex",
+    "binary_path": "ChatGPT.app/Contents/Resources/codex",
     "binary_sha256": "93169e745735930598e867ad837abf3fdc50774a3ad7e7aa89c0d0c51b0189a5",
     "model_slug": "gpt-6-astra"
   },
@@ -47,10 +46,10 @@
     }
   },
   "outputs": {
-    "persistent": "aeon-persistent-instructions-2026-09-24.md",
-    "base": "gpt-6-astra-base-instructions-2026-09-24.md",
-    "modules": "gpt-6-astra-instruction-modules-2026-09-24.md",
-    "modelMessages": "gpt-6-astra-model-messages-2026-09-24.json",
-    "metadata": "gpt-6-astra-instruction-stack-2026-09-24.metadata.json"
+    "persistent": "persistent-instructions.md",
+    "base": "gpt-6-astra-base-instructions.md",
+    "modules": "gpt-6-instruction-modules.md",
+    "modelMessages": "gpt-6-astra-model-record.json",
+    "metadata": "capture-metadata.json"
   }
 }

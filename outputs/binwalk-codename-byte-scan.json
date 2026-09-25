@@ -1,7 +1,7 @@
 {
   "roots": [
     "/Applications/ChatGPT.app/Contents",
-    "/Users/davidmontgomery/Documents/Codex/2026-09-24/do-x20/work/binwalk/extract-codex-full"
+    "~/Documents/Codex/2026-09-24/do-x20/work/binwalk/extract-codex-full"
   ],
   "scanned_files": 4197,
   "scanned_bytes": 1450421595,

@@ -98,7 +98,7 @@ export function renderToc(categories, outlines, href) {
           <ul>
             ${category.files
               .map(file => {
-                const anchor = fileAnchor(file.path);
+                const anchor = file.anchor ?? fileAnchor(file.path);
                 const title = escapeHtml(file.title ?? file.path.split("/").at(-1));
                 const children = renderItems(outlineTree(outlines.get(file.path) ?? []), 1, id => href(file.path, id));
                 return `<li data-document="${anchor}"><a href="${href(file.path)}" data-depth="0">${title}</a>${children}</li>`;
