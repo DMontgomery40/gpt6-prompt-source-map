@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { catalogSnapshot } from "./catalog-metadata.mjs";
 
 export const GPT6_DOCUMENTED = ["gpt-6-astra", "gpt-6-sol", "gpt-6-luna"];
 
@@ -38,10 +39,13 @@ function runCatalog(binary, args) {
   }
   const models = payload.models ?? payload;
   if (!Array.isArray(models) || !models.length) throw new SourceError(`${args.join(" ")} returned no models`);
-  return models.map(model => {
+  const records = models.map(model => {
     if (typeof model.slug !== "string") throw new SourceError(`${args.join(" ")} returned a model without a slug`);
     return { slug: model.slug, display_name: model.display_name ?? null, ...Object.fromEntries(RECORD_FIELDS.map(field => [field, model[field]])) };
   });
+  // The full records stay here; only their settings snapshot (prompt fields and account
+  // keys removed, see catalog-metadata.mjs) leaves this module, for local comparison.
+  return { records, settings: catalogSnapshot(models) };
 }
 
 const sameJson = (a, b) => {
@@ -71,8 +75,8 @@ function readCache(codexHome) {
 }
 
 export function loadCatalog(binary, { codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex") } = {}) {
-  const live = runCatalog(binary, ["debug", "models"]);
-  const bundled = runCatalog(binary, ["debug", "models", "--bundled"]);
+  const { records: live, settings: liveSettings } = runCatalog(binary, ["debug", "models"]);
+  const { records: bundled } = runCatalog(binary, ["debug", "models", "--bundled"]);
   const cache = readCache(codexHome);
 
   const liveSlugs = live.map(model => model.slug);
@@ -99,7 +103,7 @@ export function loadCatalog(binary, { codexHome = process.env.CODEX_HOME || path
     }
   }
 
-  return { live, bundled, fetchedAt: cache.fetchedAt, cacheClientVersion: cache.clientVersion, identity: cache.identity };
+  return { live, bundled, liveSettings, fetchedAt: cache.fetchedAt, cacheClientVersion: cache.clientVersion, identity: cache.identity };
 }
 
 // String leaves of a nested value, as dotted paths in source order.

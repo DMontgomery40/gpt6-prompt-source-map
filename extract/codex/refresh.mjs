@@ -22,7 +22,7 @@ import { codexApp } from "./lib/app-layout.mjs";
 import { AnchorError, extractAppPrompts } from "./lib/app-prompts.mjs";
 import { openAsar } from "./lib/asar.mjs";
 import { CatalogError, loadCatalog, SourceError } from "./lib/catalog.mjs";
-import { catalogSnapshot, metadataDiff } from "./lib/catalog-metadata.mjs";
+import { metadataDiff } from "./lib/catalog-metadata.mjs";
 import { buildDocuments, OUTPUT_NAMES, OUTPUT_WHITELIST } from "./lib/documents.mjs";
 import { PrivacyError, privacyScan } from "./lib/privacy.mjs";
 import { renderDiffMarkdown, semanticDiff } from "./lib/semantic-diff.mjs";
@@ -100,7 +100,7 @@ function main() {
 
   // Catalog settings: compared with the snapshot of the last published (or quietly absorbed)
   // run. The watcher promotes catalog-snapshot.next.json to the baseline, never a dry run.
-  const snapshot = catalogSnapshot(catalog.live);
+  const snapshot = catalog.liveSettings;
   const snapshotFile = path.join(workDir, "catalog-snapshot.json");
   const baseline = fs.existsSync(snapshotFile) ? JSON.parse(fs.readFileSync(snapshotFile, "utf8")) : null;
   const settings = baseline ? metadataDiff(baseline, snapshot) : { public: [], private: [] };
