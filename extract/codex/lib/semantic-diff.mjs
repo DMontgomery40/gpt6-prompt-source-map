@@ -11,7 +11,7 @@ const VOLATILE_JSON_KEYS = new Set([
 // Headings that open a unit, per document kind. Headings inside fenced code
 // blocks never count.
 // Two-level documents: a "# group" heading, then one "## item" unit per prompt.
-const TWO_LEVEL = new Set(["other-catalog-models.md", "codex-cli-prompts.md", "codex-cli-bundled-skills.md"]);
+const TWO_LEVEL = new Set(["other-catalog-models.md", "codex-cli-prompts.md", "codex-cli-bundled-skills.md", "desktop-model-facing-text.md"]);
 
 function unitHeading(name, line) {
   if (name === "gpt-6-instruction-modules.md") return /^## [a-z_]+\.[a-z0-9_.]+$/.test(line);

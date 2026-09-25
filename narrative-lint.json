@@ -20,6 +20,7 @@
     "outputs/aeon-core-instructions.md",
     "outputs/aeon-assembled-instructions.md",
     "outputs/codex-cli-prompts.md",
-    "outputs/codex-cli-bundled-skills.md"
+    "outputs/codex-cli-bundled-skills.md",
+    "outputs/desktop-model-facing-text.md"
   ]
 }

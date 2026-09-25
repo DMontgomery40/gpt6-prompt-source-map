@@ -136,3 +136,22 @@ test("catalog settings: public values, private names only, unknown fields privat
   assert.match(text, /## Model settings\n\n- `gpt-6-astra` `context_window`: `400000` → `1000000`/);
   assert.equal(renderDiffMarkdown({ previousSources: sources, sources, documents: [], notes: [], settings: [] }), "");
 });
+
+test("prompt sweep: locale tables, translator notes and code are not candidates; tool descriptions are named", async () => {
+  const { isLocaleBundle, literalRole, looksLikeProse } = await import("../lib/prompt-candidates.mjs");
+  for (const file of ["webview/assets/fr-CA-cf4e006eaee6.js", "webview/assets/tl-8a7531633cea.js", "webview/assets/zh-Hant-TW-0123456789ab.js"]) assert.ok(isLocaleBundle(file), file);
+  for (const file of ["webview/assets/app-shared-588591d226f4.js", "webview/assets/shell-94a875ac3035.js", ".vite/build/main-BefHSPFJ.js"]) assert.ok(!isLocaleBundle(file), file);
+
+  const prose = "You are a careful assistant. Read the whole request before acting and do not guess missing details. Ask one short question when something is unclear, then continue with the task. Keep the answer brief and name every file you changed.";
+  assert.ok(looksLikeProse(prose));
+  assert.ok(!looksLikeProse("const a = { b: 1 }; function c() { return a.b; } ".repeat(8)));
+  assert.ok(!looksLikeProse("Too short to matter."));
+
+  const note = `m={id:\`x.label\`,defaultMessage:\`Add sticker\`,description:\`${prose}\`}`;
+  const tool = `t={name:\`create_worktree\`,description:\`${prose}\`}`;
+  const { literalsOf } = await import("../lib/js-scan.mjs");
+  const roleOfLast = src => { const { outer } = literalsOf(src); return literalRole(src, outer, outer.length - 1); };
+  assert.deepEqual(roleOfLast(note), { kind: "translator-note" });
+  assert.deepEqual(roleOfLast(tool), { kind: "tool-description", tool: "create_worktree" });
+  assert.deepEqual(roleOfLast(`p={developerInstructions:\`${prose}\`}`), { kind: "developerInstructions" });
+});

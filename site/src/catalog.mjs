@@ -198,6 +198,14 @@ export const categories = [
         defaultOpen: false
       },
       {
+        path: "outputs/desktop-model-facing-text.md",
+        anchor: "desktop-model-facing-text-md",
+        slug: "desktop-model-facing-text",
+        format: "markdown",
+        title: "Other model-facing text",
+        defaultOpen: false
+      },
+      {
         path: "outputs/prompt-provenance-inventory.json",
         anchor: "codex-prompt-provenance-inventory-2026-09-24-json",
         slug: "prompt-provenance-inventory",
