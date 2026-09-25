@@ -15,56 +15,56 @@
    "label": "Prompt and instructions",
    "kind": "topic",
    "definition": "Settings that supply, replace or toggle text injected into the model's context: base or developer instructions, instruction files, AGENTS.md / project-doc discovery and size limits, compaction or startup prompts, and switches that include or omit context blocks (environment, permissions, apps, collaboration-mode instructions). It applies in any group, including features.* flags and requirements: variants. It does not cover settings that only change model behavior without adding text, or that store transcripts.",
-   "count": 33
+   "count": 34
   },
   {
    "id": "model-reasoning",
    "label": "Model and reasoning",
    "kind": "topic",
    "definition": "Settings that choose which model runs or how it thinks and answers: model slug, reasoning effort and summaries, verbosity, context window and auto-compaction limit, service tier, model catalogs, and per-role or managed defaults for these. It applies in any group, including features.* flags and requirements: variants. It does not cover provider endpoints, credentials or keybindings that change effort.",
-   "count": 33
+   "count": 35
   },
   {
    "id": "auth-providers",
    "label": "Auth, providers and network",
    "kind": "topic",
    "definition": "Settings and environment variables for signing in and reaching model backends: login method and credential storage, API keys and access tokens, model provider definitions and base URLs, cloud-provider credentials (such as AWS/Bedrock), HTTP proxies, CA certificates and request headers. It applies in any group, including requirements: variants. It does not cover the sandbox's network allowlist for commands the agent runs, or MCP-server-specific auth.",
-   "count": 89
+   "count": 101
   },
   {
    "id": "sandbox-approvals",
    "label": "Sandbox and approvals",
    "kind": "topic",
    "definition": "Settings that limit or approve what the agent may execute or touch: sandbox mode and permission profiles, filesystem and network access for commands, approval policy and approvals reviewer (including guardian auto-review), exec-policy / prefix rules, shell environment policy, and variables Codex sets to mark or escalate sandboxed processes. It applies in any group, including features.* flags and requirements: variants. It does not cover keybindings in approval dialogs or generic terminal-detection variables.",
-   "count": 166
+   "count": 169
   },
   {
    "id": "built-in-tools",
    "label": "Built-in tools",
    "kind": "topic",
    "definition": "Settings for tools that ship with Codex and that the model calls directly: shell / unified exec and background terminals, apply_patch, plan updates, web search, browser use, computer use, image generation and viewing, JS REPL and code mode, clock/sleep and async user-message tools, and tool discovery or suggestion. It applies in any group, including features.* flags and requirements: variants. It does not cover external MCP servers or approval policy in general.",
-   "count": 166
+   "count": 167
   },
   {
    "id": "mcp-plugins",
    "label": "MCP, plugins and skills",
    "kind": "topic",
    "definition": "Settings for extending Codex with external or packaged capabilities: MCP server definitions (command, URL, auth, timeouts, per-tool limits), plugins and marketplaces, skills, and connected apps. It applies in any group, including features.* flags and requirements: variants. It does not cover tools built into Codex such as web search or shell, or sub-agent coordination.",
-   "count": 169
+   "count": 171
   },
   {
    "id": "multi-agent",
    "label": "Multi-agent",
    "kind": "topic",
    "definition": "Settings for spawning and coordinating sub-agents: multi-agent features, agent roles and nicknames, thread and depth limits, default sub-agent model or effort, and orchestrator behavior. It applies in any group, including features.* flags and requirements: variants. It does not cover skills or plugins by themselves, or IDs Codex exports to child processes.",
-   "count": 32
+   "count": 33
   },
   {
    "id": "memory-context",
    "label": "Memory, context and compaction",
    "kind": "topic",
    "definition": "Settings that decide what the model remembers across turns and sessions: generated memories, context-window budgets and reminders, automatic compaction and context rollover, and history/notes carried across windows. It applies in any group, including features.* flags and requirements: variants. It does not cover saving transcripts to disk for the user, telemetry, or clock and current-time reminder settings.",
-   "count": 48
+   "count": 49
   },
   {
    "id": "hooks-notifications",
@@ -85,26 +85,26 @@
    "label": "Telemetry, logs and storage",
    "kind": "topic",
    "definition": "Settings and environment variables for observability and local state: OpenTelemetry exporters and trace context, analytics and feedback, log levels and formats, transcript/history persistence, rollout and session files, and Codex home or database paths. It applies in any group, including features.* flags and requirements: variants. It does not cover the model's memory of past sessions or lifecycle hooks.",
-   "count": 104
+   "count": 105
   },
   {
    "id": "ui",
    "label": "Terminal and desktop UI",
    "kind": "topic",
    "definition": "Settings and environment variables that change how the terminal UI or desktop app looks and behaves for the user: TUI options, keymaps and vim mode, themes and rendering, notices and prompts, desktop-app window or runtime behavior, and terminal detection. It applies in any group. It does not cover what the model can do, or third-party library variables that only happen to be read by the desktop bundle.",
-   "count": 224
+   "count": 241
   },
   {
    "id": "documented",
    "label": "Documented",
    "kind": "status",
-   "count": 657
+   "count": 660
   },
   {
    "id": "undocumented",
    "label": "Undocumented",
    "kind": "status",
-   "count": 430
+   "count": 464
   },
   {
    "id": "hidden",
@@ -116,7 +116,7 @@
    "id": "legacy",
    "label": "Alias, legacy or deprecated",
    "kind": "status",
-   "count": 24
+   "count": 25
   },
   {
    "id": "removed",
@@ -128,7 +128,7 @@
    "id": "rejected",
    "label": "Rejected by this build",
    "kind": "status",
-   "count": 6
+   "count": 7
   },
   {
    "id": "requirements",
@@ -140,7 +140,7 @@
    "id": "stage-under-development",
    "label": "Feature: under development",
    "kind": "status",
-   "count": 58
+   "count": 57
   },
   {
    "id": "stage-experimental",
@@ -152,7 +152,7 @@
    "id": "stage-stable",
    "label": "Feature: stable",
    "kind": "status",
-   "count": 44
+   "count": 47
   }
  ],
  "items": {
@@ -288,11 +288,31 @@
    "documented",
    "auth-providers"
   ],
+  "config:model_providers.<id>.gateway_oauth.delivery.kind": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.delivery.name": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.authorization_url": [
+   "undocumented",
+   "auth-providers"
+  ],
   "config:model_providers.<id>.http_headers": [
    "documented",
    "auth-providers"
   ],
   "config:model_providers.<id>.http_headers.<header>": [
+   "undocumented",
+   "auth-providers"
+  ],
+  "config:model_providers.<id>.gateway_oauth.client_id": [
    "undocumented",
    "auth-providers"
   ],
@@ -481,6 +501,10 @@
    "prompt-instructions",
    "sandbox-approvals"
   ],
+  "config:model_providers.<id>.gateway_oauth.delivery.scheme": [
+   "undocumented",
+   "auth-providers"
+  ],
   "config:auto_review.policy": [
    "documented",
    "prompt-instructions",
@@ -659,13 +683,9 @@
    "documented",
    "sandbox-approvals"
   ],
-  "config:windows.sandbox": [
-   "documented",
-   "sandbox-approvals"
-  ],
-  "config:windows.sandbox_private_desktop": [
-   "documented",
-   "sandbox-approvals"
+  "config:model_providers.<id>.gateway_oauth.redirect_port": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:mcp_enterprise_managed_auth": [
    "undocumented",
@@ -870,6 +890,10 @@
   "config:features": [
    "documented"
   ],
+  "config:model_providers.<id>.gateway_oauth.delivery": [
+   "undocumented",
+   "auth-providers"
+  ],
   "config:features.analytics_plan_history": [
    "undocumented",
    "stage-experimental",
@@ -971,6 +995,10 @@
   "config:features.code_mode.excluded_tool_namespaces": [
    "documented",
    "built-in-tools"
+  ],
+  "config:model_providers.<id>.gateway_oauth.scopes": [
+   "undocumented",
+   "auth-providers"
   ],
   "config:features.code_mode_buffered_exec": [
    "undocumented",
@@ -1094,6 +1122,10 @@
    "undocumented",
    "stage-under-development"
   ],
+  "config:windows.sandbox": [
+   "documented",
+   "sandbox-approvals"
+  ],
   "config:features.default_mode_request_user_input": [
    "undocumented",
    "stage-under-development"
@@ -1194,10 +1226,9 @@
    "stage-under-development",
    "built-in-tools"
   ],
-  "config:features.guardian_reuse_parent_compaction": [
+  "config:features.agent_message_board": [
    "undocumented",
-   "stage-under-development",
-   "memory-context"
+   "stage-under-development"
   ],
   "config:features.guardianv2": [
    "undocumented",
@@ -1260,10 +1291,9 @@
    "undocumented",
    "sandbox-approvals"
   ],
-  "config:features.guardianv2.thread_context": [
+  "config:model_providers.<id>.gateway_oauth.token_url": [
    "undocumented",
-   "stage-under-development",
-   "sandbox-approvals"
+   "auth-providers"
   ],
   "config:features.guardianv2.transcript": [
    "undocumented"
@@ -1407,6 +1437,10 @@
   "config:features.multi_agent_v2.default_wait_timeout_ms": [
    "undocumented",
    "multi-agent"
+  ],
+  "config:features.code_mode.experimental_show_cell_overhead": [
+   "undocumented",
+   "built-in-tools"
   ],
   "config:features.multi_agent_v2.enabled": [
    "undocumented",
@@ -1625,6 +1659,11 @@
    "undocumented",
    "stage-under-development",
    "built-in-tools"
+  ],
+  "config:auto_review.extra_policy": [
+   "undocumented",
+   "prompt-instructions",
+   "sandbox-approvals"
   ],
   "config:features.prevent_idle_sleep": [
    "documented",
@@ -1925,9 +1964,10 @@
    "stage-stable",
    "built-in-tools"
   ],
-  "config:features.transcript_v2": [
+  "config:model_providers.<id>.model_catalog_url": [
    "undocumented",
-   "stage-under-development"
+   "model-reasoning",
+   "auth-providers"
   ],
   "config:features.tui_app_server": [
    "undocumented",
@@ -2477,18 +2517,20 @@
   "config:orchestrator": [
    "undocumented"
   ],
-  "config:orchestrator.mcp": [
+  "config:model_providers.<id>.gateway_oauth.resource": [
    "undocumented",
-   "mcp-plugins"
+   "auth-providers"
   ],
   "config:orchestrator.mcp.enabled": [
    "undocumented",
    "mcp-plugins",
    "multi-agent"
   ],
-  "config:orchestrator.skills": [
+  "config:features.guardian_reuse_parent_compaction": [
    "undocumented",
-   "mcp-plugins"
+   "stage-stable",
+   "sandbox-approvals",
+   "memory-context"
   ],
   "config:orchestrator.skills.enabled": [
    "undocumented",
@@ -3275,6 +3317,42 @@
    "undocumented",
    "ui"
   ],
+  "config:features.guardianv2.thread_context": [
+   "undocumented",
+   "stage-stable",
+   "sandbox-approvals"
+  ],
+  "config:features.multi_agent_v2.disable_direct_message": [
+   "undocumented",
+   "multi-agent"
+  ],
+  "config:features.prefer_mxc": [
+   "undocumented",
+   "stage-under-development",
+   "sandbox-approvals"
+  ],
+  "config:features.daemon_auto_start": [
+   "undocumented",
+   "stage-stable"
+  ],
+  "config:features.transcript_v2": [
+   "undocumented",
+   "telemetry-storage",
+   "ui"
+  ],
+  "config:orchestrator.mcp": [
+   "undocumented",
+   "mcp-plugins"
+  ],
+  "config:orchestrator.skills": [
+   "undocumented",
+   "legacy",
+   "mcp-plugins"
+  ],
+  "config:tui.effects.progress": [
+   "undocumented",
+   "ui"
+  ],
   "config:tui.model_availability_nux": [
    "documented",
    "ui"
@@ -3314,6 +3392,26 @@
    "documented",
    "ui"
   ],
+  "config:tui.effects": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.shimmer": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.effort": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.title": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.effects.starfield": [
+   "undocumented",
+   "ui"
+  ],
   "config:tui.resume_cwd": [
    "documented",
    "ui"
@@ -3326,7 +3424,7 @@
    "undocumented",
    "ui"
   ],
-  "config:tui.show_server_version_notice": [
+  "config:tui.fullscreen_transcript": [
    "undocumented",
    "ui"
   ],
@@ -3359,12 +3457,24 @@
    "documented",
    "ui"
   ],
-  "config:tui.whimsy": [
+  "config:tui.effects.welcome": [
    "undocumented",
    "ui"
   ],
-  "config:tui.keymap": [
-   "documented",
+  "config:tui.rendering": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.rendering.mermaid": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.rendering.tables": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.rendering.lists": [
+   "undocumented",
    "ui"
   ],
   "config:tui.keymap.agents": [
@@ -3587,9 +3697,8 @@
    "documented",
    "ui"
   ],
-  "config:tui.keymap.global": [
-   "documented",
-   "ui"
+  "config:cloud": [
+   "undocumented"
   ],
   "config:tui.keymap.global.clear_terminal": [
    "documented",
@@ -3598,6 +3707,14 @@
   "config:tui.keymap.global.copy": [
    "documented",
    "ui"
+  ],
+  "config:tui.show_server_version_notice": [
+   "undocumented",
+   "ui"
+  ],
+  "config:cloud.skills": [
+   "undocumented",
+   "mcp-plugins"
   ],
   "config:tui.keymap.global.open_agents": [
    "documented",
@@ -3683,15 +3800,19 @@
    "documented",
    "ui"
   ],
-  "config:tui.keymap.pager": [
+  "config:cloud.skills.enabled": [
    "undocumented",
-   "ui"
+   "mcp-plugins"
   ],
   "config:tui.keymap.pager.close": [
    "documented",
    "ui"
   ],
   "config:tui.keymap.pager.close_transcript": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.global": [
    "documented",
    "ui"
   ],
@@ -4105,6 +4226,11 @@
    "documented",
    "rejected",
    "built-in-tools"
+  ],
+  "config:model_post_turn_compact_threshold_percent": [
+   "undocumented",
+   "model-reasoning",
+   "memory-context"
   ],
   "config:windows_wsl_setup_acknowledged": [
    "documented",
@@ -4912,6 +5038,36 @@
    "documented",
    "requirements",
    "sandbox-approvals"
+  ],
+  "config:tui.keymap": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.rendering.math": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.keymap.pager": [
+   "undocumented",
+   "ui"
+  ],
+  "config:tui.keymap.global.find_transcript": [
+   "documented",
+   "ui"
+  ],
+  "config:windows.sandbox_private_desktop": [
+   "documented",
+   "rejected",
+   "sandbox-approvals",
+   "ui"
+  ],
+  "config:tui.keymap.global.focus_activity": [
+   "documented",
+   "ui"
+  ],
+  "config:tui.keymap.pager.find": [
+   "documented",
+   "ui"
   ]
  }
 }

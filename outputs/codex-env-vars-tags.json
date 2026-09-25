@@ -35,7 +35,7 @@
    "label": "Telemetry, logs and storage",
    "kind": "topic",
    "definition": "Settings and environment variables for observability and local state: OpenTelemetry exporters and trace context, analytics and feedback, log levels and formats, transcript/history persistence, rollout and session files, and Codex home or database paths. It applies in any group, including features.* flags and requirements: variants. It does not cover the model's memory of past sessions or lifecycle hooks.",
-   "count": 24
+   "count": 26
   },
   {
    "id": "ui",
@@ -54,19 +54,19 @@
    "id": "undocumented",
    "label": "Undocumented",
    "kind": "status",
-   "count": 307
+   "count": 311
   },
   {
    "id": "desktop-app",
    "label": "Read by the desktop app",
    "kind": "status",
-   "count": 163
+   "count": 166
   },
   {
    "id": "cli",
    "label": "Read by the CLI",
    "kind": "status",
-   "count": 143
+   "count": 144
   },
   {
    "id": "child-env",
@@ -1600,6 +1600,24 @@
    "undocumented",
    "desktop-app",
    "not-in-build"
+  ],
+  "env:CODEX_DESKTOP_RELAUNCH_OPEN_EVENTS": [
+   "undocumented",
+   "desktop-app"
+  ],
+  "env:NODE_OPTIONS": [
+   "undocumented",
+   "desktop-app"
+  ],
+  "env:CODEX_TECTONIC_PATH": [
+   "undocumented",
+   "desktop-app",
+   "telemetry-storage"
+  ],
+  "env:CODEX_DAEMON_TELEMETRY_HANDOFF": [
+   "undocumented",
+   "cli",
+   "telemetry-storage"
   ]
  }
 }

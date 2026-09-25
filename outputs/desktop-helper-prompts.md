@@ -1,10 +1,10 @@
 # Codex desktop helper prompt inventory
 
-Exact bundled helper prompts recovered from ChatGPT desktop 26.917.71314. These are separate from ChatGPT Work model instructions and the Codex voice orchestration prompts. Dynamic values are replaced with angle-bracket placeholders before hashing. "Bundled default" means the client contains the template; it does not prove a particular helper ran during a particular user turn.
+Exact bundled helper prompts recovered from ChatGPT desktop 26.924.20706. These are separate from ChatGPT Work model instructions and the Codex voice orchestration prompts. Dynamic values are replaced with angle-bracket placeholders before hashing. "Bundled default" means the client contains the template; it does not prove a particular helper ran during a particular user turn.
 
 # Side conversation boundary
 
-Source: `webview/assets/app-initial-51da50e6c6e3.js`, offset 1,762,990, SHA-256 `ea4b3893669a56e67f6baa7d2791ed64e954b081a549f62b647101def36ef6d1`.
+Source: `webview/assets/app-shared-588591d226f4.js`, offset 2,654,573, SHA-256 `32b079f9b575c29a2cf3baa8055c4d0d07506446a2e8cfea5bd9381ab93e06de`.
 
 Side conversation boundary.
 
@@ -24,7 +24,7 @@ Do not modify files, source, git state, permissions, configuration, or workspace
 
 # Local side conversation
 
-Source: `webview/assets/local-conversation-side-chat-48c6730ec06a.js`, offset 6,734, SHA-256 `9cf59f34048c9e682511e761ac73eb3781106d1b59c50ac7fcc830a86a8bd4b6`.
+Source: `webview/assets/local-conversation-side-chat-fdd6adb30031.js`, offset 7,016, SHA-256 `6749cb7a952da2d3664e4510588f71eb89413707df2ca09e39a87abf1fb45c63`.
 
 You are in a side conversation, not the main thread.
 
@@ -46,7 +46,7 @@ Do not modify files, source, git state, permissions, configuration, or any other
 
 # Code review rubric
 
-Source: `webview/assets/review-slash-command-submenu-registration-8268b8759915.js`, offset 1,020, SHA-256 `d680154968c9cf8f7f65994db09192beba73b0e4fe37a44570353aed2c110f35`.
+Source: `webview/assets/review-slash-command-submenu-registration-bc383c4d7f49.js`, offset 1,045, SHA-256 `790385336022bbb90e160cff990c32b5adac731d15a2dc390f1ef3303a77710f`.
 
 # Review Guidelines
 
@@ -86,7 +86,7 @@ If there are no actionable issues, say that directly and briefly.
 
 # Task title and search description
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> app-initial-51da50e6c6e3.js`; field `sEn(userPrompt)`; byte offset 3006901; source file SHA-256 `ea4b3893669a56e67f6baa7d2791ed64e954b081a549f62b647101def36ef6d1`; prompt SHA-256 `a14a14311a7c6890353079fee08efd1a5bf4fa71665efaaa6958d2f1e14adb0d`; source type **bundled**; status **bundled default**.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> app-shared-588591d226f4.js`; field `qjr(userPrompt)`; byte offset 5137567; source file SHA-256 `32b079f9b575c29a2cf3baa8055c4d0d07506446a2e8cfea5bd9381ab93e06de`; prompt SHA-256 `a14a14311a7c6890353079fee08efd1a5bf4fa71665efaaa6958d2f1e14adb0d`; source type **bundled**; status **bundled default**.
 
 You are a helpful assistant. You will be presented with a user prompt, and your job is to provide a short title for a task that will be created from that prompt.
 The tasks typically have to do with coding-related tasks, for example requests for bug fixes or questions about a codebase. The title you generate will be shown in the UI to represent the prompt.
@@ -134,7 +134,7 @@ User prompt:
 
 # Commit message
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `Eie(diffContext)`; byte offset 1327078; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `37b2c44d7d1b7255f8e393c0d7bbaa2a8f410f30cbac4e96f9e2a6457b58ab81`; source type **bundled**; status **bundled default**.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `WC(diffContext)`; byte offset 558165; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `37b2c44d7d1b7255f8e393c0d7bbaa2a8f410f30cbac4e96f9e2a6457b58ab81`; source type **bundled**; status **bundled default**.
 
 Using the supplied git context below, generate a git commit message.
 Write the result into the structured response field message.
@@ -157,7 +157,7 @@ Diff context:
 
 # Pull request title and body
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `Die(context)`; byte offset 1327806; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `4a08b71283fd42c10963d9b52076b3f9b4181e972a5cb2f7faa04c2232e4d017`; source type **bundled**; status **bundled default**.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `GC(context)`; byte offset 558892; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `4a08b71283fd42c10963d9b52076b3f9b4181e972a5cb2f7faa04c2232e4d017`; source type **bundled**; status **bundled default**.
 
 You are a helpful assistant. Generate a pull request title and body.
 Write the result into the structured response fields title and body.
@@ -190,7 +190,7 @@ Context:
 
 # Combined commit and pull request
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `Oie(context)`; byte offset 1329306; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `299ee9a84d590747793f73561d20973b5d08f48bcb4feb7b50da8e773b04ceae`; source type **bundled**; status **bundled default**.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `KC(context)`; byte offset 560391; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `299ee9a84d590747793f73561d20973b5d08f48bcb4feb7b50da8e773b04ceae`; source type **bundled**; status **bundled default**.
 
 Using the supplied commit and pull request contexts below, generate one git commit message plus one pull request title and body.
 Write the result into the structured response fields message, title, and body.
@@ -233,7 +233,7 @@ Commit and pull request context:
 
 # Forked task description
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `Rce(currentTitle)`; byte offset 1460506; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `f3155f08e25245950bf213dbc3dc621a505c973cebeff9cf9870ee1882d49613`; source type **bundled**; status **bundled default**.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `JA(currentTitle)`; byte offset 687658; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `f3155f08e25245950bf213dbc3dc621a505c973cebeff9cf9870ee1882d49613`; source type **bundled**; status **bundled default**.
 
 You are in a fork of an existing Codex thread.
 Fill the structured description field with a compact, search-oriented summary (up to 100 characters) of the thread's current purpose.
@@ -249,7 +249,7 @@ Do not respond to the user or do any other work; only fill the description field
 
 # Activity summary: user turn
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `zce(latest, 'user', title, previousUser, previousAssistant, true)`; byte offset 1461293; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `dfd472df11620a7bb8c8ad9d389f9faba860588718c2769bc646a5cbe4dda6c7`; source type **bundled**; status **bundled default**. Canonical compactSummary-enabled branch.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `YA(latest, 'user', title, previousUser, previousAssistant, true)`; byte offset 688444; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `dfd472df11620a7bb8c8ad9d389f9faba860588718c2769bc646a5cbe4dda6c7`; source type **bundled**; status **bundled default**. Canonical compactSummary-enabled branch.
 
 You write the one-line activity update displayed beneath an existing Codex task title.
 Fill the structured summary field with one plain-text sentence of at most 280 characters.
@@ -283,7 +283,7 @@ Latest message:
 
 # Activity summary: assistant turn
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `zce(latest, 'assistant', title, previousUser, previousAssistant, true)`; byte offset 1461293; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `1647a10f3bd98815159c4df680c028a87ea4bbf4c9f7425a842da8a6b372c8fa`; source type **bundled**; status **bundled default**. Canonical compactSummary-enabled branch.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `YA(latest, 'assistant', title, previousUser, previousAssistant, true)`; byte offset 688444; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `1647a10f3bd98815159c4df680c028a87ea4bbf4c9f7425a842da8a6b372c8fa`; source type **bundled**; status **bundled default**. Canonical compactSummary-enabled branch.
 
 You write the one-line activity update displayed beneath an existing Codex task title.
 Fill the structured summary field with one plain-text sentence of at most 280 characters.
@@ -316,7 +316,7 @@ Latest message:
 
 # Voice-fork task title
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> main-C-Mhak1n.js`; field `realtime voice title generator #a(subject)`; byte offset 3194265; source file SHA-256 `457c79be69620d4489e94c14ac665f81731d869635606dcf175b7b4cc2e8b467`; prompt SHA-256 `8513743d571970780a9bcd695295bc18188e1e692da6621f093fe223f945de1c`; source type **bundled**; status **bundled default**.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> main-BefHSPFJ.js`; field `realtime voice title generator #a(subject)`; byte offset 3307498; source file SHA-256 `7e812bd83ac8d5ab6d1627e086bd367402027b2928159a779e0c953cd47ae45e`; prompt SHA-256 `8513743d571970780a9bcd695295bc18188e1e692da6621f093fe223f945de1c`; source type **bundled**; status **bundled default**.
 
 You are in a fork of a voice chat.
 Generate a concise UI title (up to 36 characters) for <SUBJECT> in the thread context above.
@@ -332,7 +332,7 @@ Do not respond to the user or do any other work; only fill the title and descrip
 
 # Chrome side-panel context: read-only
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> app-shared-7b9edc1bfb7f.js`; field `dRe({browserMode:'unavailable'})`; byte offset 1213973; source file SHA-256 `c387f54128835461f0c44dacf94dfa5404a7850a34508188c85f9c43762118eb`; prompt SHA-256 `a3d4d22ceef0e036cb944422ee5f42aa9da12d55cc78847955ccbcf2727d1ed3`; source type **bundled**; status **bundled default**. One of three recoverable runtime branches.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> app-shared-588591d226f4.js`; field `Sut({browserMode:'unavailable'})`; byte offset 1821164; source file SHA-256 `32b079f9b575c29a2cf3baa8055c4d0d07506446a2e8cfea5bd9381ab93e06de`; prompt SHA-256 `a3d4d22ceef0e036cb944422ee5f42aa9da12d55cc78847955ccbcf2727d1ed3`; source type **bundled**; status **bundled default**. One of three recoverable runtime branches.
 
 You are running inside the Codex Chrome extension side panel.
 
@@ -348,7 +348,7 @@ Chrome navigation and page control are unavailable in this session. getTabContex
 
 # Chrome side-panel context: CUA
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> app-shared-7b9edc1bfb7f.js`; field `dRe({browserMode:'cua_repl', browserPreference})`; byte offset 1213973; source file SHA-256 `c387f54128835461f0c44dacf94dfa5404a7850a34508188c85f9c43762118eb`; prompt SHA-256 `0bf75d10cdebee6351d7f6633b5875217eded2ebe6833995aa44814ab54e4414`; source type **bundled**; status **bundled default**. One of three recoverable runtime branches.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> app-shared-588591d226f4.js`; field `Sut({browserMode:'cua_repl', browserPreference})`; byte offset 1821164; source file SHA-256 `32b079f9b575c29a2cf3baa8055c4d0d07506446a2e8cfea5bd9381ab93e06de`; prompt SHA-256 `0bf75d10cdebee6351d7f6633b5875217eded2ebe6833995aa44814ab54e4414`; source type **bundled**; status **bundled default**. One of three recoverable runtime branches.
 
 You are running inside the Codex Chrome extension side panel.
 
@@ -364,7 +364,7 @@ Use getTabContext when page content is sufficient. Use cua_repl for navigation, 
 
 # Chrome side-panel context: plugin runtime
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> app-shared-7b9edc1bfb7f.js`; field `dRe({browserMode:'plugins', browserClientPath})`; byte offset 1213973; source file SHA-256 `c387f54128835461f0c44dacf94dfa5404a7850a34508188c85f9c43762118eb`; prompt SHA-256 `db44a8c6fc663df8e259ae12890a3837a0ec383c0e5209995b63df48592e7d20`; source type **bundled**; status **bundled default**. One of three recoverable runtime branches.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> app-shared-588591d226f4.js`; field `Sut({browserMode:'plugins', browserClientPath})`; byte offset 1821164; source file SHA-256 `32b079f9b575c29a2cf3baa8055c4d0d07506446a2e8cfea5bd9381ab93e06de`; prompt SHA-256 `db44a8c6fc663df8e259ae12890a3837a0ec383c0e5209995b63df48592e7d20`; source type **bundled**; status **bundled default**. One of three recoverable runtime branches.
 
 You are running inside the Codex Chrome extension side panel.
 
@@ -433,7 +433,7 @@ The quick snippets above are the only browser runtime APIs you should use withou
 
 # Ambient suggestion safety review
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `bN({candidates})`; byte offset 585765; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `a1eb1b2491c516df4532bc7ae852df138c010f2b3cdcc4d8bc342037f34e33df`; source type **bundled**; status **bundled default**.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `wn({candidates})`; byte offset 56677; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `a1eb1b2491c516df4532bc7ae852df138c010f2b3cdcc4d8bc342037f34e33df`; source type **bundled**; status **bundled default**.
 
 You are an expert at upholding safety and compliance standards for Codex ambient suggestions.
 
@@ -552,7 +552,7 @@ You must not output any other text. Only output the JSON object.
 
 # Desktop app context: default builder
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `X3()`; byte offset 1248602; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `62fbef843342c2e1e5b6e199a6e60e2be081222b263b751ed02c372e09cc0d77`; source type **bundled**; status **bundled default**. Default feature-flag branch; an active task may include additional conditional sections.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `Ub()`; byte offset 477426; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `62fbef843342c2e1e5b6e199a6e60e2be081222b263b751ed02c372e09cc0d77`; source type **bundled**; status **bundled default**. Default feature-flag branch; an active task may include additional conditional sections.
 
 <app-context>
 # Codex desktop context
@@ -596,7 +596,7 @@ URL-encode PR_URL and the repository-relative FILE_PATH. Use a verified one-base
 
 # Desktop app context: all bundled conditional sections
 
-Source: `ChatGPT desktop 26.917.71314 app.asar -> src-DldfpmrL.js`; field `X3({sidebarSectionToolsEnabled:true, threadToolsEnabled:true, workspaceDependenciesEnabled:true, includeProseDetailLevelInstructions:true})`; byte offset 1248602; source file SHA-256 `88ec69722b5d87a7081edf2e2d6a2e21c3f25300cee587363d74b8b87969a412`; prompt SHA-256 `9bb5d682754cc2c55b2e03fd37598baafa731f50d7c1c44bb7bf14685243c97b`; source type **bundled**; status **bundled default**. Maximal recoverable bundled branch, not evidence that every section was active in one turn.
+Source: `ChatGPT desktop 26.924.20706 app.asar -> src-Z8EKS_tU.js`; field `Ub({sidebarSectionToolsEnabled:true, threadToolsEnabled:true, workspaceDependenciesEnabled:true, includeProseDetailLevelInstructions:true})`; byte offset 477426; source file SHA-256 `657a03c9b804a07a1c6a32e463e7a3e4375c197431bc64753bd173bf79861fa7`; prompt SHA-256 `ddd87f32568155fc701cf28454c38b9508cf9141f2f79c0456f4c12b0508b33d`; source type **bundled**; status **bundled default**. Maximal recoverable bundled branch, not evidence that every section was active in one turn.
 
 <app-context>
 # Codex desktop context
@@ -627,7 +627,7 @@ URL-encode PR_URL and the repository-relative FILE_PATH. Use a verified one-base
 - When an automation should archive a Codex thread on completion, use `set_thread_archived` instead of emitting raw archive directives.
 
 ### Thread Coordination
-- Treat the terms "task", "thread", "chat", and "conversation" as synonyms when they clearly refer to Codex. Tool names use the term "thread" and Codex uses "task" in the UI. When providing user-facing responses, use "task".
+- Treat the terms "task", "thread", "chat", and "conversation" as synonyms when they clearly refer to conversations in Codex. Use "chat" when referring to conversations in the product. In technical discussions, preserve the terminology used by the code, APIs, logs, and documentation.
 - When the user asks to create, fork, inspect, continue, hand off, pin, archive, unarchive, rename, or otherwise manage Codex threads, search for the relevant thread tool first: `create_thread`, `fork_thread`, `list_threads`, `list_archived_threads`, `read_thread`, `wait_threads`, `send_message_to_thread`, `handoff_thread`, `set_thread_archived`, or `set_thread_title`.
 - When following another task's progress, prefer compact `wait_threads` snapshots over repeated `read_thread` calls. Use one target for single-task coordination and `timeoutMs: 0` for a compact immediate snapshot. `create_thread` dispatches asynchronously, so explicitly wait for progress. Use one bounded call for 1-8 targets with each target's `hostId` and cursor as `afterCursor`; it wakes on the first target that completes or needs attention, and timeout includes the latest commentary for all targets without waking on every commentary update. An up-to-date cursor suppresses already-delivered final text. Separate waits from one task may run serially. Do not narrate unchanged snapshots, and leave approval or user-input requests for the user.
 - Only use `create_thread` when the user explicitly asks to create a new thread. Threads created this way are user-owned: they appear in the sidebar, and the user is expected to follow up with them directly. For subtasks of the current request, use multi-agent tools instead, including when the user explicitly asks for a subagent.
