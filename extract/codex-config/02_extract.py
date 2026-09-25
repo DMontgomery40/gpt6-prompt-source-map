@@ -15,6 +15,9 @@ Nothing here reads ~/.codex. Every binary run in this pipeline uses a throwaway 
 """
 from __future__ import annotations
 
+import os
+import subprocess
+
 import collections
 import html
 import json
@@ -31,8 +34,9 @@ DOCS = CAP / "docs"
 ASAR = WORK / "asar-build"
 OUT = REPO / "outputs"
 
-TAG = "rust-v0.155.0-alpha.16.4"
-APP_VERSION = "26.917.71314"
+# The release tag and app version come from the installed app, via 00_fetch_sources.sh.
+TAG = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "work", "codex-config", "tag.txt")).read().strip()
+APP_VERSION = subprocess.run(["/usr/libexec/PlistBuddy", "-c", "Print CFBundleShortVersionString", os.path.join(os.environ.get("CODEX_APP_PATH", "/Applications/ChatGPT.app"), "Contents/Info.plist")], capture_output=True, text=True, check=True).stdout.strip()
 CLI_VERSION = (CAP / "version.txt").read_text().strip()
 BIN_SHA = (CAP / "codex.sha256").read_text().strip()
 BIN_PROV = f"codex binary sha256 {BIN_SHA} ({CLI_VERSION})"

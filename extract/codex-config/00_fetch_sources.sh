@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Fetch the non-binary inputs into the gitignored work/ directory:
-#   - openai/codex at the release tag matching the bundled CLI (codex-cli 0.155.0-alpha.16.4)
+#   - openai/codex at the release tag matching the bundled CLI (read from `codex --version`)
 #   - the official Codex docs pages used to mark items documented
 #   - the Electron main-process bundles (.vite/build/*.js) from the desktop app's app.asar
 #
@@ -9,13 +9,19 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 WORK="$REPO/work"
-TAG="rust-v0.155.0-alpha.16.4"
+CLI="${CODEX_APP_PATH:-/Applications/ChatGPT.app}/Contents/Resources/codex"
+TAG="rust-v$("$CLI" --version | awk '{print $2}')"
 ASAR_FILE="/Applications/ChatGPT.app/Contents/Resources/app.asar"
 mkdir -p "$WORK/codex-config/docs" "$WORK/asar-build"
 
-if [ ! -d "$WORK/codex-src" ]; then
-  git clone --depth 1 --branch "$TAG" https://github.com/openai/codex.git "$WORK/codex-src"
+# One checkout per release tag; work/codex-src points at the current one. A missing tag
+# fails the run, so the watcher reports it instead of describing older source.
+if [ ! -d "$WORK/codex-src-$TAG" ]; then
+  git clone --depth 1 --branch "$TAG" https://github.com/openai/codex.git "$WORK/codex-src-$TAG"
 fi
+if [ -d "$WORK/codex-src" ] && [ ! -L "$WORK/codex-src" ]; then mv "$WORK/codex-src" "$WORK/codex-src-previous"; fi
+ln -sfn "$WORK/codex-src-$TAG" "$WORK/codex-src"
+echo "$TAG" > "$WORK/codex-config/tag.txt"
 git -C "$WORK/codex-src" rev-parse HEAD > "$WORK/codex-config/source-commit.txt"
 
 # Docs pages (developers.openai.com/codex/* currently redirects to learn.chatgpt.com/docs/*).
