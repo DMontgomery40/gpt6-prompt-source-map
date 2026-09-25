@@ -127,14 +127,14 @@ function page(title, intro, document, order) {
   for (const item of items.filter(i => i.document === document)) (groups.get(item.area) ?? groups.set(item.area, []).get(item.area)).push(item);
   const areas = [...groups.keys()].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
   for (const area of areas) {
-    lines.push(`# ${area}`, "");
+    lines.push(`## ${area}`, "");
     const seen = new Map();
     for (const item of groups.get(area)) {
       const n = (seen.get(item.title) ?? 0) + 1;
       seen.set(item.title, n);
       const where = [item.source, ...item.also].map(s => `\`codex-rs/${s}\``).join(", ");
       const f = fence(item.text);
-      lines.push(`## ${n > 1 ? `${item.title} (${n})` : item.title}`, "",
+      lines.push(`### ${n > 1 ? `${item.title} (${n})` : item.title}`, "",
         `Source: ${where}${item.executable === path.basename(app.binary) ? "" : ` (in \`${item.executable}\`)`}, SHA-256 \`${item.sha256}\`.`, "",
         `${f}text`, item.text.replace(/\n+$/, ""), f, "");
     }
@@ -144,7 +144,7 @@ function page(title, intro, document, order) {
 const areaOrder = area => { const i = AREAS.findIndex(([, name]) => name === area); return i < 0 ? AREAS.length : i; };
 const promptsPage = page("Codex CLI prompts",
   "Prompt templates and prompt text compiled into the Codex CLI that ships inside the ChatGPT desktop app. Each one is read from the open-source openai/codex repository at the release tag that matches the bundled CLI, and appears here only when its exact bytes are found in the shipped executable. Placeholders such as `{{ extra_policy }}` are filled in at run time.",
-  NAMES.prompts, areaOrder) + (notInBuild.length ? `\n# In the source but not in this build\n\nThese prompt files are in the source at this tag, but their text is not in the shipped executable, so they are not shown above.\n\n${[...new Set(notInBuild)].sort().map(s => `- \`codex-rs/${s}\``).join("\n")}\n` : "");
+  NAMES.prompts, areaOrder) + (notInBuild.length ? `\n## In the source but not in this build\n\nThese prompt files are in the source at this tag, but their text is not in the shipped executable, so they are not shown above.\n\n${[...new Set(notInBuild)].sort().map(s => `- \`codex-rs/${s}\``).join("\n")}\n` : "");
 const skillsPage = page("Codex CLI bundled skills",
   "The sample skills built into the Codex CLI, each with its SKILL.md and reference files. They are read from the openai/codex source at the tag that matches the bundled CLI and checked byte for byte against the shipped executable.",
   NAMES.skills, () => 0);

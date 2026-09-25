@@ -10,12 +10,13 @@ const VOLATILE_JSON_KEYS = new Set([
 
 // Headings that open a unit, per document kind. Headings inside fenced code
 // blocks never count.
-// Two-level documents: a "# group" heading, then one "## item" unit per prompt.
-const TWO_LEVEL = new Set(["other-catalog-models.md", "codex-cli-prompts.md", "codex-cli-bundled-skills.md", "desktop-model-facing-text.md"]);
+// Two-level documents: a group heading, then one unit per item one level below it. The value
+// is the group heading's level ("# group" + "## item", or "## group" + "### item").
+const TWO_LEVEL = { "other-catalog-models.md": 1, "codex-cli-prompts.md": 2, "codex-cli-bundled-skills.md": 2, "desktop-model-facing-text.md": 2 };
 
 function unitHeading(name, line) {
   if (name === "gpt-6-instruction-modules.md") return /^## [a-z_]+\.[a-z0-9_.]+$/.test(line);
-  if (TWO_LEVEL.has(name)) return /^#{1,2} \S/.test(line);
+  if (TWO_LEVEL[name]) return new RegExp(`^#{${TWO_LEVEL[name]},${TWO_LEVEL[name] + 1}} \\S`).test(line);
   return /^# \S/.test(line);
 }
 
@@ -42,8 +43,9 @@ export function markdownUnits(name, text) {
     } else if (unitHeading(name, line)) {
       flush();
       const heading = line.replace(/^#+ /, "");
-      if (TWO_LEVEL.has(name) && line.startsWith("# ")) parent = heading;
-      key = TWO_LEVEL.has(name) && line.startsWith("## ") ? `${parent} › ${heading}` : heading;
+      const level = /^#+/.exec(line)[0].length;
+      if (TWO_LEVEL[name] && level === TWO_LEVEL[name]) parent = heading;
+      key = TWO_LEVEL[name] && level === TWO_LEVEL[name] + 1 ? `${parent} › ${heading}` : heading;
       lines = [];
       continue;
     }

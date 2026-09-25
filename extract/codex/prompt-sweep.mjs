@@ -104,7 +104,7 @@ const published = candidates.filter(c => c.p != null && c.p >= PUBLISH).filter(c
   try { privacyScan(new Map([["item", c.text]])); return true; } catch (error) { withheld.push({ hash: c.hash, reason: error.message }); return false; }
 }).sort((a, b) => a.file.localeCompare(b.file) || a.offset - b.offset);
 const fence = text => "`".repeat(Math.max(3, 1 + Math.max(0, ...[...text.matchAll(/`+/g)].map(m => m[0].length))));
-const titleOf = c => c.role.tool ? `\`${c.role.tool}\`` : `${c.text.replace(/<…>/g, "").replace(/[#*`_>\[\]]/g, "").replace(/\s+/g, " ").trim().split(" ").slice(0, 9).join(" ")}…`;
+const titleOf = c => c.role.tool ? `\`${c.role.tool}\`` : `${c.text.replace(/<…>/g, "").replace(/[#*`_>\[\]]/g, "").replace(/\s+/g, " ").trim().split(" ").slice(0, 7).join(" ")}…`;
 const lines = ["# Other model-facing text in the desktop app", "",
   "Text in the ChatGPT desktop app's own scripts that is written for a model (tool and parameter descriptions, prompts, context wrappers, and messages the app sends on the user's behalf) and is not in the hand-verified prompt pages. It is found by scanning every string in the app for prose and keeping what a classifier judges model-facing, so treat each entry as exact text from the app whose role was judged, not traced. `<…>` marks a value filled in at run time.", ""];
 const taken = new Set();
@@ -112,14 +112,14 @@ for (const [group, test] of GROUPS) {
   const members = published.filter(c => !taken.has(c.hash) && test(c));
   if (!members.length) continue;
   members.forEach(c => taken.add(c.hash));
-  lines.push(`# ${group}`, "");
+  lines.push(`## ${group}`, "");
   const seen = new Map();
   for (const c of members) {
     const title = titleOf(c);
     const n = (seen.get(title) ?? 0) + 1;
     seen.set(title, n);
     const f = fence(c.text);
-    lines.push(`## ${n > 1 ? `${title} (${n})` : title}`, "",
+    lines.push(`### ${n > 1 ? `${title} (${n})` : title}`, "",
       `Source: \`${c.file}\`, offset ${c.offset}, SHA-256 \`${crypto.createHash("sha256").update(c.text).digest("hex")}\`.`, "",
       `${f}text`, c.text.trim(), f, "");
   }

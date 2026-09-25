@@ -4,9 +4,9 @@ Source: openai/codex `rust-v0.158.0-alpha.2` (commit `10382da79a2a`), matching t
 
 The sample skills built into the Codex CLI, each with its SKILL.md and reference files. They are read from the openai/codex source at the tag that matches the bundled CLI and checked byte for byte against the shipped executable.
 
-# imagegen
+## imagegen
 
-## SKILL.md
+### SKILL.md
 
 Source: `codex-rs/skills/src/assets/samples/imagegen/SKILL.md`, SHA-256 `681ddb4ad6d06a2acc78a3535b583f8d0c1ea800ecda3d56370d3310fd2cd4ba`.
 
@@ -328,7 +328,7 @@ If installation is not possible in this environment, tell the user which depende
 - `scripts/image_gen.py`: fallback-only CLI implementation. Use only when the user explicitly chooses or confirms CLI mode.
 ````
 
-## references/cli.md
+### references/cli.md
 
 Source: `codex-rs/skills/src/assets/samples/imagegen/references/cli.md`, SHA-256 `ecfc2e09261a0feb3482517a5fa0ff410cb7d1958e3cbd2ac6b61586f5b81405`.
 
@@ -577,7 +577,7 @@ Notes:
 - Built-in-first transparent image workflow: `SKILL.md`
 ````
 
-## references/codex-network.md
+### references/codex-network.md
 
 Source: `codex-rs/skills/src/assets/samples/imagegen/references/codex-network.md`, SHA-256 `c88298ca4481f6116a16fa7987434fc977f8b311c1bbc0c3d862ffd0c5981148`.
 
@@ -617,7 +617,7 @@ If you want quieter automation after network is enabled, you can choose a strict
 Enabling network and reducing approvals lowers friction, but increases risk if you run untrusted code or work in an untrusted repository.
 ````
 
-## references/image-api.md
+### references/image-api.md
 
 Source: `codex-rs/skills/src/assets/samples/imagegen/references/image-api.md`, SHA-256 `dc975d7af8a4888967251a0276014b4a71ea30455294944b762256373ce3e569`.
 
@@ -714,7 +714,7 @@ Use CLI `gpt-image-1.5` with `background=transparent` and a transparent-capable 
 - Do not assume they are built-in `image_gen` tool arguments.
 ```
 
-## references/prompting.md
+### references/prompting.md
 
 Source: `codex-rs/skills/src/assets/samples/imagegen/references/prompting.md`, SHA-256 `b210b051c775860267080941eba968212bf0ac7fce581d75c5dcc217d8293f8b`.
 
@@ -833,7 +833,7 @@ Edit:
 For copy/paste prompt specs (examples only), see `references/sample-prompts.md`. This file focuses on principles, specificity, and iteration patterns.
 ```
 
-## references/sample-prompts.md
+### references/sample-prompts.md
 
 Source: `codex-rs/skills/src/assets/samples/imagegen/references/sample-prompts.md`, SHA-256 `70474177d151855b175c6133de2aae1d90b7f146b0dab50ec830972c47d72183`.
 
@@ -1262,9 +1262,9 @@ Constraints: preserve layout, proportions, and perspective; choose realistic mat
 ```
 ````
 
-# openai-docs
+## openai-docs
 
-## SKILL.md
+### SKILL.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/SKILL.md`, SHA-256 `aa6829e21df2223167c85d2e49b6337a7345c84c1033f1ec10182c7882b36d45`.
 
@@ -1309,7 +1309,7 @@ Read at most one primary reference. Do not open every route, bundled model guide
 - Say "OpenAI Docs" or "official OpenAI documentation" in user-facing answers. Keep exact official citations and examples concise.
 ```
 
-## references/codex-self-knowledge.md
+### references/codex-self-knowledge.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/codex-self-knowledge.md`, SHA-256 `8c8fb00e6e5cb1977924f5164684a6095427fa828bbc765225f17d9aeb79a912`.
 
@@ -1387,7 +1387,7 @@ Memory can provide user preferences or context, but explicit prompt instructions
 When a page-specific citation helps, useful official anchors include `concepts/customization#agents-guidance`, `concepts/customization#skills`, `plugins/build#plugin-structure`, `concepts/customization#mcp`, `config-advanced#hooks`, `app/automations#thread-automations`, and `config-reference#configtoml`.
 ````
 
-## references/latest-model.md
+### references/latest-model.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/latest-model.md`, SHA-256 `bdf241d505eb071b1c7b0b732f842b701348cf6eab95d1c36fd97edac64dd158`.
 
@@ -1419,7 +1419,7 @@ Do not promote a legacy model as the current default, substitute it into an unre
 Verify GPT-6 Pro against current official Responses and model documentation before describing model IDs, reasoning modes, request parameters, or account availability; do not invent a separate `gpt-6-pro` model slug.
 ```
 
-## references/mcp-diagnostics.md
+### references/mcp-diagnostics.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/mcp-diagnostics.md`, SHA-256 `49bbd2f73df7bbd7f86c80425dea4da2d301c22046080399a36bfc0ca49509e9`.
 
@@ -1453,7 +1453,7 @@ A skill dependency declaration, configured server, or local-client setup does no
 Only perform a local installation or configuration change when the user explicitly authorizes that change. Never request sandbox escalation, edit hosted configuration, install a dependency, or ask the user to restart a hosted session merely to answer an ordinary documentation question.
 ````
 
-## references/model-migration.md
+### references/model-migration.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/model-migration.md`, SHA-256 `bef46671036c8e483b7f65df931171217d55a8d26098851c2f89784db8edca2f`.
 
@@ -1505,7 +1505,7 @@ Preserve each workload's cost, latency, quality, reasoning, tool, endpoint, and 
 If a safe migration requires an endpoint change, request-schema change, tool-handler change, or other implementation outside the requested scope, report the exact compatibility blocker and smallest follow-up instead of silently changing behavior.
 ````
 
-## references/model-selection.md
+### references/model-selection.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/model-selection.md`, SHA-256 `ba2d164abbca30435a460a0bc3a7d82398dce2bdf092705c98ba55b3f3af38a8`.
 
@@ -1524,7 +1524,7 @@ Pure model selection does not require migration metadata. **Do not run the resol
 Read `references/latest-model.md` only when fetched current official sources cannot answer the question. Disclose that bundled fallback guidance was used and may be outdated.
 ```
 
-## references/official-docs.md
+### references/official-docs.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/official-docs.md`, SHA-256 `7962f2dce55089b93bde4115bb89fd42f20993c1597a2b13edd4956f463875b9`.
 
@@ -1556,7 +1556,7 @@ If someone simply asks an API question from ChatGPT Work, answer the API questio
 Separate documented user-facing purposes from unsupported claims about underlying models, hard capability boundaries, file or context inheritance, exact UI labels, account entitlements, and rollout availability. When those details cannot be verified, cite the closest allowed official source and state the uncertainty.
 ```
 
-## references/prompting-guide.md
+### references/prompting-guide.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/prompting-guide.md`, SHA-256 `548d4ca73a34cd4b0041ef05a899592e8c50772b8f3a76c579ec941e403e19f6`.
 
@@ -1678,7 +1678,7 @@ Run tests appropriate to the change and complete required checks. Once those pas
 ```
 ````
 
-## references/upgrade-guide.md
+### references/upgrade-guide.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/upgrade-guide.md`, SHA-256 `ecac89155f910f064fd306e89c74585cabdb2142aba4f2acc0cead092ae1d1a5`.
 
@@ -1707,7 +1707,7 @@ For an explicit GPT-6 Astra migration:
 For another explicit model target, preserve that target and fetch its current official guidance. Do not reuse GPT-6-specific defaults, API shapes, or compatibility rules for a different model.
 ```
 
-## references/upgrading-to-gpt-6-astra.md
+### references/upgrading-to-gpt-6-astra.md
 
 Source: `codex-rs/skills/src/assets/samples/openai-docs/references/upgrading-to-gpt-6-astra.md`, SHA-256 `62ef6d22684662a019d203834fe1205a07e4ca4c65dddcbabe1bb51efe1aa840`.
 
@@ -1935,9 +1935,9 @@ Set `model` to `gpt-6-astra`, then check the following:
 - **Unnecessary approval pauses:** If you run into issues where the model keeps asking for approval before proceeding, use the [initiative and follow-through guidance](https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md#initiative-and-follow-through) to prompt for more autonomous execution. See the rest of [Prompting best practices](https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md#prompting-best-practices) for guidance on instruction following, writing style, subagent delegation, and testing.
 ````
 
-# plugin-creator
+## plugin-creator
 
-## SKILL.md
+### SKILL.md
 
 Source: `codex-rs/skills/src/assets/samples/plugin-creator/SKILL.md`, SHA-256 `71b95b8219644f95d633721e7f7cd3c469edfc8fe50f8415d400dfb2d74bc7b9`.
 
@@ -2193,7 +2193,7 @@ python3 scripts/validate_plugin.py <plugin-path>
 ```
 ````
 
-## references/installing-and-updating.md
+### references/installing-and-updating.md
 
 Source: `codex-rs/skills/src/assets/samples/plugin-creator/references/installing-and-updating.md`, SHA-256 `91c4781d48568fcc708b45566b08fb610ad1c88672720ae512f9525a1cf9cb20`.
 
@@ -2344,7 +2344,7 @@ After reinstalling, prompt the user to start a new thread for testing. That is t
 picking up the updated plugin and its MCP tools.
 ````
 
-## references/plugin-json-spec.md
+### references/plugin-json-spec.md
 
 Source: `codex-rs/skills/src/assets/samples/plugin-creator/references/plugin-json-spec.md`, SHA-256 `eeb640130f69636affaa299d4170d5a7ae6a0ff978296ddf75c409ce6dd87b91`.
 
@@ -2569,9 +2569,9 @@ personal marketplace unless the caller explicitly requests a repo-local destinat
   intentional preflight check that rejects leftover `[TODO: ...]` placeholders.
 ````
 
-# review-agent
+## review-agent
 
-## SKILL.md
+### SKILL.md
 
 Source: `codex-rs/skills/src/assets/samples/review-agent/SKILL.md`, SHA-256 `07079efd0dc76f05fade424e5dfb048dce1de2df7626e1a4f56292a4f3f92228`.
 
@@ -2635,9 +2635,9 @@ After the findings, add a brief overall assessment and mention any material test
 risks.
 ```
 
-# skill-creator
+## skill-creator
 
-## SKILL.md
+### SKILL.md
 
 Source: `codex-rs/skills/src/assets/samples/skill-creator/SKILL.md`, SHA-256 `6656e54755638e8efcf275a472b9672eaa8a9a1b9e59dc210e275b03b59e1e66`.
 
@@ -2873,7 +2873,7 @@ Use $skill-name at /path/to/skill-name to complete this realistic request.
 Keep the evaluation scoped to permitted resources and side effects. Use an isolated temporary workspace for generated artifacts so they do not enter the working tree or contaminate later evaluations. Ask for approval when the proposed evaluation would require additional authorization, affect a live production system, or impose substantial time or cost. Review the actual outcome and artifacts, then make only changes supported by the observed behavior.
 ````
 
-## license.txt
+### license.txt
 
 Source: `codex-rs/skills/src/assets/samples/skill-creator/license.txt`, SHA-256 `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30`.
 
@@ -3082,7 +3082,7 @@ Source: `codex-rs/skills/src/assets/samples/skill-creator/license.txt`, SHA-256 
    limitations under the License.
 ```
 
-## references/openai_yaml.md
+### references/openai_yaml.md
 
 Source: `codex-rs/skills/src/assets/samples/skill-creator/references/openai_yaml.md`, SHA-256 `ffac39318e408108141d40f820968e59f70434a891694f9bf1d25be8237b150c`.
 
@@ -3138,9 +3138,9 @@ Top-level constraints:
   Defaults to true.
 ````
 
-# skill-installer
+## skill-installer
 
-## SKILL.md
+### SKILL.md
 
 Source: `codex-rs/skills/src/assets/samples/skill-installer/SKILL.md`, SHA-256 `d68b77e5bbb34dedab89d134da52855f140fc4b4299b80104f534e3b9e98f8ee`.
 

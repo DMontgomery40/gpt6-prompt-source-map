@@ -78,12 +78,12 @@ test("semantic diff ignores provenance churn and reports prompt edits", () => {
 test("CLI prompt pages diff per area and prompt, ignoring provenance and headings inside prompts", () => {
   const page = (tag, sha, rule) => [
     "# Codex CLI prompts", "", `Source: openai/codex \`${tag}\`.`, "", "Prompt templates compiled into the CLI.", "",
-    "# Auto-review (guardian)", "",
-    "## Policy template", "", `Source: \`codex-rs/prompts/templates/guardian/policy_template.md\`, SHA-256 \`${sha}\`.`, "",
+    "## Auto-review (guardian)", "",
+    "### Policy template", "", `Source: \`codex-rs/prompts/templates/guardian/policy_template.md\`, SHA-256 \`${sha}\`.`, "",
     "```text", "# Security Policy", rule, "```", "",
-    "## Policy", "", "Source: `codex-rs/prompts/templates/guardian/policy.md`.", "", "```text", "Be careful.", "```", ""
+    "### Policy", "", "Source: `codex-rs/prompts/templates/guardian/policy.md`.", "", "```text", "Be careful.", "```", ""
   ].join("\n");
-  for (const name of ["codex-cli-prompts.md", "codex-cli-bundled-skills.md"]) {
+  for (const name of ["codex-cli-prompts.md", "codex-cli-bundled-skills.md", "desktop-model-facing-text.md"]) {
     const before = new Map([[name, page("rust-v0.155.0", "aaa", "Deny by default.")]]);
     assert.deepEqual(semanticDiff(before, new Map([[name, page("rust-v0.158.0", "bbb", "Deny by default.")]])).map(d => d.status), ["unchanged"]);
     const [changed] = semanticDiff(before, new Map([[name, page("rust-v0.155.0", "aaa", "{{ extra_policy }}")]]));
