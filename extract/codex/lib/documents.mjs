@@ -11,7 +11,6 @@ const stats = value => ({
 });
 const json = value => `${JSON.stringify(value, null, 2)}\n`;
 const grouped = number => number.toLocaleString("en-US");
-const CLI_PATH_IN_APP = "ChatGPT.app/Contents/Resources/codex";
 
 export const OUTPUT_NAMES = {
   persistent: "persistent-instructions.md",
@@ -124,7 +123,7 @@ function otherModelsMarkdown(others) {
   return `${blocks.join("\n\n---\n\n")}\n`;
 }
 
-function comparison(gpt6) {
+function comparison(gpt6, cli) {
   const models = Object.fromEntries(gpt6.map(model => [
     model.slug,
     Object.fromEntries(Object.entries(model.model_messages).map(([field, value]) => {
@@ -135,7 +134,7 @@ function comparison(gpt6) {
   const fields = [...new Set(gpt6.flatMap(model => Object.keys(model.model_messages)))];
   const identical = fields.filter(field => new Set(gpt6.map(model => models[model.slug][field]?.sha256 ?? "absent")).size === 1);
   return {
-    source: `${CLI_PATH_IN_APP} debug models`,
+    source: `${cli.entrypoint} debug models`,
     surface: "Authenticated Codex model catalog; this is not the ChatGPT Work model catalog.",
     hash_rule: "SHA-256 over the UTF-8 bytes of Python json.dumps(value, sort_keys=True, ensure_ascii=False) for each model_messages field.",
     models,
@@ -238,7 +237,7 @@ export function buildDocuments({ app, cli, catalog, prompts }) {
   const modules = modulesMarkdown(gpt6);
   docs.set(OUTPUT_NAMES.modules, modules);
   for (const model of gpt6) docs.set(OUTPUT_NAMES.record(model.slug), json(modelRecord(model)));
-  docs.set(OUTPUT_NAMES.comparison, json(comparison(gpt6All)));
+  docs.set(OUTPUT_NAMES.comparison, json(comparison(gpt6All, cli)));
 
   const astraModules = moduleLeaves(astra);
   docs.set(OUTPUT_NAMES.metadata, json({
@@ -246,7 +245,7 @@ export function buildDocuments({ app, cli, catalog, prompts }) {
       app_version: app.version,
       app_build: app.build,
       cli_version: cli.version,
-      binary_path: CLI_PATH_IN_APP,
+      binary_path: cli.binary,
       binary_sha256: cli.sha256,
       model_slug: astra.slug
     },

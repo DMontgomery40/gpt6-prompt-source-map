@@ -18,6 +18,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { codexApp } from "./lib/app-layout.mjs";
 import { AnchorError, extractAppPrompts } from "./lib/app-prompts.mjs";
 import { openAsar } from "./lib/asar.mjs";
 import { CatalogError, loadCatalog, SourceError } from "./lib/catalog.mjs";
@@ -28,15 +29,12 @@ import { renderDiffMarkdown, semanticDiff } from "./lib/semantic-diff.mjs";
 const root = path.resolve(import.meta.dirname, "..", "..");
 const outputsDir = path.join(root, "outputs");
 const workDir = path.join(root, "work");
-const appPath = process.env.CODEX_APP_PATH || "/Applications/ChatGPT.app";
-const asarPath = path.join(appPath, "Contents/Resources/app.asar");
-const binaryPath = path.join(appPath, "Contents/Resources/codex");
-const plistPath = path.join(appPath, "Contents/Info.plist");
+let layout; // codexApp(), resolved in main() so a changed layout is reported as a source error
 
 const fileSha256 = file => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
 function plistValue(key) {
-  return execFileSync("/usr/libexec/PlistBuddy", ["-c", `Print ${key}`, plistPath], { encoding: "utf8" }).trim();
+  return execFileSync("/usr/libexec/PlistBuddy", ["-c", `Print ${key}`, layout.plist], { encoding: "utf8" }).trim();
 }
 
 function snapshotInstall() {
@@ -44,14 +42,14 @@ function snapshotInstall() {
     version: plistValue("CFBundleShortVersionString"),
     build: plistValue("CFBundleVersion"),
     bundleId: plistValue("CFBundleIdentifier"),
-    asarSha256: fileSha256(asarPath),
-    binarySha256: fileSha256(binaryPath)
+    asarSha256: fileSha256(layout.asar),
+    binarySha256: fileSha256(layout.binary)
   };
 }
 
 // Third-party dependency prompt files shipped beside the app (not Codex's own).
 function dependencyPrompts() {
-  const resources = path.join(appPath, "Contents/Resources");
+  const resources = layout.resources;
   const found = [];
   const walk = dir => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -81,19 +79,17 @@ function writeAtomically(file, content) {
 }
 
 function main() {
-  for (const required of [asarPath, binaryPath, plistPath]) {
-    if (!fs.existsSync(required)) throw new SourceError(`missing ${path.relative(appPath, required)} under ${path.basename(appPath)}; is the ChatGPT desktop app installed?`);
-  }
+  layout = codexApp();
   const before = snapshotInstall();
-  const cliVersion = execFileSync(binaryPath, ["--version"], { encoding: "utf8" }).trim();
+  const cliVersion = execFileSync(layout.entrypoint, ["--version"], { encoding: "utf8" }).trim();
 
-  const catalog = loadCatalog(binaryPath);
-  const asar = openAsar(asarPath);
+  const catalog = loadCatalog(layout.entrypoint);
+  const asar = openAsar(layout.asar);
   if (asar.sha256 !== before.asarSha256) throw new CatalogError("app.asar changed while it was being read (app update in progress?); retry later");
   const prompts = extractAppPrompts(asar);
 
   const app = { ...before, dependencyPrompts: dependencyPrompts() };
-  const docs = buildDocuments({ app, cli: { version: cliVersion, sha256: before.binarySha256 }, catalog, prompts });
+  const docs = buildDocuments({ app, cli: { version: cliVersion, sha256: before.binarySha256, entrypoint: layout.shown.entrypoint, binary: layout.shown.binary }, catalog, prompts });
   privacyScan(docs, catalog);
 
   const after = snapshotInstall();

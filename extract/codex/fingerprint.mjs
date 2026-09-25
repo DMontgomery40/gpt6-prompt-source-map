@@ -13,21 +13,15 @@ import crypto from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { codexApp } from "./lib/app-layout.mjs";
 import { canonicalCatalog, SourceError } from "./lib/catalog.mjs";
 
-const appPath = process.env.CODEX_APP_PATH || "/Applications/ChatGPT.app";
-const asarPath = path.join(appPath, "Contents/Resources/app.asar");
-const binaryPath = path.join(appPath, "Contents/Resources/codex");
-const plistPath = path.join(appPath, "Contents/Info.plist");
-
 function fingerprint() {
-  for (const required of [asarPath, binaryPath, plistPath]) {
-    if (!fs.existsSync(required)) throw new SourceError(`missing ${path.relative(appPath, required)} under ${path.basename(appPath)}`);
-  }
-  const appBuild = execFileSync("/usr/libexec/PlistBuddy", ["-c", "Print CFBundleVersion", plistPath], { encoding: "utf8" }).trim();
-  const cliSha256 = crypto.createHash("sha256").update(fs.readFileSync(binaryPath)).digest("hex");
+  const app = codexApp();
+  const appBuild = execFileSync("/usr/libexec/PlistBuddy", ["-c", "Print CFBundleVersion", app.plist], { encoding: "utf8" }).trim();
+  const cliSha256 = crypto.createHash("sha256").update(fs.readFileSync(app.binary)).digest("hex");
 
-  const result = spawnSync(binaryPath, ["debug", "models"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 60_000 });
+  const result = spawnSync(app.entrypoint, ["debug", "models"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 60_000 });
   if (result.error || result.status !== 0) {
     throw new SourceError(`codex debug models failed: ${result.error?.message ?? result.stderr.trim().slice(0, 500)}`);
   }
@@ -38,7 +32,7 @@ function fingerprint() {
     throw new SourceError(`codex debug models did not return JSON: ${error.message}`);
   }
 
-  const asar = fs.statSync(asarPath);
+  const asar = fs.statSync(app.asar);
   return {
     app_build: appBuild,
     cli_sha256: cliSha256,

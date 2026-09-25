@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { codexApp } from "./lib/app-layout.mjs";
 import { stringLeaves } from "./lib/catalog.mjs";
 import { functionHelperPrompts, staticHelperPrompts, voicePrompts } from "./prompts.mjs";
 
@@ -178,7 +179,7 @@ compareSections("voice-prompts.md", `codex-voice-prompts-${date}.md`);
 
 // 7. New document: every fenced text must equal the live catalog value.
 {
-  const result = spawnSync(path.join(process.env.CODEX_APP_PATH || "/Applications/ChatGPT.app", "Contents/Resources/codex"), ["debug", "models"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  const result = spawnSync(codexApp().entrypoint, ["debug", "models"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   const models = JSON.parse(result.stdout).models;
   const doc = read("other-catalog-models.md");
   const others = models.filter(model => !["gpt-6-astra", "gpt-6-sol", "gpt-6-luna"].includes(model.slug));

@@ -31,7 +31,7 @@ The environment variables `CODEX_APP_PATH` (default `/Applications/ChatGPT.app`)
 
 ## Inputs
 
-- **Model catalog:** `ChatGPT.app/Contents/Resources/codex debug models` returns the live authenticated catalog and refreshes a stale cache. `--bundled` returns the compiled-in defaults and is used only for counts and for the `persistent_matches_bundled` check.
+- **Model catalog:** `ChatGPT.app/Contents/Resources/codex-cli/bin/codex debug models` (the entrypoint named by `codex-cli/codex-package.json`; see `lib/app-layout.mjs`) returns the live authenticated catalog and refreshes a stale cache. `--bundled` returns the compiled-in defaults and is used only for counts and for the `persistent_matches_bundled` check.
 - **Desktop prompts:** `ChatGPT.app/Contents/Resources/app.asar`, read directly with a small asar reader. Only app scripts are searched: `.js`, `.mjs` and `.cjs` files outside `node_modules`.
 - **Cache cross-check:** `$CODEX_HOME/models_cache.json` is read for three things only: `fetched_at`, `client_version`, and each model's `model_messages`. If the CLI's output does not match the refreshed cache, the run fails, so compiled-in defaults are never published as live. The cache's `identity` value is used only as a string that the privacy scan refuses.
 

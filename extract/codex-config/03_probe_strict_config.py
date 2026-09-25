@@ -22,7 +22,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 CAP = REPO / "work" / "codex-config"
-CODEX = os.environ.get("CODEX_BIN", "/Applications/ChatGPT.app/Contents/Resources/codex")
+CODEX = os.environ.get("CODEX_BIN") or subprocess.run(
+    ["node", str(REPO / "extract/codex/lib/app-layout.mjs"), "entrypoint"],
+    capture_output=True, text=True, check=True).stdout.strip()
 NIL = "00000000-0000-0000-0000-000000000000"
 
 PLACEHOLDER_VALUES = {"<path>": "/tmp", "<path-or-glob>": "/tmp", "<pattern>": "example.com",

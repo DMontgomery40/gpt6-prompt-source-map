@@ -6,7 +6,11 @@
 # Usage: extract/codex-config/01_capture_binary.sh [WORK_DIR]
 set -euo pipefail
 
-CODEX="${CODEX_BIN:-/Applications/ChatGPT.app/Contents/Resources/codex}"
+# CODEX runs the CLI (the app's entrypoint shim); CODEX_BINARY is the executable it runs,
+# which is what gets hashed and scanned for strings.
+LAYOUT="$(cd "$(dirname "$0")/.." && pwd)/codex/lib/app-layout.mjs"
+CODEX="${CODEX_BIN:-$(node "$LAYOUT" entrypoint)}"
+CODEX_BINARY="${CODEX_BINARY:-${CODEX_BIN:-$(node "$LAYOUT" binary)}}"
 WORK="${1:-$(cd "$(dirname "$0")/../.." && pwd)/work/codex-config}"
 mkdir -p "$WORK/help"
 
@@ -17,7 +21,7 @@ EMPTY_HOME="$(mktemp -d)"
 codex_clean() { env -i PATH=/usr/bin:/bin HOME="$EMPTY_HOME" CODEX_HOME="$EMPTY_HOME" "$CODEX" "$@"; }
 
 codex_clean --version > "$WORK/version.txt"
-shasum -a 256 "$CODEX" | awk '{print $1}' > "$WORK/codex.sha256"
+shasum -a 256 "$CODEX_BINARY" | awk '{print $1}' > "$WORK/codex.sha256"
 
 # Recursively walk subcommands listed under "Commands:" in each help page.
 walk() {
@@ -37,5 +41,5 @@ walk ""
 # Feature registry as the binary reports it; the empty CODEX_HOME means compiled-in defaults.
 codex_clean features list > "$WORK/features-list.txt" 2>&1 || true
 
-strings -a -n 3 "$CODEX" > "$WORK/codex.strings.txt"
+strings -a -n 3 "$CODEX_BINARY" > "$WORK/codex.strings.txt"
 echo "captured $(ls "$WORK/help" | wc -l | tr -d ' ') help pages into $WORK"

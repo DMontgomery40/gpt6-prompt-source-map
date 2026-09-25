@@ -9,9 +9,10 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 WORK="$REPO/work"
-CLI="${CODEX_APP_PATH:-/Applications/ChatGPT.app}/Contents/Resources/codex"
+LAYOUT="$REPO/extract/codex/lib/app-layout.mjs"   # honors CODEX_APP_PATH
+CLI="$(node "$LAYOUT" entrypoint)"
 TAG="rust-v$("$CLI" --version | awk '{print $2}')"
-ASAR_FILE="/Applications/ChatGPT.app/Contents/Resources/app.asar"
+ASAR_FILE="$(node "$LAYOUT" asar)"
 mkdir -p "$WORK/codex-config/docs" "$WORK/asar-build"
 
 # One checkout per release tag; work/codex-src points at the current one. A missing tag
