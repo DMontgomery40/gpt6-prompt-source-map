@@ -566,6 +566,8 @@ test("production pages resolve every contents link to exactly one unique anchor"
       const html = await readFile(file, "utf8");
       const toc = tableOfContents(html);
       const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
+      const broken = [...html.matchAll(/href="#([^"]+)"/g)].map(match => match[1]).filter(id => !ids.includes(id));
+      assert.deepEqual(broken, [], `${file} in-page links resolve`);
       assert.deepEqual(ids.filter((id, index) => ids.indexOf(id) !== index), [], `${file} ids are unique`);
 
       const links = [...toc.matchAll(/<a href="([^"]+)" data-depth="(\d)">/g)];

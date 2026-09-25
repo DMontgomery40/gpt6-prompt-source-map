@@ -149,6 +149,27 @@ export const categories = [
     ]
   },
   {
+    label: "Codex configuration",
+    files: [
+      {
+        path: "outputs/codex-config.md",
+        anchor: "codex-config-md",
+        slug: "codex-config",
+        format: "markdown",
+        title: "config.toml reference",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/codex-env-vars.md",
+        anchor: "codex-env-vars-md",
+        slug: "codex-env-vars",
+        format: "markdown",
+        title: "Environment variables",
+        defaultOpen: false
+      }
+    ]
+  },
+  {
     label: "Codex voice prompts",
     files: [
       {

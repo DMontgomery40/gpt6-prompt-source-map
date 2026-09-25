@@ -10,7 +10,7 @@
     "binary_sha256": "93169e745735930598e867ad837abf3fdc50774a3ad7e7aa89c0d0c51b0189a5"
   },
   "catalog": {
-    "fetched_at": "2026-09-25T07:51:37.345240Z",
+    "fetched_at": "2026-09-25T07:56:07.787705Z",
     "client_version": "0.155.0",
     "models": [
       "gpt-6-astra",
