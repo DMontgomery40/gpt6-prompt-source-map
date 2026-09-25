@@ -20,7 +20,7 @@ if [ ! -d "$WORK/codex-src-$TAG" ]; then
   git clone --depth 1 --branch "$TAG" https://github.com/openai/codex.git "$WORK/codex-src-$TAG"
 fi
 if [ -d "$WORK/codex-src" ] && [ ! -L "$WORK/codex-src" ]; then mv "$WORK/codex-src" "$WORK/codex-src-previous"; fi
-ln -sfn "$WORK/codex-src-$TAG" "$WORK/codex-src"
+ln -sfn "codex-src-$TAG" "$WORK/codex-src"
 echo "$TAG" > "$WORK/codex-config/tag.txt"
 git -C "$WORK/codex-src" rev-parse HEAD > "$WORK/codex-config/source-commit.txt"
 
