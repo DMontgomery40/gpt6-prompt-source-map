@@ -1,5 +1,6 @@
 import { Marked } from "marked";
 import { guideStyles, renderGuide } from "./guide.mjs";
+import { filterBar, filterScript, filterStyles, wrapFilterable } from "./filters.mjs";
 import { createRoutes } from "./routes.mjs";
 import { anchorOutline, renderToc, tocNoscriptStyles, tocScript, tocStyles } from "./toc.mjs";
 
@@ -191,6 +192,13 @@ function renderDocument(document, ids) {
         : renderMarkdown(source, { headingOffset: 1, prompt: document.promptText === true })}</div>`, { anchor, ids })
       : { html: `<pre class="source-block"><code>${escapeHtml(document.source)}</code></pre>`, outline: [] };
 
+  let body = content;
+  if (document.filter) {
+    const inner = content.replace(/^<div class="markdown-body">/, "").replace(/<\/div>$/, "");
+    const wrapped = wrapFilterable(inner, document.filter);
+    if (wrapped.matched !== document.filter.records.length) throw new Error(`${document.path}: tagged ${wrapped.matched} of ${document.filter.records.length} entries`);
+    body = `${filterBar(document.filter, wrapped.matched)}<div class="markdown-body">${wrapped.html}</div>`;
+  }
   return {
     path: document.path,
     anchor,
@@ -201,7 +209,8 @@ function renderDocument(document, ids) {
     profile: document.instructionProfile,
     source: document.source,
     defaultOpen: document.defaultOpen,
-    content,
+    content: body,
+    filterVocabulary: document.filter?.vocabulary,
     outline
   };
 }
@@ -391,6 +400,7 @@ function renderPage({ categories, rendered, routes, current = null, status = nul
     @media(max-width:450px){.follow-link{top:12px;left:12px}.intro{padding:12px}.intro-main{padding:20px 22px 25px}.intro-disc{width:142px;height:142px}.intro-disc-inner b{font-size:37px}.intro-title{font-size:44px}.intro-top span:last-child{display:none}.intro-bottom{gap:10px;font-size:9px}.intro-joke{margin:16px 0 18px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.intro{display:none}.follow-link,.intro-follow{transition:none}}
 ${tocStyles}
+${filterStyles}
 ${guideStyles}
   </style>
 </head>
@@ -449,6 +459,7 @@ ${rendered.map(documentPanel).join("\n")}`}
     addEventListener("hashchange", revealHashTarget);
     revealHashTarget();
 ${tocScript}
+${filterScript}
   </script>
 </body>
 </html>`;

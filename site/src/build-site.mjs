@@ -1,5 +1,6 @@
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { expandFacts } from "./facts.mjs";
 import { renderSite } from "./render.mjs";
 
 const displayReplacements = [
@@ -28,10 +29,15 @@ export async function buildSite({ sourceRoot, outFile, categories }) {
   for (const category of categories) {
     for (const file of category.files) {
       try {
-        const source = rewriteDisplayPaths(
-          await readFile(path.join(sourceRoot, file.path), "utf8")
-        );
-        documents.push({ ...file, category: category.label, source });
+        const raw = rewriteDisplayPaths(await readFile(path.join(sourceRoot, file.path), "utf8"));
+        const source = file.format === "markdown" ? expandFacts(raw, sourceRoot, file.path) : raw;
+        let filter;
+        if (file.filters) {
+          const records = JSON.parse(await readFile(path.join(sourceRoot, file.filters.records), "utf8")).items;
+          const tags = JSON.parse(await readFile(path.join(sourceRoot, file.filters.tags), "utf8"));
+          filter = { vocabulary: tags.tags, records: records.map(r => ({ group: r.group, title: r.title, tags: tags.items[r.id] ?? [] })) };
+        }
+        documents.push({ ...file, category: category.label, source, filter });
       } catch (error) {
         throw new Error(`Unable to read ${file.path}: ${error.message}`, {
           cause: error

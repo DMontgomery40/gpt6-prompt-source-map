@@ -157,6 +157,7 @@ export const categories = [
         slug: "codex-config",
         format: "markdown",
         title: "config.toml reference",
+        filters: { records: "outputs/codex-config.json", tags: "outputs/codex-config-tags.json" },
         defaultOpen: false
       },
       {
@@ -165,6 +166,7 @@ export const categories = [
         slug: "codex-env-vars",
         format: "markdown",
         title: "Environment variables",
+        filters: { records: "outputs/codex-env-vars.json", tags: "outputs/codex-env-vars-tags.json" },
         defaultOpen: false
       }
     ]

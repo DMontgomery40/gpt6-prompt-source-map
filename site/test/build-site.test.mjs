@@ -198,6 +198,10 @@ test("production catalog keeps supporting tool evidence accessible", async () =>
         const sourceFile = path.join(root, file.path);
         await mkdir(path.dirname(sourceFile), { recursive: true });
         await writeFile(sourceFile, `# ${path.basename(file.path)}\n`);
+        if (file.filters) {
+          await writeFile(path.join(root, file.filters.records), JSON.stringify({ items: [] }));
+          await writeFile(path.join(root, file.filters.tags), JSON.stringify({ tags: [], items: {} }));
+        }
       }
     }
 
@@ -222,6 +226,10 @@ test("production reference publishes the complete current instruction and tool s
         const sourceFile = path.join(root, file.path);
         await mkdir(path.dirname(sourceFile), { recursive: true });
         await writeFile(sourceFile, `# ${path.basename(file.path)}\n`);
+        if (file.filters) {
+          await writeFile(path.join(root, file.filters.records), JSON.stringify({ items: [] }));
+          await writeFile(path.join(root, file.filters.tags), JSON.stringify({ tags: [], items: {} }));
+        }
       }
     }
 
@@ -641,5 +649,49 @@ test("start here panel leads with persistent mode and links only to highlighted 
     assert.match(guide, /<ul class="start-here-list"><li class="is-primary"><a href="#persistent-md--persistent-mode"><span class="start-here-doc">Persistent prompt<\/span><span class="start-here-meta">About 100 words, the full text<\/span><\/a><\/li><li><a href="#base-md--autonomy-and-persistence"><span class="start-here-doc">Base prompt<\/span><span class="start-here-meta">Persistence<\/span><\/a><\/li><\/ul>/);
     assert.doesNotMatch(guide, /Plain notes/);
     assert.doesNotMatch(await readFile(path.join(root, "dist/persistent-prompt/index.html"), "utf8"), /class="start-here"/);
+  });
+});
+
+test("narrative numbers come from data tokens, and an unknown field fails the build", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(path.join(root, "outputs/current.json"), JSON.stringify({
+      version: "1.0.0",
+      tools: { cli: 31, betas: ["a-1", "b-2"] },
+      items: [
+        { id: "a", kind: "setting", documented: "https://x", details: { hidden: true } },
+        { id: "b", kind: "setting", documented: null, group: "Safe env keys" },
+        { id: "c", kind: "env-var", documented: null }
+      ]
+    }));
+    await writeFile(path.join(root, "outputs/current.md"), "# Title\n\n{{count:current kind=setting}} settings, {{count:current kind=setting documented=null}} undocumented, {{count:current details.hidden=true}} hidden, {{count:current group=\"Safe env keys\"}} safe; {{value:current tools.cli}} tools; betas {{value:current tools.betas}}.\n");
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /2 settings, 1 undocumented, 1 hidden, 1 safe; 31 tools; betas a-1, b-2\./);
+
+    await writeFile(path.join(root, "outputs/current.md"), "# Title\n\n{{value:current tools.missing}}\n");
+    await assert.rejects(buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog }), /tools\.missing is not in outputs\/current\.json/);
+  });
+});
+
+test("filterable pages wrap every entry with its tags and fail when an entry has no record", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(path.join(root, "outputs/current.md"), "# Title\n\n## Models\n\n### `model`\n\nType: string\n\n### `sleep`\n\nType: bool\n");
+    await writeFile(path.join(root, "outputs/records.json"), JSON.stringify({ items: [
+      { id: "a", group: "Models", title: "model" }, { id: "b", group: "Models", title: "sleep" }
+    ] }));
+    await writeFile(path.join(root, "outputs/tags.json"), JSON.stringify({
+      tags: [{ id: "persistent-mode", label: "Persistent mode", kind: "topic", count: 1 }, { id: "undocumented", label: "Undocumented", kind: "status", count: 2 }],
+      items: { a: ["undocumented"], b: ["persistent-mode", "undocumented"] }
+    }));
+    const catalog = [{ label: "Config", files: [{ path: "outputs/current.md", format: "markdown", filters: { records: "outputs/records.json", tags: "outputs/tags.json" } }] }];
+    await buildSite({ sourceRoot: root, outFile, categories: catalog });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /<div class="filter-bar" data-total="2">/);
+    assert.match(html, /class="chip chip-feature" data-tag="persistent-mode" aria-pressed="false">Persistent mode <span class="chip-count">1<\/span>/);
+    assert.match(html, /<section class="filter-item" data-tags="persistent-mode undocumented"><h4 id="current-md--sleep"><code>sleep<\/code><\/h4><div class="item-tags">/);
+    assert.equal((html.match(/class="filter-item"/g) ?? []).length, 2);
+
+    await writeFile(path.join(root, "outputs/records.json"), JSON.stringify({ items: [{ id: "a", group: "Models", title: "model" }, { id: "c", group: "Models", title: "missing" }] }));
+    await assert.rejects(buildSite({ sourceRoot: root, outFile, categories: catalog }), /tagged 1 of 2 entries/);
   });
 });

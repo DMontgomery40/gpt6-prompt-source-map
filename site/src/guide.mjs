@@ -30,6 +30,13 @@ export function renderGuide(documents) {
   });
   if (!rows.length) return "";
   rows.sort((a, b) => Number(b.persistent) - Number(a.persistent));
+  // Config keys and env vars tagged persistent mode, linked as a filtered view.
+  const tagged = documents.map(document => [document, document.filterVocabulary?.find(t => t.id === "persistent-mode")?.count]).filter(([, n]) => n);
+  if (tagged.length) {
+    const [first] = tagged[0];
+    const meta = tagged.map(([document, n]) => `${n.toLocaleString("en-US")} ${/env/i.test(document.title) ? "env vars" : "config keys"}`).join(" · ");
+    rows.splice(1, 0, { persistent: false, html: `<li><a href="${first.slug}/?tags=persistent-mode"><span class="start-here-doc">Persistent-mode config and env vars</span><span class="start-here-meta">${escapeHtml(meta)}</span></a></li>` });
+  }
 
   return `
         <section class="start-here" aria-labelledby="start-here-title">
