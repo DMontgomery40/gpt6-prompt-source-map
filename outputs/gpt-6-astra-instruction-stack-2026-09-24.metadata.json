@@ -1,0 +1,56 @@
+{
+  "extracted_at": "2026-09-25T02:34:23.495Z",
+  "source": {
+    "app_version": "26.917.71314",
+    "app_build": "10954",
+    "cli_version": "codex-cli 0.155.0-alpha.16.4",
+    "binary_path": "/Applications/ChatGPT.app/Contents/Resources/codex",
+    "binary_sha256": "93169e745735930598e867ad837abf3fdc50774a3ad7e7aa89c0d0c51b0189a5",
+    "model_slug": "gpt-6-astra"
+  },
+  "verification": {
+    "authenticated_model_count": 10,
+    "bundled_model_count": 11,
+    "authenticated_base_equals_template": true,
+    "persistent_matches_bundled": true,
+    "authenticated_base": {
+      "characters": 21420,
+      "bytes": 21428,
+      "lines": 171,
+      "sha256": "35bd51b5f577cb7b24cd5f4629e49e37cb724ab57754ce6f8f202001635bab8a"
+    },
+    "bundled_base": {
+      "characters": 21261,
+      "bytes": 21269,
+      "lines": 171,
+      "sha256": "152dfaeeb552876190962be1c12c93d426840ff12691f648261554a7675a6698"
+    },
+    "persistent_instructions": {
+      "characters": 5737,
+      "bytes": 5741,
+      "lines": 33,
+      "sha256": "30747e79e50efb64f91cfff3d5ef1882e347081e81448918d5f7d5358e98c523"
+    },
+    "conditional_module_count": 11,
+    "conditional_module_characters": 33422,
+    "model_messages_snapshot": {
+      "characters": 84191,
+      "bytes": 84283,
+      "lines": 58,
+      "sha256": "7a6f5bc690ca61fe9b025f5da3f548e3ed40d62d726eedfb0ca1c0cd08caaadb"
+    },
+    "conditional_modules_markdown": {
+      "characters": 33889,
+      "bytes": 33961,
+      "lines": 348,
+      "sha256": "5761752d9b038f36ab662e44d3caf3ef1daf31c3540c36a2bf827a67c78e8661"
+    }
+  },
+  "outputs": {
+    "persistent": "aeon-persistent-instructions-2026-09-24.md",
+    "base": "gpt-6-astra-base-instructions-2026-09-24.md",
+    "modules": "gpt-6-astra-instruction-modules-2026-09-24.md",
+    "modelMessages": "gpt-6-astra-model-messages-2026-09-24.json",
+    "metadata": "gpt-6-astra-instruction-stack-2026-09-24.metadata.json"
+  }
+}

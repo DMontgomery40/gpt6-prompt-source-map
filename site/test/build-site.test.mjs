@@ -1,0 +1,622 @@
+import assert from "node:assert/strict";
+import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { buildSite } from "../src/build-site.mjs";
+import { categories } from "../src/catalog.mjs";
+import { renderInstructionMarkdown } from "../src/render.mjs";
+
+const fixtureCatalog = [
+  {
+    label: "Instructions",
+    files: [
+      { path: "outputs/current.md", format: "markdown" },
+      { path: "outputs/evidence.json", format: "source" }
+    ]
+  }
+];
+
+async function withFixture(run) {
+  const root = await mkdtemp(path.join(os.tmpdir(), "aeon-site-test-"));
+  await mkdir(path.join(root, "outputs"));
+  await writeFile(
+    path.join(root, "outputs/current.md"),
+    "# Overview\n\nUse `<checkpoint>` & continue.\n"
+  );
+  await writeFile(
+    path.join(root, "outputs/evidence.json"),
+    '{"state":"<ready>","ok":true}\n'
+  );
+  try {
+    await run(root, path.join(root, "dist/index.html"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+}
+
+test("build renders every catalog file and stable filename navigation", async () => {
+  await withFixture(async (root, outFile) => {
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /href="#current-md"/);
+    assert.match(html, /id="current-md"/);
+    assert.match(html, /href="#evidence-json"/);
+    assert.match(html, /current\.md/);
+    assert.match(html, /evidence\.json/);
+  });
+});
+
+test("intro and persistent corner link both lead to the requested X profile", async () => {
+  await withFixture(async (root, outFile) => {
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /id="intro" role="dialog"/);
+    assert.match(html, /David has good takes\./);
+    assert.match(html, /class="intro-follow" href="https:\/\/x\.com\/_DMontgomery40"/);
+    assert.match(html, /class="follow-link" href="https:\/\/x\.com\/_DMontgomery40"/);
+    assert.match(html, /\.follow-link\{position:fixed;/);
+    assert.match(html, /setTimeout\(closeIntro, 2350\)/);
+    assert.match(html, /@media\(prefers-reduced-motion:reduce\).*\.intro\{display:none\}/);
+  });
+});
+
+test("social previews use the public canonical URL and an absolute large card image", async () => {
+  await withFixture(async (root, outFile) => {
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /<link rel="canonical" href="https:\/\/gpt6aeon\.dtmont\.com\/">/);
+    assert.match(html, /<meta property="og:url" content="https:\/\/gpt6aeon\.dtmont\.com\/">/);
+    assert.match(html, /<meta property="og:image" content="https:\/\/gpt6aeon\.dtmont\.com\/prompt-map-social-card\.png">/);
+    assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
+    assert.match(html, /<meta name="twitter:image" content="https:\/\/gpt6aeon\.dtmont\.com\/prompt-map-social-card\.png">/);
+    assert.match(html, /<meta name="twitter:creator" content="@_DMontgomery40">/);
+    assert.match(html, /<meta name="twitter:title" content="GPT-6 Prompt Source Map:/);
+  });
+});
+
+test("build keeps Aeon documents open and non-Aeon documents collapsed but expandable", async () => {
+  await withFixture(async (root, outFile) => {
+    const expandableCatalog = [
+      {
+        label: "Aeon",
+        files: [
+          { path: "outputs/current.md", format: "markdown", defaultOpen: true },
+          { path: "outputs/evidence.json", format: "source", defaultOpen: false }
+        ]
+      }
+    ];
+
+    await buildSite({ sourceRoot: root, outFile, categories: expandableCatalog });
+    const html = await readFile(outFile, "utf8");
+
+    assert.match(html, /<details class="document" id="current-md"[^>]* open>/);
+    assert.match(html, /<details class="document" id="evidence-json"(?![^>]* open)[^>]*>/);
+    assert.match(html, /<summary class="document-summary">/);
+    assert.match(html, /<div class="document-content">/);
+  });
+});
+
+test("build escapes markup-looking source while preserving visible text", async () => {
+  await withFixture(async (root, outFile) => {
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /<code>&lt;checkpoint&gt;<\/code> &amp; continue/);
+    assert.match(html, /&quot;state&quot;:&quot;&lt;ready&gt;&quot;/);
+    assert.doesNotMatch(html, /&amp;lt;checkpoint&amp;gt;/);
+    assert.doesNotMatch(html, /<checkpoint>/);
+    assert.doesNotMatch(html, /<ready>/);
+  });
+});
+
+test("document headings appear once without exposing file labels while prompt headings remain intact", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(path.join(root, "outputs/current.md"), "# Key findings\n\n## Work\n\nEvidence.\n");
+    await writeFile(path.join(root, "outputs/voice.md"), "# Voice prompt inventory\n\nIntro.\n\n# Coordinator\n\nPrompt.\n");
+    await writeFile(path.join(root, "outputs/historical.md"), "# Role and operating principles\n\nOriginal prompt.\n");
+    const catalog = [{ label: "Evidence", files: [
+      { path: "outputs/current.md", format: "markdown", title: "Key findings" },
+      { path: "outputs/voice.md", format: "markdown", title: "Voice prompts", instructionProfile: "voice" },
+      { path: "outputs/historical.md", format: "markdown", title: "Historical prompt", instructionProfile: "historical-core" }
+    ] }];
+    await buildSite({ sourceRoot: root, outFile, categories: catalog });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /<h2 id="current-md-title">Key findings<\/h2>/);
+    assert.doesNotMatch(html, /<h3[^>]*>Key findings<\/h3>/);
+    assert.match(html, /<h3[^>]*>Work<\/h3>/);
+    assert.doesNotMatch(html, /<h3[^>]*>Voice prompt inventory<\/h3>/);
+    assert.match(html, /<h3[^>]*>Coordinator<\/h3>/);
+    assert.match(html, /<h3[^>]*>Role and operating principles<\/h3>/);
+    assert.doesNotMatch(html, /class="file-meta"|\.md · markdown · \d+ lines/i);
+  });
+});
+
+test("build keeps duplicate internal headings subordinate to unique file anchors", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(path.join(root, "outputs/duplicate.md"), "# Overview\n\nSecond file.\n");
+    const duplicateHeadings = [
+      {
+        label: "Instructions",
+        files: [
+          { path: "outputs/current.md", format: "markdown" },
+          { path: "outputs/duplicate.md", format: "markdown" }
+        ]
+      }
+    ];
+    await buildSite({ sourceRoot: root, outFile, categories: duplicateHeadings });
+    const html = await readFile(outFile, "utf8");
+    assert.match(html, /id="current-md"/);
+    assert.match(html, /id="duplicate-md"/);
+    assert.doesNotMatch(html, /id="overview"/);
+  });
+});
+
+test("build reports the filename when a catalog source is missing", async () => {
+  await withFixture(async (root, outFile) => {
+    const missing = [
+      {
+        label: "Missing",
+        files: [{ path: "outputs/absent.md", format: "markdown" }]
+      }
+    ];
+    await assert.rejects(
+      buildSite({ sourceRoot: root, outFile, categories: missing }),
+      /outputs\/absent\.md/
+    );
+  });
+});
+
+test("build replaces the old workspace slug in all rendered document formats", async () => {
+  await withFixture(async (root, outFile) => {
+    const oldSlug = "token-gremlin-https-x-com-tokengremlin";
+    const newSlug = "aeon-daybreak-binwalk-extraction";
+    await writeFile(
+      path.join(root, "outputs/current.md"),
+      `[Evidence](/Users/example/${oldSlug}/outputs/evidence.json)\n`
+    );
+    await writeFile(
+      path.join(root, "outputs/evidence.json"),
+      `{"path":"/Users/example/${oldSlug}/outputs/evidence.json"}\n`
+    );
+
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+
+    assert.doesNotMatch(html, new RegExp(oldSlug, "g"));
+    assert.equal(html.match(new RegExp(newSlug, "g"))?.length, 2);
+  });
+});
+
+test("production catalog keeps supporting tool evidence accessible", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "aeon-site-catalog-test-"));
+  const outFile = path.join(root, "dist/index.html");
+
+  try {
+    for (const category of categories) {
+      for (const file of category.files) {
+        const sourceFile = path.join(root, file.path);
+        await mkdir(path.dirname(sourceFile), { recursive: true });
+        await writeFile(sourceFile, `# ${path.basename(file.path)}\n`);
+      }
+    }
+
+    await buildSite({ sourceRoot: root, outFile, categories });
+    const html = await readFile(outFile, "utf8");
+
+    assert.match(html, />Observed runtime and tools</);
+    assert.match(html, /href="#aeon-tools-and-tool-calls-md"/);
+    assert.match(html, /id="aeon-tools-and-tool-calls-md"/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("production reference publishes the complete current instruction and tool surfaces", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "aeon-site-pruned-catalog-test-"));
+  const outFile = path.join(root, "dist/index.html");
+
+  try {
+    for (const category of categories) {
+      for (const file of category.files) {
+        const sourceFile = path.join(root, file.path);
+        await mkdir(path.dirname(sourceFile), { recursive: true });
+        await writeFile(sourceFile, `# ${path.basename(file.path)}\n`);
+      }
+    }
+
+    await buildSite({ sourceRoot: root, outFile, categories });
+    const html = await readFile(outFile, "utf8");
+
+    const publishedPaths = categories.flatMap(category => category.files.map(file => file.path));
+    for (const requiredPath of [
+      "outputs/security-review-map-2026-09-24.md",
+      "outputs/chatgpt-work-source-check-2026-09-24.md",
+      "outputs/chatgpt-work-gpt6-client-trace-2026-09-24.json",
+      "outputs/voice-tool-surface-2026-09-24.md",
+      "outputs/codex-voice-prompts-2026-09-24.md",
+      "outputs/codex-desktop-helper-prompts-2026-09-24.md",
+      "outputs/codex-prompt-provenance-inventory-2026-09-24.json",
+      "outputs/codex-gpt6-model-prompt-comparison-2026-09-24.json",
+      "outputs/codex-luna-surface-check-2026-09-24.json",
+      "outputs/aeon-persistent-instructions-2026-09-24.md",
+      "outputs/gpt-6-astra-base-instructions-2026-09-24.md",
+      "outputs/gpt-6-sol-base-instructions-2026-09-24.md",
+      "outputs/gpt-6-luna-base-instructions-2026-09-24.md",
+      "outputs/gpt-6-astra-instruction-modules-2026-09-24.md",
+      "outputs/gpt-6-astra-model-messages-2026-09-24.json",
+      "outputs/gpt-6-sol-model-messages-2026-09-24.json",
+      "outputs/gpt-6-luna-model-messages-2026-09-24.json",
+      "outputs/gpt-6-astra-instruction-stack-2026-09-24.metadata.json",
+      "outputs/current-host-tool-manifest-2026-09-24.json"
+    ]) {
+      assert(publishedPaths.includes(requiredPath), `${requiredPath} must be published`);
+    }
+
+    assert.match(html, />Codex GPT-6 instructions</);
+    assert.match(html, /href="#aeon-current-responses-2026-09-24-json"/);
+    assert.match(html, />Extraction evidence</);
+    assert.match(html, /href="#binwalk-aeon-daybreak-report-md"/);
+    assert.match(html, /href="#binwalk-method-diff-json"/);
+    assert.match(html, /href="#binwalk-codename-byte-scan-json"/);
+    assert.match(html, /id="aeon-persistent-instructions-2026-09-24-md--persistent-mode"/);
+    assert.doesNotMatch(html, /binwalk-gallery|binwalk-images|The icon haul/);
+    assert.doesNotMatch(html, /aeon-capability-deep-audit/);
+    assert.doesNotMatch(html, /aeon-instruction-composition-audit/);
+    assert.doesNotMatch(html, /aeon-runtime-(?:deep-)?probe/);
+    assert.doesNotMatch(html, /aeon-concurrency-probe/);
+    assert.doesNotMatch(html, /aeon-automation-probe/);
+    assert.doesNotMatch(html, /aeon-core-instructions-2026-09-24-audit/);
+    assert.equal((html.match(/<details class="document"/g) ?? []).length, publishedPaths.length);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("primary evidence opens by default and raw records stay collapsed", () => {
+  const map = categories.find(category => category.label === "Findings");
+  const current = categories.find(category => category.label === "Codex GPT-6 instructions");
+  const voice = categories.find(category => category.label === "Codex voice prompts");
+  const supporting = categories.find(category => category.label === "Observed runtime and tools");
+  const archive = categories.find(category => category.label === "Historical archive");
+
+  assert(map?.files.filter(file => file.format === "markdown").every(file => file.defaultOpen === true));
+  assert(map?.files.filter(file => file.format === "source").every(file => file.defaultOpen === false));
+  assert(current);
+  assert(current.files.some(file => file.path.includes("astra-base") && file.defaultOpen === true));
+  assert(current.files.some(file => file.path.includes("sol-base") && file.defaultOpen === false));
+  assert(current.files.some(file => file.path.includes("luna-base") && file.defaultOpen === false));
+  assert(current.files.filter(file => file.format === "source").every(file => file.defaultOpen === false));
+  assert(voice?.files.every(file => file.defaultOpen === true));
+  assert(supporting?.files.every(file => file.defaultOpen === false));
+  assert(archive?.files.every(file => file.defaultOpen === false));
+});
+
+test("Astra instruction snapshots contain every non-null model message module", async () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const outputs = path.join(root, "outputs");
+  const record = JSON.parse(await readFile(path.join(outputs, "gpt-6-astra-model-messages-2026-09-24.json"), "utf8"));
+  const base = await readFile(path.join(outputs, "gpt-6-astra-base-instructions-2026-09-24.md"), "utf8");
+  const persistent = await readFile(path.join(outputs, "aeon-persistent-instructions-2026-09-24.md"), "utf8");
+  const modules = await readFile(path.join(outputs, "gpt-6-astra-instruction-modules-2026-09-24.md"), "utf8");
+  assert.equal(record.base_instructions, base);
+  assert.equal(record.model_messages.instructions_template, base);
+  assert.equal(record.model_messages.persistent_instructions, persistent);
+  assert.equal(Object.keys(record.model_messages).length, 11);
+
+  function* strings(value) {
+    if (typeof value === "string") yield value;
+    else if (value && typeof value === "object") {
+      for (const child of Object.values(value)) yield* strings(child);
+    }
+  }
+  const conditional = [...strings(record.model_messages)].filter(text => text !== base && text !== persistent);
+  assert.equal(conditional.length, 11);
+  for (const text of conditional) assert(modules.includes(text.trim()));
+});
+
+test("GPT-6 Codex model records preserve distinct bases and identical shared modules", async () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const outputs = path.join(root, "outputs");
+  const astra = JSON.parse(await readFile(path.join(outputs, "gpt-6-astra-model-messages-2026-09-24.json"), "utf8")).model_messages;
+  const sol = JSON.parse(await readFile(path.join(outputs, "gpt-6-sol-model-messages-2026-09-24.json"), "utf8"));
+  const luna = JSON.parse(await readFile(path.join(outputs, "gpt-6-luna-model-messages-2026-09-24.json"), "utf8"));
+  const records = { astra, sol, luna };
+
+  for (const [name, record] of Object.entries(records)) {
+    const base = await readFile(path.join(outputs, `gpt-6-${name}-base-instructions-2026-09-24.md`), "utf8");
+    assert.equal(record.instructions_template, base);
+    assert.match(base, /^You are Codex,/);
+    assert.equal(Object.keys(record).length, 11);
+  }
+
+  for (const field of Object.keys(astra).filter(field => field !== "instructions_template")) {
+    assert.deepEqual(sol[field], astra[field], `${field} differs for Sol`);
+    assert.deepEqual(luna[field], astra[field], `${field} differs for Luna`);
+  }
+  assert.notEqual(sol.instructions_template, astra.instructions_template);
+  assert.notEqual(luna.instructions_template, astra.instructions_template);
+  assert.notEqual(sol.instructions_template, luna.instructions_template);
+});
+
+test("instruction renderer marks relevant sections and preserves readable hierarchy", () => {
+  const base = renderInstructionMarkdown(
+    "# Autonomy and persistence\n\nContinue work.\n\n# Personality\n\nOther text.\n",
+    "base", "astra-base"
+  );
+  assert.match(base, /id="astra-base--autonomy-and-persistence"/);
+  assert.match(base, /Continue work/);
+  assert.match(base, /<h3>Personality<\/h3>/);
+  assert.equal((base.match(/class="review-focus/g) ?? []).length, 1);
+
+  const modules = renderInstructionMarkdown(
+    "## multi_agent.role.root\n\n# Role\n\nDelegate.\n\n---\n\n## guardian_v2.classifier_instructions\n\n<context_window_reminder>Unsafe HTML</context_window_reminder>\n",
+    "modules", "astra-modules"
+  );
+  assert.match(modules, /id="astra-modules--multi-agent-role-root"/);
+  assert.match(modules, /<h3 class="module-heading">multi_agent\.role\.root<\/h3>/);
+  assert.match(modules, /<h4>Role<\/h4>/);
+  assert.match(modules, /id="astra-modules--guardian-v2-classifier-instructions"/);
+  assert.doesNotMatch(modules, /<context_window_reminder>/);
+
+  const voice = renderInstructionMarkdown(
+    "# Codex voice prompt inventory\n\nSource note.\n\n# Voice coordinator: developer prompt\n\n## Mode\n\nDelegate work.\n",
+    "voice", "voice-prompts"
+  );
+  assert.match(voice, /id="voice-prompts--voice-coordinator-developer-prompt"/);
+  assert.match(voice, /Agent delegation/);
+  assert.match(voice, /<h4>Mode<\/h4>/);
+});
+
+test("current host tool manifest is an exact, unique inventory rather than a curated shortlist", async () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const manifest = JSON.parse(
+    await readFile(path.join(root, "outputs/current-host-tool-manifest-2026-09-24.json"), "utf8")
+  );
+  const names = manifest.tools.map(tool => tool.name);
+
+  assert.equal(manifest.total_tools, 451);
+  assert.equal(names.length, 451);
+  assert.equal(new Set(names).size, 451);
+  assert(names.includes("mcp__codex_app__create_thread"));
+  assert(names.includes("mcp__codex_apps__sites_get_deployment_status"));
+  assert(names.includes("web__run"));
+  assert(manifest.tools.every(tool => tool.description.length > 0));
+});
+
+test("Work evidence separates the product surface from individual GPT-6 test turns", async () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const report = await readFile(path.join(root, "outputs/chatgpt-work-source-check-2026-09-24.md"), "utf8");
+  const trace = JSON.parse(await readFile(path.join(root, "outputs/chatgpt-work-gpt6-client-trace-2026-09-24.json"), "utf8"));
+  const inventory = JSON.parse(await readFile(path.join(root, "outputs/codex-prompt-provenance-inventory-2026-09-24.json"), "utf8"));
+
+  assert.doesNotMatch(report, /ChatGPT Work Luna|Work Luna/);
+  assert.match(report, /ChatGPT Work is the product surface/);
+  assert.deepEqual(trace.observed_turns.map(turn => turn.model), ["gpt-6-luna-wm", "gpt-6-astra-wm", "gpt-6-sol-wm"]);
+  assert(trace.observed_turns.every(turn => turn.prompt_or_instruction_field_present === false));
+  assert.equal(trace.voice_prefetch.activation_status, "automatic prefetch only; no microphone call was completed");
+  assert.equal(inventory.helper_prompts.length, 14);
+  assert.equal(inventory.codex_model_message_leaves.length, 39);
+  assert(inventory.helper_prompts.every(item => item.prompt_sha256.length === 64));
+  assert(inventory.codex_model_message_leaves.every(item => item.prompt_sha256.length === 64));
+});
+
+test("public copy consistently names ChatGPT Work without inventing a combined model name", async () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const outDir = await mkdtemp(path.join(os.tmpdir(), "work-terminology-test-"));
+  const outFile = path.join(outDir, "index.html");
+  try {
+    await buildSite({ sourceRoot: root, outFile, categories });
+    const html = await readFile(outFile, "utf8");
+    const card = await readFile(path.join(root, "site/assets/prompt-map-social-card.svg"), "utf8");
+    assert.match(html, /ChatGPT Work/);
+    assert.doesNotMatch(html, /ChatGPT Work Luna|Work Luna behavior/);
+    assert.match(card, /ChatGPT Work · Codex · voice · receipts/);
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
+  }
+});
+
+test("published documents contain no September 4 material", async () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const outDir = await mkdtemp(path.join(os.tmpdir(), "aeon-site-current-evidence-test-"));
+  const outFile = path.join(outDir, "index.html");
+
+  try {
+    assert(
+      categories.some(category =>
+        category.files.some(file => file.path === "outputs/aeon-current-responses-2026-09-24.json")
+      ),
+      "current response samples must be in the production catalog"
+    );
+
+    await buildSite({ sourceRoot: root, outFile, categories });
+    const html = await readFile(outFile, "utf8");
+
+    assert.doesNotMatch(html, /2026-09-04|September 4/);
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
+  }
+});
+
+test("build wraps long lines in source panels and fenced code blocks", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(
+      path.join(root, "outputs/current.md"),
+      "```text\nthis-is-one-extremely-long-unbroken-code-token\n```\n"
+    );
+    await writeFile(
+      path.join(root, "outputs/evidence.json"),
+      `{"value":"${"x".repeat(200)}"}\n`
+    );
+
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+
+    assert.match(
+      html,
+      /pre\{[^}]*overflow-x:hidden;[^}]*white-space:pre-wrap;[^}]*overflow-wrap:anywhere;[^}]*word-break:break-word;/
+    );
+    assert.match(
+      html,
+      /\.source-block\{[^}]*overflow-x:hidden;[^}]*white-space:pre-wrap;[^}]*overflow-wrap:anywhere;[^}]*word-break:break-word;/
+    );
+  });
+});
+
+function tableOfContents(html) {
+  return html.slice(html.indexOf('<nav class="toc-nav"'), html.indexOf("</nav>"));
+}
+
+test("table of contents nests two heading levels under each document and anchors every heading", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(
+      path.join(root, "outputs/current.md"),
+      "# Title\n\n## Work\n\n### Detail & <scope>\n\n#### Too deep\n\n## Work\n\nAgain.\n"
+    );
+    await buildSite({ sourceRoot: root, outFile, categories: fixtureCatalog });
+    const html = await readFile(outFile, "utf8");
+    const toc = tableOfContents(html);
+
+    assert.match(toc, /<li data-document="current-md"><a href="#current-md" data-depth="0">current\.md<\/a><ul><li><a href="#current-md--work" data-depth="1">Work<\/a><ul><li><a href="#current-md--detail-scope" data-depth="2">Detail &amp; &lt;scope&gt;<\/a><\/li><\/ul><\/li><li><a href="#current-md--work-2" data-depth="1">Work<\/a><\/li><\/ul><\/li>/);
+    assert.match(toc, /<li data-document="evidence-json"><a href="#evidence-json" data-depth="0">evidence\.json<\/a><\/li>/);
+    assert.doesNotMatch(toc, /Too deep|<scope>/);
+    assert.match(html, /<h3 id="current-md--work">Work<\/h3>/);
+    assert.match(html, /<h4 id="current-md--detail-scope">Detail &amp; &lt;scope&gt;<\/h4>/);
+    assert.match(html, /<h5 id="current-md--too-deep">Too deep<\/h5>/);
+    assert.match(html, /<h3 id="current-md--work-2">Work<\/h3>/);
+    assert.match(html, /\.toc li>ul\{display:none;/);
+    assert.match(html, /\.toc a\.in-view\+ul\{display:block\}/);
+  });
+});
+
+test("table of contents links a section's opening heading to the existing section anchor", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(
+      path.join(root, "outputs/base.md"),
+      "# Personality\n\nText.\n\n# Autonomy and persistence\n\nKeep going.\n\n## Detail\n\nMore.\n"
+    );
+    const catalog = [{ label: "Instructions", files: [
+      { path: "outputs/base.md", format: "markdown", instructionProfile: "base" }
+    ] }];
+    await buildSite({ sourceRoot: root, outFile, categories: catalog });
+    const html = await readFile(outFile, "utf8");
+    const toc = tableOfContents(html);
+
+    assert.match(toc, /href="#base-md--personality" data-depth="1">Personality</);
+    assert.match(toc, /href="#base-md--autonomy-and-persistence" data-depth="1">Autonomy and persistence<\/a><ul><li><a href="#base-md--detail" data-depth="2">Detail</);
+    assert.equal(html.match(/id="base-md--autonomy-and-persistence"/g)?.length, 1);
+    assert.match(html, /<h3>Autonomy and persistence<\/h3>/);
+  });
+});
+
+test("every document also gets a directly linkable page with relative links", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(
+      path.join(root, "outputs/current.md"),
+      "# Title\n\n## Work\n\nSee [the evidence](#evidence-json), [this](#current-md--work), and [the archive](./archive.tar.gz).\n"
+    );
+    await mkdir(path.join(root, "dist/renamed-document"), { recursive: true });
+    await writeFile(path.join(root, "dist/renamed-document/index.html"), "stale");
+    const catalog = [{ label: "Instructions", files: [
+      { path: "outputs/current.md", format: "markdown" },
+      { path: "outputs/evidence.json", format: "source", title: "Evidence", slug: "raw-evidence" }
+    ] }];
+    await buildSite({ sourceRoot: root, outFile, categories: catalog });
+    const index = await readFile(outFile, "utf8");
+    const page = await readFile(path.join(root, "dist/current-md/index.html"), "utf8");
+    const toc = tableOfContents(page);
+
+    await assert.rejects(readFile(path.join(root, "dist/renamed-document/index.html")));
+    assert.match(index, /id="intro"/);
+    assert.match(index, /<h3 id="current-md--work">Work<\/h3>/);
+    assert.match(page, /<title>current\.md · GPT-6 Prompt Source Map<\/title>/);
+    assert.match(page, /<link rel="canonical" href="https:\/\/gpt6aeon\.dtmont\.com\/current-md\/">/);
+    assert.match(page, /<meta property="og:url" content="https:\/\/gpt6aeon\.dtmont\.com\/current-md\/">/);
+    assert.doesNotMatch(page, /id="intro"|<details class="document"|&quot;state&quot;/);
+    assert.match(page, /<article class="document-page" id="current-md"/);
+    assert.match(page, /<a class="full-reference-link" href="\.\.\/">/);
+    assert.match(page, /<h3 id="work">Work<\/h3>/);
+    assert.match(page, /href="\.\.\/raw-evidence\/">the evidence/);
+    assert.match(page, /href="#work">this/);
+    assert.match(page, /href="\.\.\/archive\.tar\.gz">the archive/);
+    assert.match(toc, /<a href="#current-md" data-depth="0">current\.md<\/a><ul><li><a href="#work" data-depth="1">Work</);
+    assert.match(toc, /<li data-document="evidence-json"><a href="\.\.\/raw-evidence\/" data-depth="0">Evidence<\/a><\/li>/);
+    const sourcePage = await readFile(path.join(root, "dist/raw-evidence/index.html"), "utf8");
+    assert.match(sourcePage, /&quot;state&quot;:&quot;&lt;ready&gt;&quot;/);
+  });
+});
+
+test("production pages resolve every contents link to exactly one unique anchor", async () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const outDir = await mkdtemp(path.join(os.tmpdir(), "aeon-site-toc-test-"));
+  const outFile = path.join(outDir, "index.html");
+  const documents = categories.flatMap(category => category.files);
+
+  try {
+    await buildSite({ sourceRoot: root, outFile, categories });
+    const pages = (await readdir(outDir, { withFileTypes: true }))
+      .filter(entry => entry.isDirectory())
+      .map(entry => path.join(outDir, entry.name, "index.html"));
+    assert.equal(pages.length, documents.length);
+
+    for (const file of [outFile, ...pages]) {
+      const html = await readFile(file, "utf8");
+      const toc = tableOfContents(html);
+      const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
+      assert.deepEqual(ids.filter((id, index) => ids.indexOf(id) !== index), [], `${file} ids are unique`);
+
+      const links = [...toc.matchAll(/<a href="([^"]+)" data-depth="(\d)">/g)];
+      assert.equal(links.filter(link => link[2] === "0").length, documents.length);
+      assert(links.every(link => Number(link[2]) <= 2));
+      for (const [, href] of links) {
+        if (href.startsWith("#")) assert(ids.includes(href.slice(1)), `${file} contents target ${href} exists`);
+        else assert.match(href, /^\.\.\/[a-z0-9-]+\/$/);
+      }
+      for (const [, href] of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/(?:#[^"]*)?"/g)) {
+        assert(pages.includes(path.join(outDir, href, "index.html")), `${file} links to an existing page ${href}`);
+      }
+    }
+
+    const index = await readFile(outFile, "utf8");
+    const indexLinks = [...tableOfContents(index).matchAll(/data-depth="(\d)"/g)].map(match => match[1]);
+    assert(indexLinks.includes("1") && indexLinks.includes("2"), "the full reference lists two heading levels");
+    for (const file of documents.filter(file => file.format === "source")) {
+      const anchor = file.path.split("/").at(-1).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      assert.match(tableOfContents(index), new RegExp(`<li data-document="${anchor}"><a [^>]+>[^<]+</a></li>`), `${file.path} has no child list`);
+    }
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
+  }
+});
+
+test("prompt text shows markdown links and images literally while editorial links stay live", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(
+      path.join(root, "outputs/current.md"),
+      "# Findings\n\nSee [the evidence](#evidence-json) and ![card](/card.png).\n"
+    );
+    await writeFile(
+      path.join(root, "outputs/prompts.md"),
+      "# Helpers\n\n# Media\n\nUse ![alt](/absolute/path.png) and [label](codex://review?pr=PR_URL&line=LINE).\n"
+    );
+    await writeFile(
+      path.join(root, "outputs/base.md"),
+      "# Links\n\nCite [My Report.md](</abs/path/My Project/My Report.md:3>) or https://example.com.\n"
+    );
+    const catalog = [{ label: "Evidence", files: [
+      { path: "outputs/current.md", format: "markdown" },
+      { path: "outputs/evidence.json", format: "source" },
+      { path: "outputs/prompts.md", format: "markdown", promptText: true },
+      { path: "outputs/base.md", format: "markdown", instructionProfile: "base" }
+    ] }];
+    await buildSite({ sourceRoot: root, outFile, categories: catalog });
+    const html = await readFile(outFile, "utf8");
+
+    assert.doesNotMatch(html, /<img\b/);
+    assert.match(html, /<a href="#evidence-json">the evidence<\/a> and !\[card\]\(\/card\.png\)/);
+    assert.match(html, /Use !\[alt\]\(\/absolute\/path\.png\) and \[label\]\(codex:\/\/review\?pr=PR_URL&amp;line=LINE\)\./);
+    assert.match(html, /Cite \[My Report\.md\]\(&lt;\/abs\/path\/My Project\/My Report\.md:3&gt;\) or https:\/\/example\.com\./);
+    assert.doesNotMatch(html, /href="codex:|href="\/abs\/path|href="https:\/\/example\.com"/);
+  });
+});
