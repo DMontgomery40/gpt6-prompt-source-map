@@ -620,3 +620,22 @@ test("prompt text shows markdown links and images literally while editorial link
     assert.doesNotMatch(html, /href="codex:|href="\/abs\/path|href="https:\/\/example\.com"/);
   });
 });
+
+test("start here panel leads with persistent mode and links only to highlighted passages", async () => {
+  await withFixture(async (root, outFile) => {
+    await writeFile(path.join(root, "outputs/persistent.md"), `## Overview\n\n${"word ".repeat(96)}\n`);
+    await writeFile(path.join(root, "outputs/base.md"), "# Personality\n\nText.\n\n# Autonomy and persistence\n\nKeep going.\n");
+    const catalog = [{ label: "Instructions", files: [
+      { path: "outputs/current.md", format: "markdown", title: "Plain notes" },
+      { path: "outputs/base.md", format: "markdown", title: "Base prompt", instructionProfile: "base" },
+      { path: "outputs/persistent.md", format: "markdown", title: "Persistent prompt", instructionProfile: "persistent" }
+    ] }];
+    await buildSite({ sourceRoot: root, outFile, categories: catalog });
+    const html = await readFile(outFile, "utf8");
+    const guide = html.slice(html.indexOf('<section class="start-here"'), html.indexOf("</section>", html.indexOf('<section class="start-here"')));
+
+    assert.match(guide, /<ul class="start-here-list"><li class="is-primary"><a href="#persistent-md--persistent-mode"><span class="start-here-doc">Persistent prompt<\/span><span class="start-here-meta">About 100 words, the full text<\/span><\/a><\/li><li><a href="#base-md--autonomy-and-persistence"><span class="start-here-doc">Base prompt<\/span><span class="start-here-meta">Persistence<\/span><\/a><\/li><\/ul>/);
+    assert.doesNotMatch(guide, /Plain notes/);
+    assert.doesNotMatch(await readFile(path.join(root, "dist/persistent-prompt/index.html"), "utf8"), /class="start-here"/);
+  });
+});

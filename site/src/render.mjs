@@ -1,4 +1,5 @@
 import { Marked } from "marked";
+import { guideStyles, renderGuide } from "./guide.mjs";
 import { createRoutes } from "./routes.mjs";
 import { anchorOutline, renderToc, tocNoscriptStyles, tocScript, tocStyles } from "./toc.mjs";
 
@@ -196,6 +197,8 @@ function renderDocument(document, ids) {
     category: document.category,
     title: document.title ?? name,
     slug: document.slug,
+    profile: document.instructionProfile,
+    source: document.source,
     defaultOpen: document.defaultOpen,
     content,
     outline
@@ -374,6 +377,7 @@ function renderPage({ categories, rendered, routes, current = null }) {
     @media(max-width:450px){.follow-link{top:12px;left:12px}.intro{padding:12px}.intro-main{padding:20px 22px 25px}.intro-disc{width:142px;height:142px}.intro-disc-inner b{font-size:37px}.intro-title{font-size:44px}.intro-top span:last-child{display:none}.intro-bottom{gap:10px;font-size:9px}.intro-joke{margin:16px 0 18px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.intro{display:none}.follow-link,.intro-follow{transition:none}}
 ${tocStyles}
+${guideStyles}
   </style>
 </head>
 <body>
@@ -401,6 +405,7 @@ ${current ? documentArticle(current, routes) : `      <header>
         <div class="date">September 24, 2026</div>
         <h1 class="page-title">GPT-6 Prompt Source Map</h1>
         <p class="dek">ChatGPT Work, Codex GPT-6 instructions, desktop helpers, and voice evidence in one reference.</p>
+${renderGuide(rendered)}
       </header>
 ${rendered.map(documentPanel).join("\n")}`}
     </div>
