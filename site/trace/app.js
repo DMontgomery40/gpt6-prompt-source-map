@@ -625,7 +625,9 @@ function buildHud() {
   const lg = $("#legend");
   legend(lg);
   lg.append(el("span", { class: "k sym" }, el("i", { style: `background:${STRATA[STRATUM_INDEX.you].color}` }), "flag: your ask"),
-    el("span", { class: "k sym" }, el("i", { style: `background:${STATUS.outward.color}` }), "beacon: left the machine"));
+    el("span", { class: "k sym" }, el("i", { style: `background:${STATUS.outward.color}` }), "left the machine"),
+    el("span", { class: "k sym" }, el("i", { style: `background:${STATUS.write.color}` }), "wrote"),
+    el("span", { class: "k sym" }, el("i", { style: `background:${STATUS.read.color}` }), "read"));
   $("#lenses").replaceChildren(...LENSES.map((l, i) => el("button", {
     type: "button", "aria-pressed": String(S.lens === l.key), "data-lens": l.key,
     onclick: () => { S.lens = l.key; render(); }

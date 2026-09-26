@@ -270,7 +270,7 @@ function lensPanel(S, A) {
     ].sort((a, b) => a.t - b.t);
     if (marks.length) out.push(section("Cliffs", el("ul", { class: "items" }, marks.map(m =>
       el("li", {}, btn(`${fmtClock(m.t)}  ${m.text}`, () => A.focusRequest(root.id, m.req), "item"))))));
-    out.push(el("p", { class: "hint", text: "Click a ridge to open that agent. Flags are your asks; beacons are actions that left the machine." }));
+    out.push(el("p", { class: "hint", text: "Click a ridge to open that agent. Flags are your asks. Pins are tool calls: red left the machine, amber wrote files, blue read. Labels on the crest mark large injections mid-session." }));
   } else if (lens === "egress") {
     out.push(el("h2", { text: "What left the machine" }),
       el("p", { class: "lede", text: "Actions ranked by consequence: outward first (push, deploy, network, messages), then local writes, then reads. Open one for its custody ladder." }));
