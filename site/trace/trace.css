@@ -249,7 +249,7 @@ button { font: inherit; color: inherit; }
 .panel h2 .chip { vertical-align: 1px; }
 .panel .kicker { margin: 0; color: var(--ink-3); font-size: 12.5px; font-weight: 600; }
 .panel .lede { color: var(--ink-2); margin: 0 0 12px; }
-.panel .hint { color: var(--ink-2); font-size: 13px; background: #121925; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.panel .hint { color: var(--ink-2); font-size: 14px; background: #121925; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
 .panel .note { color: var(--ink-3); font-size: 12.5px; display: block; }
 .panel .meta { color: var(--ink-3); font-size: 12.5px; }
 .panel p { margin: 6px 0; }

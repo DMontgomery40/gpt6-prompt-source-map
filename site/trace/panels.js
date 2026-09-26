@@ -401,19 +401,28 @@ export function askWhere(agent, a) {
   return { text: `request ${a.request + 1}`, req: Math.min(a.request, last) };
 }
 
-// Ask previews read on demand and kept, so moving between requests doesn't read them again.
+// Ask previews read when they scroll into view and kept, so moving between requests doesn't read
+// them again. One observer per panel render.
 const askPreviews = new Map();
-function askPreview(agent, b, A, span) {
-  const key = `${agent.id}|${b.i}`;
-  if (askPreviews.has(key)) { span.textContent = askPreviews.get(key); return; }
-  const load = () => A.getText(agent.id, b.ref).then(r => {
-    const t = clip(String(r?.text || "").replace(/<\/?[a-z][\w-]*>/gi, " "), 90) || "(empty)";
-    askPreviews.set(key, t);
-    span.textContent = t;
-  }).catch(() => { span.textContent = ""; });
-  if (typeof IntersectionObserver !== "function") return void load();
-  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); load(); } });
-  io.observe(span);
+function askPreviewer(agent, A) {
+  const load = (b, span) => {
+    const key = `${agent.id}|${b.i}`;
+    if (askPreviews.has(key)) { span.textContent = askPreviews.get(key); return; }
+    A.getText(agent.id, b.ref).then(r => {
+      const t = clip(String(r?.text || "").replace(/<\/?[a-z][\w-]*>/gi, " "), 90) || "(empty)";
+      askPreviews.set(key, t);
+      span.textContent = t;
+    }).catch(() => { span.textContent = ""; });
+  };
+  const pending = new Map();
+  const io = typeof IntersectionObserver === "function" ? new IntersectionObserver(es => {
+    for (const e of es) if (e.isIntersecting && pending.has(e.target)) { io.unobserve(e.target); load(pending.get(e.target), e.target); pending.delete(e.target); }
+  }) : null;
+  return (b, span) => {
+    if (askPreviews.has(`${agent.id}|${b.i}`) || !io) return load(b, span);
+    pending.set(span, b);
+    io.observe(span);
+  };
 }
 
 function agentPanel(trace, agent, S, A) {
@@ -432,15 +441,15 @@ function agentPanel(trace, agent, S, A) {
     if (p) out.push(btn(`Spawned by ${p.kind === "root" ? "the main thread" : p.name}, request ${agent.spawn.parentRequest + 1}`, () => A.focusRequest(p.id, agent.spawn.parentRequest)));
   }
   if (agent.asks.length) {
+    const preview = askPreviewer(agent, A);
     out.push(section(`Asks (${agent.asks.length})`, el("ul", { class: "items asks" }, agent.asks.map(a => {
       const b = agent.blocks[a.block];
       const where = askWhere(agent, a);
-      const preview = el("span", { class: "ask-text", text: "…" });
-      if (b?.ref) askPreview(agent, b, A, preview);
-      else preview.textContent = "";
+      const text = el("span", { class: "ask-text", text: b?.ref ? "…" : "" });
+      if (b?.ref) preview(b, text);
       return el("li", {}, el("button", { class: "item", type: "button", onclick: () => A.focusRequest(agent.id, where.req) },
         chip(STRATA[STRATUM_INDEX.you].color), el("span", { class: "tool", text: where.text }),
-        el("span", { class: "meta", text: fmtClock(a.t) }), preview));
+        el("span", { class: "meta", text: fmtClock(a.t) }), text));
     }))));
   }
   const shr = unloggedShrinks(agent);
