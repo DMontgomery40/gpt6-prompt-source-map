@@ -96,6 +96,8 @@ test("privacy scan refuses paths, e-mail, tokens and the account identity", () =
   const scan = (text, identity) => () => privacyScan(new Map([["x.md", text]]), { identity });
   assert.doesNotThrow(scan("Treat {{ user_first_name }} as the user's name."));
   assert.throws(scan("see /Users/someone/.codex"), /local user path/);
+  assert.throws(scan("see /home/alice/notes"), /local user path/);
+  assert.doesNotThrow(scan("Files shared with the cloud browser live in /home/oai/share."));
   assert.throws(scan("mail me at person@example.com"), /e-mail address/);
   assert.throws(scan('{"access_token": "x"}'), /auth field/);
   assert.throws(scan("hash 10b5ffb0abcdef", "10b5ffb0abcdef"), /account identity/);

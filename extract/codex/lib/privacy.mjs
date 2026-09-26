@@ -8,7 +8,8 @@ export class PrivacyError extends Error {}
 export function privacyScan(docs, { identity } = {}) {
   const home = os.homedir();
   const denied = [
-    { label: "local user path", pattern: /\/Users\/|\/home\/[a-z]|\/private\/var\/|C:\\Users\\/ },
+    // /home/oai/ is the fixed home of OpenAI's cloud container named in shipped docs, not a user's.
+    { label: "local user path", pattern: /\/Users\/|\/home\/(?!oai\/)[a-z]|\/private\/var\/|C:\\Users\\/ },
     { label: "home directory", literal: home },
     { label: "e-mail address", pattern: /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/ },
     { label: "JWT", pattern: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/ },
