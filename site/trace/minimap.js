@@ -148,7 +148,7 @@ export function renderOverview(host, trace, L, opts) {
   const svg = S("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, class: "ov", role: "img", "aria-label": "Session overview: main-thread context over time, outward actions and subagent lanes" });
   const left = full ? 128 : 8, right = full ? 24 : 8;
   const top = full ? 36 : 14;
-  const laneH = full ? Math.max(5, Math.min(11, (H * 0.34) / Math.max(1, L.lanes))) : Math.max(2, Math.min(5, (H * 0.3) / Math.max(1, L.lanes)));
+  const laneH = full ? Math.max(2.5, Math.min(11, (H * 0.3) / Math.max(1, L.lanes))) : Math.max(2, Math.min(5, (H * 0.3) / Math.max(1, L.lanes)));
   const lanesH = L.lanes * laneH;
   const railH = full ? 22 : 10;
   const axisH = full ? 24 : 0;
@@ -198,15 +198,23 @@ export function renderOverview(host, trace, L, opts) {
     }
   }
   // compactions and unlogged shrinks
+  // Cliff labels keep clear of each other and of the right edge; the line alone marks the rest.
+  let labelEnd = -Infinity;
+  const cliffLabel = (x, y, text) => {
+    const w = text.length * 6.4;
+    if (!full || x + 5 < labelEnd || x + 5 + w > W - right) return;
+    labelEnd = x + 5 + w + 8;
+    g.append(S("text", { x: x + 5, y, class: "lab" }, text));
+  };
   for (const c of root.compactions) {
     const x = px(L.X(c.t));
     g.append(S("line", { x1: x, x2: x, y1: top - 4, y2: top + areaH, stroke: "#f2f2ed", "stroke-dasharray": "3 3" }));
-    if (full) g.append(S("text", { x: x + 5, y: top + 8, class: "lab" }, `compacted ${fmtTok(c.pre)} → ${fmtTok(c.post)}`));
+    cliffLabel(x, top + 8, `compacted ${fmtTok(c.pre)} → ${fmtTok(c.post)}`);
   }
   for (const s of unloggedShrinks(root)) {
     const x = px(rinfo.xs[s.request]);
     g.append(S("line", { x1: x, x2: x, y1: py(s.from), y2: py(s.to), stroke: "#d9dee6", "stroke-dasharray": "1 3" }));
-    if (full) g.append(S("text", { x: x + 5, y: py(s.from) - 6, class: "lab" }, "context shrank; not logged"));
+    cliffLabel(x, py(s.from) - 6, "context shrank; not logged");
   }
   // asks
   const askY0 = top - (full ? 26 : 12), askY1 = top - (full ? 12 : 5);

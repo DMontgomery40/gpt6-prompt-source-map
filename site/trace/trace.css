@@ -400,5 +400,6 @@ svg.ov .hit:hover { fill: rgba(255, 255, 255, 0.12); }
   .reader pre.text { max-height: none; }
   .linkbtn.fullread { display: inline; margin-left: auto; }
   .linkbtn.fullread + .linkbtn.close { margin-left: 12px; }
-  .app.reading .panel { position: fixed; inset: 0; max-height: none; border-radius: 0; z-index: 30; padding-top: 12px; }
+  .app.reading .panel { position: fixed; inset: 0; max-height: none; border-radius: 0; z-index: 30; padding-top: 12px; background: var(--panel-solid); }
+  .flat h2 { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
 }

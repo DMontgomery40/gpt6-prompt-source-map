@@ -766,6 +766,8 @@ function onKey(e) {
     return;
   }
   if (e.key === "Enter" && S.level === 1 && document.activeElement === document.body) { set({ level: 2 }); return; }
+  // Enter at the session opens the main thread, so the keyboard can get into the landscape.
+  if (e.key === "Enter" && S.level === 0 && document.activeElement === document.body) { A.focusAgent(S.layout.root.id, 0); return; }
   const n = Number(e.key);
   if (n >= 1 && n <= 4) { S.lens = LENSES[n - 1].key; render(); }
 }
@@ -807,7 +809,7 @@ function renderCrumbs() {
     if (i) kids.push(el("span", { class: "sep", "aria-hidden": "true", text: "›" }));
     kids.push(el("button", { type: "button", text: name, onclick: fn, "aria-current": String(i === parts.length - 1) }));
   });
-  if (!TOUCH) kids.push(el("span", { class: "keys", text: S.level === 0 ? (S.mode === "3d" ? "click a ridge · drag to orbit · 1–4 lenses" : "click the chart · 1–4 lenses") : "Esc up · ← → requests" }));
+  if (!TOUCH) kids.push(el("span", { class: "keys", text: S.level === 0 ? (S.mode === "3d" ? "click a ridge · drag to orbit · Enter main thread · 1–4 lenses" : "click the chart · Enter main thread · 1–4 lenses") : "Esc up · ← → requests" }));
   c.replaceChildren(...kids);
 }
 
@@ -846,21 +848,20 @@ function renderFlat() {
   const ins = flatInsets();
   host.style.padding = `${ins.top}px ${ins.right}px ${ins.bottom}px ${ins.left}px`;
   const w = Math.max(280, innerWidth - ins.left - ins.right);
-  const h = Math.max(200, Math.min(640, innerHeight - ins.top - ins.bottom - 34));
   const box = el("div");
+  const svgHost = el("div");
+  const caption = el("h2", { text: S.level === 0 ? "Main-thread context over time, with outward actions and subagent lanes"
+    : S.agent ? `${S.agent.kind === "root" ? "Main thread" : S.agent.name}: one column per request, height = exact context` : "" });
+  box.append(caption, svgHost);
+  host.replaceChildren(box);
+  // The chart takes what the caption leaves of the free area.
+  const h = Math.max(140, Math.min(640, innerHeight - ins.top - ins.bottom - caption.offsetHeight - 14));
   if (S.level === 0) {
-    box.append(el("h2", { text: "Main-thread context over time, with outward actions and subagent lanes" }));
-    const svgHost = el("div");
     renderOverview(svgHost, S.trace, S.layout, { width: w, height: h, full: true, lens: S.lens,
       onPick: p => (p.reqIdx != null ? A.focusAgent(p.agentId, p.reqIdx) : A.focusAgent(p.agentId)) });
-    box.append(svgHost);
   } else if (S.agent) {
-    box.append(el("h2", { text: `${S.agent.kind === "root" ? "Main thread" : S.agent.name}: one column per request, height = exact context` }));
-    const svgHost = el("div");
     renderAgentColumns(svgHost, S.agent, { width: w, height: h, reqIdx: S.reqIdx, onPick: i => A.focusRequest(S.agent.id, i) });
-    box.append(svgHost);
   }
-  host.replaceChildren(box);
 }
 
 function showTip(hit) {
