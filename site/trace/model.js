@@ -5,6 +5,8 @@
 // A "source" is { name, size, slice(a, b) -> Promise<Uint8Array> } so the same
 // code reads a browser File and a Node file handle.
 
+import { attachmentText } from "./adapters/cc-templates.js";
+
 export const KINDS = ["harness", "injected", "you", "outside", "agents", "model", "summary"];
 
 // ---------------------------------------------------------------- lines & refs
@@ -92,9 +94,12 @@ export function getPath(obj, path) {
 
 // Text of one block, given its source line: follow ref.path into the parsed JSON,
 // convert with partText, then take ref.range if present. No path = the raw line.
-export function extractText(lineText, ref) {
+// ref.rebuild names a structured Claude Code attachment type: its text is rebuilt from the
+// reference index's templates (ix), else listed from its fields (adapters/cc-templates.js).
+export function extractText(lineText, ref, ix = null) {
   if (!ref.path) return ref.range ? lineText.slice(ref.range[0], ref.range[1]) : lineText;
-  const s = partText(getPath(JSON.parse(lineText), ref.path));
+  const v = getPath(JSON.parse(lineText), ref.path);
+  const s = ref.rebuild ? attachmentText(ref.rebuild, v, ix && ix.templates).text : partText(v);
   return ref.range ? s.slice(ref.range[0], ref.range[1]) : s;
 }
 
@@ -102,8 +107,8 @@ export async function readRefLine(source, ref) {
   return decoder.decode(await source.slice(ref.offset, ref.offset + ref.length));
 }
 
-export async function readRef(source, ref) {
-  return extractText(await readRefLine(source, ref), ref);
+export async function readRef(source, ref, ix = null) {
+  return extractText(await readRefLine(source, ref), ref, ix);
 }
 
 // ---------------------------------------------------------------- estimates
@@ -194,7 +199,7 @@ export function textLineHashes(text) {
 
 export function prepareIndex(index) {
   if (!index || typeof index !== "object") return null;
-  return { site: index.site || null, origin: index.origin || null, pages: index.pages || [], lines: index.lines || {}, harness: index.harness || {}, reminders: index.reminders || {} };
+  return { site: index.site || null, origin: index.origin || null, pages: index.pages || [], lines: index.lines || {}, harness: index.harness || {}, reminders: index.reminders || {}, templates: index.templates || {} };
 }
 
 // Characters of `text` on lines that the site publishes (the product's own words).

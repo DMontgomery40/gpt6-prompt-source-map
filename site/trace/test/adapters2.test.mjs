@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadTrace } from "../loader.js";
 import { entriesFor } from "../dump.mjs";
-import { readRef } from "../model.js";
+import { readRef, prepareIndex } from "../model.js";
 import { rows, msg, usage, uuid7 } from "./fixtures/make.mjs";
 
 const J = (list) => list.map((l) => JSON.stringify(l)).join("\n") + "\n";
@@ -177,4 +177,69 @@ test("codex: a subagent's ask is its task header, without the encrypted payload"
   assert.equal(text, "Message Type: NEW_TASK\nTask name: /root/helper\nSender: /root\nPayload:\n");
   assert.ok(b.est > text.length / 4 + 50, "the encrypted payload is still counted");
   assert.deepEqual(kid.requests[0].action.custody.askedBy.by, "/root");
+});
+
+// A reference index with synthetic templates in the shape the site build writes.
+const tpl = (text, title, anchor) => ({ text, slug: "system-reminders", anchor, title });
+const TEMPLATES = {
+  "system-reminder-wrapper": tpl("<system-reminder>\n{{content}}\n</system-reminder>", "Wrapper", "wrapper"),
+  "trailing-environment": { ...tpl("# Env\n - cwd: {{CWD}}\n - git: {{IS_GIT_REPO}}\n - os: {{PLATFORM}} {{SHELL}} {{OS_VERSION}}", "Environment block", "environment-block"), slug: "system-prompt" },
+  "trailing-scratchpad": { ...tpl("Scratch: {{SCRATCHPAD_DIR}} — temp files go here.", "Scratchpad", "scratchpad"), slug: "system-prompt" },
+  "trailing-date": { ...tpl("Today is {{DATE}}.", "Date line", "date-line"), slug: "system-prompt" },
+  "date-attachment-changed": tpl("The date is now {{date}}.", "Current date (changed)", "current-date-changed"),
+  "bash-output-audience-note": tpl("Only you see that output.", "Bash output audience note", "bash-output-audience-note"),
+};
+const INDEX = { site: "test", origin: "https://example.test", pages: [], lines: {}, harness: {}, reminders: { environment: { slug: "system-reminders", anchor: "env", title: "Environment block" } }, templates: TEMPLATES };
+
+test("claude-code: structured attachments are rebuilt from the site's template; the reader gets the same text", async () => {
+  const sid = "66666666-6666-4666-8666-666666666666";
+  const t0 = Date.parse("2026-01-07T00:00:00Z");
+  let n = 0;
+  const base = (sec) => ({ sessionId: sid, uuid: `s${++n}`, parentUuid: null, timestamp: new Date(t0 + sec * 1000).toISOString(), version: "2.1.100", isSidechain: false });
+  const att = (sec, a) => ({ ...base(sec), type: "attachment", attachment: a });
+  const env = { type: "environment", snapshot: { workingDirectory: "/work/café", isWorktree: false, isGitRepo: true, additionalWorkingDirectories: ["/work/other"], platform: "darwin", shell: "zsh", osVersion: "Darwin 1.0", scratchpadDirectory: "/tmp/pad" } };
+  const rows = [
+    att(1, env),
+    att(1, { type: "date", date: "2026-01-07" }),
+    att(1, { type: "date", date: "2026-01-08", changed: true }),
+    att(1, { type: "bash_output_audience_note", toolUseID: "toolu_1" }),
+    att(1, { type: "environment", snapshot: env.snapshot, changes: ["scratchpad"] }),
+    att(1, { type: "session_context", uuid: "u-9", context: { userEmail: "someone@example.test", extra: { deep: "x\ny" } } }),
+    { ...base(2), type: "user", message: { role: "user", content: "hi" } },
+    { ...base(3), type: "assistant", requestId: "r1", message: { id: "m1", model: "claude-test", role: "assistant", content: [{ type: "text", text: "ok" }], usage: { input_tokens: 10, cache_read_input_tokens: 0, cache_creation_input_tokens: 3000, output_tokens: 5 } } },
+  ];
+  const dir = ccSession({ sid, t0, rootRows: rows });
+  const { trace, sources } = await loadTrace(await entriesFor([dir]), { index: INDEX });
+  const root = trace.agents[0];
+  const blocks = root.blocks.filter((b) => b.kind === "injected");
+  const texts = await Promise.all(blocks.map((b) => readRef(sources[b.ref.file], b.ref, INDEX)));
+  // The reader's text is exactly the text the block was measured from.
+  assert.deepEqual(blocks.map((b) => b.chars), texts.map((x) => x.length));
+  assert.deepEqual(blocks.map((b) => [b.label, b.render, b.template || null]), [
+    ["environment", "rebuilt from the ccprompts template", "trailing-environment"],
+    ["date", "rebuilt from the ccprompts template", "trailing-date"],
+    ["date", "rebuilt from the ccprompts template", "date-attachment-changed"],
+    ["bash_output_audience_note", "rebuilt from the ccprompts template", "bash-output-audience-note"],
+    ["environment", "structured", null],
+    ["session_context", "structured", null],
+  ]);
+  assert.equal(texts[0], "<system-reminder>\n# Env\n - cwd: /work/café\n - git: true\n - Additional working directories:\n  - /work/other\n - os: darwin zsh Darwin 1.0\n - Scratch: /tmp/pad — temp files go here.\n</system-reminder>");
+  assert.equal(texts[2], "<system-reminder>\nThe date is now 2026-01-08.\n</system-reminder>");
+  assert.equal(texts[3], "<system-reminder>\nOnly you see that output.\n</system-reminder>");
+  // Rebuilt blocks link the template they follow; the estimate is from the rebuilt text.
+  assert.deepEqual(blocks[0].site, { slug: "system-prompt", anchor: "environment-block", title: "Environment block" });
+  assert.equal(blocks[3].est, Math.ceil(texts[3].length / 4));
+  // No template for the change or for session_context here: readable key: value lines, no bookkeeping keys.
+  assert.equal(texts[5], "context.userEmail: someone@example.test\ncontext.extra.deep: x\n  y");
+  assert.ok(!/\b(type|toolUseID|uuid)\b/.test(texts[4] + texts[5]));
+  assert.match(texts[4], /^snapshot\.workingDirectory: \/work\/café\n/);
+  assert.match(texts[4], /\nchanges: scratchpad$/);
+  assert.deepEqual(trace.attachments.date, { rows: 2, literal: 0, structured: 2, skipped: 0 });
+  // Without the index (as on the other site) the same rows read as their fields, still in step.
+  const bare = await loadTrace(await entriesFor([dir]));
+  const b2 = bare.trace.agents[0].blocks.filter((b) => b.kind === "injected");
+  const t2 = await Promise.all(b2.map((b) => readRef(bare.sources[b.ref.file], b.ref, prepareIndex(null))));
+  assert.deepEqual(b2.map((b) => b.chars), t2.map((x) => x.length));
+  assert.deepEqual(b2.map((b) => b.render), Array(6).fill("structured"));
+  assert.equal(t2[1], "date: 2026-01-07");
 });

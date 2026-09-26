@@ -4,6 +4,7 @@ import {
   readLines, newAgent, addBlock, tokensClaude, imageDims, estEncrypted, estText,
   classifyClaudeTool, RANK, finalizeAgent, partText, splitReminders, inheritTraits, spansOf,
 } from "../model.js";
+import { attachmentText } from "./cc-templates.js";
 
 const ts = (s) => Date.parse(s);
 
@@ -262,7 +263,7 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
           for (const u of pres) for (const bi of uuidBlocks.get(u) || []) {
             const src = agent.blocks[bi];
             const b = inheritTraits(addBlock(agent, { t, kind: src.kind, label: src.label, ref: src.ref, est: src.est, image: src.image, render: src.render, carried: true, site: src.site }), src);
-            if (src.rebuilt) b.rebuilt = true;
+            if (src.template) b.template = src.template;
             b.chars = src.chars;
             if (src.flags) { b.flags = src.flags; b.flagHits = src.flagHits; }
           }
@@ -330,10 +331,15 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
           tally.literal++;
           continue;
         }
-        // Unknown attachment with no rendered text: show its data, labelled structured.
+        // No rendered text and no text field: rebuilt from the site's template for this type, filled
+        // from the row's fields; else the fields as "key: value" lines, labelled structured.
         const rm = agent._ix && agent._ix.reminders[type];
-        const b = addBlock(agent, { t, kind: "injected", label: type, ref: { ...lineRef, path: ["attachment"] }, text: JSON.stringify(a), render: "structured", site: rm ? { ...rm } : null });
-        if (rm) b.rebuilt = true;
+        const tpl = agent._ix && agent._ix.templates;
+        const { text, template } = attachmentText(type, a, tpl);
+        const at = template && tpl[template];
+        const site = at && at.slug ? { slug: at.slug, anchor: at.anchor || null, title: at.title || template } : rm ? { ...rm } : null;
+        const b = addBlock(agent, { t, kind: "injected", label: type, ref: { ...lineRef, path: ["attachment"], rebuild: type }, text, render: template ? "rebuilt from the ccprompts template" : "structured", site });
+        if (template) b.template = template;
         track(r.uuid, b);
         tally.structured++;
         continue;
