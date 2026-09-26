@@ -65,7 +65,7 @@ const GROUPS = [
     "compile_latex_document", "request_environment_input", "finalize_environment"] },
   { key: "voice", heading: "codex_app: voice calls", namespace: "codex_app", names: ["end_realtime_voice_call", "transfer_voice_call", "capture_screen_context"] },
   { key: "onboarding", heading: "Onboarding interactive tools", namespace: null, names: ["setup_codex_step", "request_option_picker", "request_onboarding_input"] },
-  { key: "tab", heading: "Browser tab context", namespace: null, names: ["getTabContext"] },
+  { key: "tab", heading: "Chrome tab context", namespace: null, names: ["getTabContext"] },
   { key: "node_repl", heading: "node_repl", namespace: "node_repl", names: [] },
   { key: "mcp", heading: null, namespace: null, names: [] }, // one group per bundled .mcp.json server with enabled_tools
   { key: "other", heading: "Other tools defined in the app bundle", namespace: null, names: [] }
@@ -86,12 +86,16 @@ const chunks = new Chunks(files);
 const tools = [];
 for (const [file, src] of files) {
   if (!src.includes("description")) continue;
-  for (const def of findDefinitions(src)) {
+  let defs;
+  try { defs = findDefinitions(src); } catch (error) { missing(`chunk/${file}`, `could not be scanned (${error.message.slice(0, 120)})`); continue; }
+  for (const def of defs) {
     let r;
     try { r = evaluateDefinition(chunks, file, def); } catch { r = null; }
     // Spreadsheet formula catalogs share the {name, description, parameters} shape; tool names have lowercase letters.
     if (!r || !/[a-z]/.test(r.name)) continue;
-    tools.push({ ...r, group: groupOf(r.name), source: { file: `app.asar › ${file}`, offset: def.offset }, rewrites: runtimeRewrites(file, def) });
+    let rewrites = [];
+    try { rewrites = runtimeRewrites(file, def); } catch { /* no rewrite note */ }
+    tools.push({ ...r, group: groupOf(r.name), source: { file: `app.asar › ${file}`, offset: def.offset }, rewrites });
   }
 }
 
@@ -112,6 +116,7 @@ function runtimeRewrites(file, def) {
 // ---- tools outside the asar ----------------------------------------------------------------------
 
 const captureCore = coreTexts(capture.tools);
+const directNames = new Set((capture.direct_tools ?? []).map(t => t.name));
 const pluginsDir = path.join(app.resources, "plugins", "openai-bundled", "plugins");
 const servers = [];
 if (fs.existsSync(pluginsDir)) {
@@ -133,7 +138,8 @@ for (const s of servers.filter(s => Array.isArray(s.enabled))) {
   }
 }
 // node_repl is a Rust binary: its string pool has no delimiters, so a description can only be
-// matched, not cut out. A name counts as present when "<name> schema should deserialize" is there.
+// matched against the capture, not cut out. A name counts as present when
+// "<name> schema should deserialize" is there.
 const nodeRepl = path.join(app.resources, "cua_node", "bin", "node_repl");
 if (fs.existsSync(nodeRepl)) {
   const bytes = fs.readFileSync(nodeRepl);
@@ -141,11 +147,12 @@ if (fs.existsSync(nodeRepl)) {
   for (const name of names) {
     if (bytes.indexOf(Buffer.from(`${name} schema should deserialize`)) < 0) { missing(`node_repl/${name}`, `"${name} schema should deserialize" in cua_node/bin/node_repl`); continue; }
     const core = captureCore.get(`mcp__node_repl__${name}`);
-    const at = core ? bytes.indexOf(Buffer.from(core.tool, "utf8")) : -1;
+    const present = core ? bytes.indexOf(Buffer.from(core.tool, "utf8")) >= 0 : false;
     tools.push({
       name, group: GROUPS.find(g => g.key === "node_repl"),
-      description: at >= 0 ? { label: "matched", text: core.tool } : { label: "name only", text: null, why: `the ${CAPTURE_DATE} capture's description is not in the binary` },
-      parameters: null, source: { file: "cua_node/bin/node_repl", offset: at >= 0 ? at : null }, rewrites: []
+      description: { label: "name only", text: null, why: "the Rust binary's string pool has no delimiters, so a description cannot be cut out of it exactly" },
+      captureNote: `its description there, on the [complete host tool manifest](#current-host-tool-manifest-2026-09-24-json) page, is ${present ? "still" : "not"} present byte for byte in the binary`,
+      parameters: null, source: { file: "cua_node/bin/node_repl", offset: null }, rewrites: []
     });
   }
 } else missing("node_repl", "cua_node/bin/node_repl");
@@ -195,10 +202,20 @@ function tsParams(ts) {
 }
 const sentences = text => text.split(/\n|(?<=[.!?])\s+(?=[A-Z`"'(])/).filter(Boolean).join("\n");
 const templateRegex = template => new RegExp(`^${template.split("<…>").map(part => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[\\s\\S]*?")}$`);
-function compare(tool) {
+// The capture name of a tool: nested (mcp__ns__name) or direct (mcp__ns.name); a tool with no
+// known namespace matches any capture name ending in __name or .name.
+function captureName(tool) {
   const ns = tool.group.namespace;
-  const core = ns ? captureCore.get(`mcp__${ns}__${tool.name}`) : null;
-  if (!core) return { status: "absent" };
+  const all = [...captureCore.keys(), ...directNames];
+  if (ns) return all.find(n => n === `mcp__${ns}__${tool.name}` || n === `mcp__${ns}.${tool.name}`) ?? null;
+  return all.find(n => n.endsWith(`__${tool.name}`) || n.endsWith(`.${tool.name}`)) ?? null;
+}
+function compare(tool) {
+  const name = captureName(tool);
+  if (!name) return { status: "absent" };
+  if (tool.description.text == null) return { status: "present", name };
+  const core = captureCore.get(name);
+  if (!core) return { status: "present", name };
   const lines = [];
   const text = tool.description.text;
   if (text != null) {
@@ -230,16 +247,16 @@ function clean(id, text) {
 
 // ---- render ----------------------------------------------------------------------------------------
 
+const byCodePoint = (a, b) => (a < b ? -1 : a > b ? 1 : 0); // locale-independent, so output bytes don't depend on the machine
 const fence = (text, min = 3) => "`".repeat(Math.max(min, 1 + Math.max(0, ...[...text.matchAll(/`+/g)].map(m => m[0].length))));
 const cell = text => String(text).replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ");
 const LABELS = {
   exact: "exact",
   template: "assembled at run time; `<…>` marks text filled in when the tool list is built",
-  matched: `matched: the ${CAPTURE_DATE} capture's text is present byte for byte in the binary, which has no end markers, so text appended after it would not show`,
   "name only": "name only"
 };
 const order = t => { const g = GROUPS.indexOf(GROUPS.find(x => x.key === t.group.key) ?? GROUPS.find(x => x.key === "mcp")); return g; };
-tools.sort((a, b) => order(a) - order(b) || a.group.heading.localeCompare(b.group.heading) || a.name.localeCompare(b.name) || (a.source.offset ?? 0) - (b.source.offset ?? 0));
+tools.sort((a, b) => order(a) - order(b) || byCodePoint(a.group.heading, b.group.heading) || byCodePoint(a.name, b.name) || (a.source.offset ?? 0) - (b.source.offset ?? 0));
 
 const records = [];
 const parameterTexts = [];
@@ -262,7 +279,10 @@ for (const tool of tools) {
   const where = `\`${tool.source.file}\`${tool.source.offset != null ? `, offset ${tool.source.offset}` : ""}`;
   lines.push(`### ${n > 1 ? `${tool.name} (${n})` : tool.name}`, "",
     `Source: ${where}${desc.text != null ? `, SHA-256 \`${sha256(desc.text)}\`` : ""}.`, "");
-  const status = { absent: `Not in the ${CAPTURE_DATE} capture.`, unchanged: `Unchanged since the ${CAPTURE_DATE} capture.`, changed: `Changed since the ${CAPTURE_DATE} capture:` }[cmp.status];
+  const status = {
+    absent: `Not in the ${CAPTURE_DATE} capture.`, unchanged: `Unchanged since the ${CAPTURE_DATE} capture.`, changed: `Changed since the ${CAPTURE_DATE} capture:`,
+    present: `In the ${CAPTURE_DATE} capture as \`${cmp.name}\`${directNames.has(cmp.name) ? " (a direct tool)" : ""}; ${tool.captureNote ?? "there is no bundled description to compare"}.`
+  }[cmp.status];
   if (desc.withheld) lines.push(`Description: withheld; the privacy scan flagged a ${desc.withheld}.`, "");
   else if (desc.text == null) lines.push(`Description: name only; ${tool.description.why}.`, "");
   else {
@@ -305,7 +325,7 @@ for (const tool of tools) {
     id, namespace: tool.group.namespace, group: tool.group.heading, name: tool.name,
     label: descLabel, text: desc.text, sha256: desc.text != null ? sha256(desc.text) : null,
     parameters: paramsOut, runtime_rewritten_parameters: tool.rewrites.length ? tool.rewrites : undefined,
-    capture: cmp.status === "absent" ? "not in capture" : cmp.status,
+    capture: cmp.status === "absent" ? "not in capture" : cmp.status === "present" ? "in capture, not compared" : cmp.status,
     source_file: tool.source.file, byte_offset: tool.source.offset
   });
 }
@@ -313,8 +333,8 @@ for (const tool of tools) {
 // Capture tools in the namespaces the bundle serves (codex_app, node_repl and the bundled
 // .mcp.json servers) that nothing in the bundle defines.
 const bundleNamespaces = new Set(["codex_app", "node_repl", ...servers.map(s => s.namespace)]);
-const defined = new Set(records.filter(r => r.namespace).map(r => `mcp__${r.namespace}__${r.name}`));
-const seenNotDefined = capture.tools.map(t => t.name).filter(n => { const m = /^mcp__(.+?)__(.+)$/.exec(n); return m && bundleNamespaces.has(m[1]) && !defined.has(n); }).sort();
+const defined = new Set(records.filter(r => r.namespace).flatMap(r => [`mcp__${r.namespace}__${r.name}`, `mcp__${r.namespace}.${r.name}`]));
+const seenNotDefined = [...captureCore.keys(), ...directNames].filter(n => { const m = /^mcp__(.+?)(?:__|\.)(.+)$/.exec(n); return m && bundleNamespaces.has(m[1]) && !defined.has(n); }).sort(byCodePoint);
 lines.push("## Seen in the September 24 capture, not defined in this bundle", "",
   `These names are in the ${CAPTURE_DATE} capture, in namespaces served by bundled tools, but no definition for them is in the app bundle. Their text is on the [complete host tool manifest](#current-host-tool-manifest-2026-09-24-json) page.`, "");
 lines.push(...(seenNotDefined.length ? seenNotDefined.map(n => `- \`${n}\``) : ["None."]), "");
@@ -347,9 +367,9 @@ fs.writeFileSync(path.join(outputs, JSON_FILE), `${JSON.stringify(coverage, null
 console.log(JSON.stringify({
   tool_manifest: {
     tools: records.length,
-    descriptions: { exact: count("exact"), template: count("template"), matched: count("matched"), name_only: count("name only"), redacted: count("redacted"), withheld: count("withheld") },
+    descriptions: { exact: count("exact"), template: count("template"), name_only: count("name only"), redacted: count("redacted"), withheld: count("withheld") },
     parameters: { exact: pcount("exact"), evaluated: pcount("evaluated"), approximate: pcount("approximate") },
-    capture: { changed: records.filter(r => r.capture === "changed").length, unchanged: records.filter(r => r.capture === "unchanged").length, not_in_capture: records.filter(r => r.capture === "not in capture").length, seen_not_defined: seenNotDefined.length },
+    capture: { changed: records.filter(r => r.capture === "changed").length, unchanged: records.filter(r => r.capture === "unchanged").length, not_compared: records.filter(r => r.capture === "in capture, not compared").length, not_in_capture: records.filter(r => r.capture === "not in capture").length, seen_not_defined: seenNotDefined.length },
     not_found: notFound.length, withheld: withheld.map(w => w.id), diff: changes ? "work/tool-manifest-diff.md" : null
   }
 }));

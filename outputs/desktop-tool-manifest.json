@@ -2972,7 +2972,7 @@
     {
       "id": "tab/getTabContext",
       "namespace": null,
-      "group": "Browser tab context",
+      "group": "Chrome tab context",
       "name": "getTabContext",
       "label": "exact",
       "text": "Return context for a specific Chrome tab. Use this for questions about page content when the tab ID is available in the Chrome tabs context. For text-like pages, this returns document.body.innerText plus visible unmasked text-like input values; rendered masked inputs appear as <browser__redacted_form_control />. For supported YouTube watch pages, it also includes timestamped captions inside <browser__youtube_transcript> when available. Tagged returned text or saved tab text files may use <browser__document__url> to mark the page URL, <browser__document__title> to mark the page title, <browser__document__content> to mark page content, and <user__selection> to mark selected text. For non-text document tabs or supported Google Docs, Sheets, or Slides pages, this may save a temporary local file to the thread cwd and return the file path. Returns page context as a plain string. Within functions.exec, forward it with text(result); do not read result.content or result.structuredContent.",
@@ -3002,39 +3002,39 @@
       "namespace": "node_repl",
       "group": "node_repl",
       "name": "js",
-      "label": "matched",
-      "text": "Execute JavaScript in a persistent `node_repl` with top-level await. Top-level bindings persist until `js_reset` and can be redeclared. Use `const` for stable values and `let` for changing values. Use dynamic imports such as `await import(\"playwright\")`; top-level static imports and `node:process` are unavailable. Use `nodeRepl.write(value)` for output and `await nodeRepl.emitImage(image)` for images. Execution context is available through `nodeRepl.cwd`, `nodeRepl.homeDir`, `nodeRepl.tmpDir`, and `nodeRepl.requestMeta`. The default timeout is 30000 ms (30 seconds); increase `timeout_ms` for longer operations. Use `js_add_node_module_dir` when an additional package directory is required.",
-      "sha256": "052067059f6bb4c4c641c6787e6d4a01514aec0717701e514d12e547830aea89",
+      "label": "name only",
+      "text": null,
+      "sha256": null,
       "parameters": null,
-      "capture": "unchanged",
+      "capture": "in capture, not compared",
       "source_file": "cua_node/bin/node_repl",
-      "byte_offset": 9364940
+      "byte_offset": null
     },
     {
       "id": "node_repl/js_add_node_module_dir",
       "namespace": "node_repl",
       "group": "node_repl",
       "name": "js_add_node_module_dir",
-      "label": "matched",
-      "text": "Add an absolute `node_modules` directory for package imports. The directory remains available after `js_reset`.",
-      "sha256": "c9a1bd847a2db4f05c97e3833b963e311d59938edd740906ba980f1bef824bb1",
+      "label": "name only",
+      "text": null,
+      "sha256": null,
       "parameters": null,
-      "capture": "unchanged",
+      "capture": "in capture, not compared",
       "source_file": "cua_node/bin/node_repl",
-      "byte_offset": 9896293
+      "byte_offset": null
     },
     {
       "id": "node_repl/js_reset",
       "namespace": "node_repl",
       "group": "node_repl",
       "name": "js_reset",
-      "label": "matched",
-      "text": "Reset the JavaScript kernel and clear all bindings.",
-      "sha256": "2716324acd6e88921638249c3bcaa1d63da5094c9ec2a931138b16711ab492d3",
+      "label": "name only",
+      "text": null,
+      "sha256": null,
       "parameters": null,
-      "capture": "unchanged",
+      "capture": "in capture, not compared",
       "source_file": "cua_node/bin/node_repl",
-      "byte_offset": 9895752
+      "byte_offset": null
     },
     {
       "id": "cua_repl/js",
@@ -3045,7 +3045,7 @@
       "text": null,
       "sha256": null,
       "parameters": null,
-      "capture": "not in capture",
+      "capture": "in capture, not compared",
       "source_file": "plugins/openai-bundled/plugins/unified-computer-use/.mcp.json",
       "byte_offset": null
     },
@@ -3058,7 +3058,7 @@
       "text": null,
       "sha256": null,
       "parameters": null,
-      "capture": "not in capture",
+      "capture": "in capture, not compared",
       "source_file": "plugins/openai-bundled/plugins/unified-computer-use/.mcp.json",
       "byte_offset": null
     },

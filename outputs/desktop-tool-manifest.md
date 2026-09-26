@@ -3131,7 +3131,7 @@ Parameters, evaluated with the app's own schema code:
 
 Not in the 2026-09-24 capture.
 
-## Browser tab context
+## Chrome tab context
 
 ### getTabContext
 
@@ -3167,39 +3167,27 @@ Not in the 2026-09-24 capture.
 
 ### js
 
-Source: `cua_node/bin/node_repl`, offset 9364940, SHA-256 `052067059f6bb4c4c641c6787e6d4a01514aec0717701e514d12e547830aea89`.
+Source: `cua_node/bin/node_repl`.
 
-Description: matched: the 2026-09-24 capture's text is present byte for byte in the binary, which has no end markers, so text appended after it would not show.
+Description: name only; the Rust binary's string pool has no delimiters, so a description cannot be cut out of it exactly.
 
-```text
-Execute JavaScript in a persistent `node_repl` with top-level await. Top-level bindings persist until `js_reset` and can be redeclared. Use `const` for stable values and `let` for changing values. Use dynamic imports such as `await import("playwright")`; top-level static imports and `node:process` are unavailable. Use `nodeRepl.write(value)` for output and `await nodeRepl.emitImage(image)` for images. Execution context is available through `nodeRepl.cwd`, `nodeRepl.homeDir`, `nodeRepl.tmpDir`, and `nodeRepl.requestMeta`. The default timeout is 30000 ms (30 seconds); increase `timeout_ms` for longer operations. Use `js_add_node_module_dir` when an additional package directory is required.
-```
-
-Unchanged since the 2026-09-24 capture.
+In the 2026-09-24 capture as `mcp__node_repl__js`; its description there, on the [complete host tool manifest](#current-host-tool-manifest-2026-09-24-json) page, is still present byte for byte in the binary.
 
 ### js_add_node_module_dir
 
-Source: `cua_node/bin/node_repl`, offset 9896293, SHA-256 `c9a1bd847a2db4f05c97e3833b963e311d59938edd740906ba980f1bef824bb1`.
+Source: `cua_node/bin/node_repl`.
 
-Description: matched: the 2026-09-24 capture's text is present byte for byte in the binary, which has no end markers, so text appended after it would not show.
+Description: name only; the Rust binary's string pool has no delimiters, so a description cannot be cut out of it exactly.
 
-```text
-Add an absolute `node_modules` directory for package imports. The directory remains available after `js_reset`.
-```
-
-Unchanged since the 2026-09-24 capture.
+In the 2026-09-24 capture as `mcp__node_repl__js_add_node_module_dir`; its description there, on the [complete host tool manifest](#current-host-tool-manifest-2026-09-24-json) page, is still present byte for byte in the binary.
 
 ### js_reset
 
-Source: `cua_node/bin/node_repl`, offset 9895752, SHA-256 `2716324acd6e88921638249c3bcaa1d63da5094c9ec2a931138b16711ab492d3`.
+Source: `cua_node/bin/node_repl`.
 
-Description: matched: the 2026-09-24 capture's text is present byte for byte in the binary, which has no end markers, so text appended after it would not show.
+Description: name only; the Rust binary's string pool has no delimiters, so a description cannot be cut out of it exactly.
 
-```text
-Reset the JavaScript kernel and clear all bindings.
-```
-
-Unchanged since the 2026-09-24 capture.
+In the 2026-09-24 capture as `mcp__node_repl__js_reset`; its description there, on the [complete host tool manifest](#current-host-tool-manifest-2026-09-24-json) page, is still present byte for byte in the binary.
 
 ## cua_repl
 
@@ -3209,7 +3197,7 @@ Source: `plugins/openai-bundled/plugins/unified-computer-use/.mcp.json`.
 
 Description: name only; listed in `enabled_tools` of the bundled `.mcp.json`; the server is started with arguments supplied at run time, so its description is not in a bundled file.
 
-Not in the 2026-09-24 capture.
+In the 2026-09-24 capture as `mcp__cua_repl.js` (a direct tool); there is no bundled description to compare.
 
 ### js_reset
 
@@ -3217,7 +3205,7 @@ Source: `plugins/openai-bundled/plugins/unified-computer-use/.mcp.json`.
 
 Description: name only; listed in `enabled_tools` of the bundled `.mcp.json`; the server is started with arguments supplied at run time, so its description is not in a bundled file.
 
-Not in the 2026-09-24 capture.
+In the 2026-09-24 capture as `mcp__cua_repl.js_reset` (a direct tool); there is no bundled description to compare.
 
 ### turn_ended
 

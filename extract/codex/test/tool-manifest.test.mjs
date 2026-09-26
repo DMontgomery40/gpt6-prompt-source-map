@@ -60,16 +60,16 @@ test("a description assembled at run time keeps its static text and marks the re
 test("key-like tokens are dropped; computed hashes and ordinary identifiers are kept", () => {
   const own = sha256("x");
   const text = [
-    "key sk-abcdefghijklmnopqrstuvwx and client-0123456789abcdef",
+    "key sk-proj4abcdefghijklmnopqrstu and client-0123456789abcdef",
     `hash ${"a1".repeat(20)} and ${own}`,
-    "names reorder_sidebar_projects getTabContext abcdefghijklmnopqrstuvwxyzabcdefghij"
+    "names reorder_sidebar_projects getTabContext abcdefghijklmnopqrstuvwxyzabcdefghij client-side-rendering"
   ].join("\n");
   const { text: out, dropped } = dropKeyLikeTokens(text, { ownHashes: new Set([own]) });
   assert.equal(dropped, 3);
   assert.equal(out, [
     "key <redacted> and <redacted>",
     `hash <redacted> and ${own}`,
-    "names reorder_sidebar_projects getTabContext abcdefghijklmnopqrstuvwxyzabcdefghij"
+    "names reorder_sidebar_projects getTabContext abcdefghijklmnopqrstuvwxyzabcdefghij client-side-rendering"
   ].join("\n"));
 });
 
@@ -144,6 +144,19 @@ test("anchors missing from a changed app are listed under Not found in this buil
   const coverage = JSON.parse(fs.readFileSync(path.join(root, "outputs", "desktop-tool-manifest.json"), "utf8"));
   assert.deepEqual(coverage.tools.map(t => [t.id, t.text, t.sha256]), [["codex_app/fire_confetti", "Fire confetti.", sha256("Fire confetti.")]]);
   assert.ok(coverage.not_found.some(m => m.id === "codex_app/list_hosts"));
+});
+
+test("a chunk that cannot be scanned is listed under Not found in this build, with exit 0", () => {
+  const { root, app } = fakeApp({
+    "webview/assets/app-initial-aaaaaaaaaaaa.js":
+      "var n=`fire_confetti`,d={name:n,description:`Fire confetti.`,inputSchema:{type:`object`,properties:{}}};",
+    "webview/assets/app-shared-bbbbbbbbbbbb.js": "var d={name:`broken`,description:`x`,inputSchema:{}};var t=`unterminated"
+  });
+  const result = run(app, root);
+  assert.equal(result.status, 0, result.stderr);
+  const page = fs.readFileSync(path.join(root, "outputs", "desktop-tool-manifest.md"), "utf8");
+  assert.match(page, /### fire_confetti/);
+  assert.match(page, /- `chunk\/webview\/assets\/app-shared-bbbbbbbbbbbb\.js`: could not be scanned \(unterminated template/);
 });
 
 test("an unreadable app is a clear exit 2", () => {

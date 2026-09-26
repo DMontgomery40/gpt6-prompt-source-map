@@ -513,7 +513,7 @@ export function evaluateDefinition(chunks, file, def) {
 // SHA-256 values this extractor computed.
 export function dropKeyLikeTokens(text, { ownHashes = new Set() } = {}) {
   let dropped = 0;
-  const out = text.replace(/\b(?:client|sk)-[A-Za-z0-9_-]{8,}|(?<![A-Za-z0-9])(?=[A-Za-z0-9]*[0-9])(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9]{32,}(?![A-Za-z0-9])/g, token => {
+  const out = text.replace(/\b(?:client|sk)-(?=[A-Za-z_-]*[0-9])[A-Za-z0-9_-]{8,}|(?<![A-Za-z0-9])(?=[A-Za-z0-9]*[0-9])(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9]{32,}(?![A-Za-z0-9])/g, token => {
     if (ownHashes.has(token)) return token;
     dropped++;
     return "<redacted>";
