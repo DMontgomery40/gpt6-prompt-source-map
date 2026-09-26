@@ -217,6 +217,19 @@ export const categories = [
     ]
   },
   {
+    label: "GPT-Live API",
+    files: [
+      {
+        path: "outputs/gpt-live-telephony.md",
+        anchor: "gpt-live-telephony-md",
+        slug: "gpt-live-telephony",
+        format: "markdown",
+        title: "Telephony and SIP",
+        defaultOpen: false
+      }
+    ]
+  },
+  {
     label: "Codex/ChatGPT voice prompts",
     files: [
       {

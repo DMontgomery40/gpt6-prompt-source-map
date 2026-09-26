@@ -626,6 +626,15 @@ test("production pages resolve every contents link to exactly one unique anchor"
       for (const [, href] of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/(?:#[^"]*)?"/g)) {
         assert(pages.includes(path.join(outDir, href, "index.html")), `${file} links to an existing page ${href}`);
       }
+      for (const [, slug, anchor] of html.matchAll(/href="\/([a-z0-9-]+)\/(?:#([a-z0-9-]+))?"/g)) {
+        if (slug === "trace") continue;
+        const target = path.join(outDir, slug, "index.html");
+        assert(pages.includes(target), `${file} links to an existing page /${slug}/`);
+        if (anchor) {
+          const targetHtml = await readFile(target, "utf8");
+          assert(targetHtml.includes(`id="${anchor}"`), `${file} links to existing anchor /${slug}/#${anchor}`);
+        }
+      }
     }
 
     const index = await readFile(outFile, "utf8");

@@ -90,6 +90,9 @@ def render_config():
     out.append(f"- [Managed requirements (requirements.toml)](#managed-requirements-requirementstoml) ({len(req)})\n")
     for g, its in list(groups.items()) + [("Managed requirements (requirements.toml)", req)]:
         out.append(f"## {g}\n")
+        if g == "Realtime voice and audio":
+            out.append("GPT-Live phone calls are covered separately in [Telephony and SIP](/gpt-live-telephony/). "
+                       "That API path is documented by OpenAI; the `realtime` keys below configure Codex voice sessions.\n")
         if g.startswith("Hidden"):
             out.append("The generated schema omits these keys, but this build's deserializer still recognizes them. Most "
                        "are legacy spellings kept so older config files still load. A few are recognized only so Codex/ChatGPT "
@@ -166,6 +169,9 @@ def render_config():
                 tail.append("In binary: " + (f"yes ({b['strength']} match)" if b["present"] else "string not found"))
             if tail:
                 out.append(" · ".join(tail) + "\n")
+            if it["title"] == "realtime":
+                out.append("For phone calls, see [GPT-Live telephony and SIP](/gpt-live-telephony/). "
+                           "SIP is an API connection path, not a value of Codex's `realtime.transport` setting.\n")
     (OUT / "codex-config.md").write_text("\n".join(out).rstrip() + "\n")
 
 
