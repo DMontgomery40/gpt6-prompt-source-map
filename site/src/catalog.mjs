@@ -224,7 +224,7 @@ export const categories = [
         anchor: "gpt-live-telephony-md",
         slug: "gpt-live-telephony",
         format: "markdown",
-        title: "Telephony and SIP",
+        title: "GPT-Live telephony and SIP",
         defaultOpen: false
       }
     ]
