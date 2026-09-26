@@ -1,8 +1,9 @@
 import { escapeHtml } from "./render.mjs";
 
 // "Start here" panel for the single-page reference. Most readers arrive looking for
-// persistent mode, so it links straight to the highlighted passages instead of leaving
-// them to read every prompt.
+// persistent mode, which is spread across the whole harness rather than written in one
+// prompt, so it links straight to every place it lives instead of leaving them to read
+// every prompt.
 
 const highlight = /<section class="[^"]*\breview-focus\b[^"]*" id="([^"]+)">\s*<div class="review-tag">([^<]*)<\/div>/g;
 
@@ -24,7 +25,7 @@ export function renderGuide(documents) {
     if (!first) return [];
     const persistent = document.profile === "persistent";
     const meta = persistent
-      ? `About ${Math.round(wordCount(document.source) / 50) * 50} words, the full text`
+      ? `From the GPT-6 model records · about ${Math.round(wordCount(document.source) / 50) * 50} words`
       : names.length > 3 ? `${count} highlighted passages` : names.join(" · ");
     return [{ persistent, html: `<li${persistent ? ' class="is-primary"' : ""}><a href="#${first}"><span class="start-here-doc">${escapeHtml(document.title)}</span><span class="start-here-meta">${escapeHtml(meta)}</span></a></li>` }];
   });
@@ -37,12 +38,19 @@ export function renderGuide(documents) {
     const meta = tagged.map(([document, n]) => `${n.toLocaleString("en-US")} ${/env/i.test(document.title) ? "env vars" : "config keys"}`).join(" · ");
     rows.splice(1, 0, { persistent: false, html: `<li><a href="${first.slug}/?tags=persistent-mode"><span class="start-here-doc">Persistent-mode config and env vars</span><span class="start-here-meta">${escapeHtml(meta)}</span></a></li>` });
   }
+  // The CLI's bundled persistent-mode text, used when a model record carries none.
+  const cli = documents.find(document => document.path === "outputs/codex-cli-prompts.md");
+  const cliAnchor = cli?.outline?.find(item => item.text === "Persistent mode")?.id;
+  if (cliAnchor) {
+    rows.splice(tagged.length ? 2 : 1, 0, { persistent: false, html: `<li><a href="#${cliAnchor}"><span class="start-here-doc">CLI persistent-mode fallback</span><span class="start-here-meta">Used when a model record has no text of its own</span></a></li>` });
+  }
 
   return `
         <section class="start-here" aria-labelledby="start-here-title">
           <h2 class="start-here-title" id="start-here-title">Start here</h2>
-          <p>Persistent mode is a single block of instructions stored in the Codex model records for GPT-6 Astra, Sol, and Luna and used when the mode is on. It keeps the model working after it answers: it sends replies mid-turn instead of ending the turn, sleeps and checks back on running work, and owns a finish, monitor, or track request until it is done. It does not widen what the model may do; new authority still needs approval.</p>
-          <p>Related behavior (autonomy, task continuity, agent delegation, and context carry-over) is spread across the base prompts, conditional modules, and voice prompts, so every prompt is published in full. You do not need to read it all. The passages that matter are in <span class="start-here-swatch" aria-hidden="true"></span>blue boxes, and these links go straight to them:</p>
+          <p>Persistent mode is not one prompt. It is a behavior of the whole Codex product, so the text behind it is spread across the harness: the developer message the CLI adds while the mode is on, passages on autonomy, task continuity, delegation, and context carry-over in the base prompts and conditional modules, the voice prompts, and the config keys and environment variables that shape it. This navigator gathers those pieces in one place.</p>
+          <p>Together they keep the model working after it answers: it sends replies mid-turn instead of ending the turn, sleeps and checks back on running work, and owns a finish, monitor, or track request until it is done. None of it widens what the model may do; new authority still needs approval.</p>
+          <p>Every prompt is published in full, but you do not need to read it all. The passages that matter are in <span class="start-here-swatch" aria-hidden="true"></span>blue boxes, and these links go straight to them:</p>
           <ul class="start-here-list">${rows.map(row => row.html).join("")}</ul>
           <p class="start-here-rest">Everything else is the complete reference for anyone building on this harness: raw model records, tool manifests, helper prompts, and extraction evidence.</p>
         </section>`;
