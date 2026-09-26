@@ -3,15 +3,6 @@ export const categories = [
     label: "Findings",
     files: [
       {
-        path: "outputs/desktop-turn-anatomy.md",
-        anchor: "desktop-turn-anatomy-md",
-        slug: "desktop-turn-anatomy",
-        snapshot: "September 25, 2026",
-        format: "markdown",
-        title: "What a desktop turn contains",
-        defaultOpen: true
-      },
-      {
         path: "outputs/security-review-map-2026-09-24.md",
         anchor: "security-review-map-2026-09-24-md",
         slug: "key-findings",
