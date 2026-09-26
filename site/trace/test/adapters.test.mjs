@@ -23,7 +23,7 @@ function linesByOffset(path) {
   return out;
 }
 
-async function assertRoundTrip(trace, sources) {
+async function assertRoundTrip(trace, sources, min = 11) {
   const byFile = trace.files.map((f) => (f.role ? null : linesByOffset(f.name)));
   let n = 0;
   for (const a of trace.agents) for (const b of a.blocks) {
@@ -35,7 +35,7 @@ async function assertRoundTrip(trace, sources) {
     await readRef(sources[b.ref.file], b.ref);
     n++;
   }
-  assert.ok(n > 10);
+  assert.ok(n >= min);
 }
 
 function assertStrata(trace) {
@@ -115,6 +115,48 @@ test("codex: app request wrapper is injected, the typed request is the ask and t
   }
 });
 
+// The user's own setup lands in the stratum of its Claude Code equivalent whatever its position:
+// memories under You, the skills list under Injected; product developer text before the first
+// request stays Harness. A second skills list while the first is in context is a re-send.
+test("codex: memories and skills are the user's own, product developer text is harness, re-sends flagged", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "trace-own-"));
+  const id = uuid7(CODEX_T0, 8);
+  mkdirSync(join(dir, "2026/01/01"), { recursive: true });
+  const MEM = "## Memory\nYou have access to a memory folder with guidance from prior runs.\n========= MEMORY_SUMMARY BEGINS =========\n- prefers uv over pip — naïve ☃\n========= MEMORY_SUMMARY ENDS =========";
+  const skills = (n) => "<skills_instructions>\n## Skills\n" + Array.from({ length: n }, (_, k) => `- skill${k}: does thing ${k} (file: r0/skill${k}/SKILL.md)`).join("\n") + "\n</skills_instructions>";
+  writeFileSync(join(dir, `2026/01/01/rollout-2026-01-01T00-00-00-${id}.jsonl`), rows([
+    { type: "session_meta", payload: { id, session_id: id, cwd: "/tmp/p", cli_version: "0.1.0", source: "vscode", thread_source: "user", base_instructions: { text: "You are a test agent." } } },
+    { type: "event_msg", payload: { type: "task_started", model_context_window: 100000 } },
+    msg("developer", [MEM, skills(3), "<permissions instructions>\nsandbox is workspace-write\n</permissions instructions>"], ["memories.instructions", "host_skills.instructions", "permissions.instructions"]),
+    msg("user", ["# AGENTS.md instructions\n\nBe careful.", "<environment_context>\n  <cwd>/tmp/p</cwd>\n</environment_context>"], ["agents_md.instructions", "environments.environment_context"]),
+    msg("user", ["first ask"], ["user.text"]),
+    usage("r1", 4000, 0),
+    msg("developer", [skills(2)], ["host_skills.instructions"]),
+    msg("user", ["second ask"], ["user.text"]),
+    usage("r2", 5000, 4000),
+    msg("developer", [skills(2)], ["host_skills.instructions"]),
+    usage("r3", 5200, 5000)
+  ], CODEX_T0));
+  const { trace, sources } = await loadTrace(await entriesFor([dir]));
+  const root = trace.agents[0];
+  const by = (label) => root.blocks.filter((b) => b.label === label);
+  assert.deepEqual([by("memories")[0].kind, by("memories")[0].own], ["you", true]);
+  assert.deepEqual(by("skills list (3)").map((b) => [b.kind, b.own]), [["injected", true]]);
+  assert.equal(by("developer: permissions.instructions")[0].kind, "harness");
+  assert.equal(by("AGENTS.md")[0].own, true);
+  const two = by("skills list (2)");
+  assert.equal(two.length, 2);
+  assert.equal(two[0].resendOf, by("skills list (3)")[0].i);
+  assert.equal(two[0].resendSame, false);
+  assert.equal(two[1].resendOf, two[0].i);
+  assert.equal(two[1].resendSame, true);
+  // Every request's own share is inside its stratum, and the strata still sum to the context.
+  for (const r of root.requests) for (const [k, v] of Object.entries(r.own || {})) assert.ok(v > 0 && v <= r.strata[k], `request ${r.i} ${k}`);
+  assert.ok(root.requests[0].own.you > 0 && root.requests[0].own.injected > 0);
+  assertStrata(trace);
+  await assertRoundTrip(trace, sources, 8);
+});
+
 test("codex: actions from exec/js sources, images, custody", async () => {
   const { trace } = await load("codex");
   const root = trace.agents[0];
@@ -156,6 +198,54 @@ test("codex: subagent spawn, inherited history, asks and returns", async () => {
   assert.ok(child.blocks.find((b) => b.kind === "you").carried);
   assert.deepEqual(child.asks.map((a) => a.from), ["agent"]);
   assert.equal(child.requests[0].action.class, "read");
+});
+
+// The instructions attachment holds several files; each becomes its own block labelled by path,
+// read back by range. A nested_memory copy of a file already in context is a re-send, identical
+// when the file content matches.
+test("claude-code: instructions split per file, own setup labelled, nested memory copy flagged", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "trace-cc-own-"));
+  const sid = "22222222-2222-4222-8222-222222222222";
+  const t0 = Date.parse("2026-01-03T00:00:00Z");
+  let n = 0;
+  const base = (sec) => ({ sessionId: sid, uuid: `v${++n}`, parentUuid: null, timestamp: new Date(t0 + sec * 1000).toISOString(), version: "9.9.9", isSidechain: false });
+  const HOME = "/Users/tester";
+  const files = [
+    { path: `${HOME}/.claude/CLAUDE.md`, type: "User", content: "# Prefs\nNo emojis — naïve ☃\n" },
+    { path: `${HOME}/.claude/projects/p/memory/MEMORY.md`, type: "AutoMem", content: "- [a](a.md) — a memory\n" }
+  ];
+  const content = "<system-reminder>\nCodebase and user instructions are shown below.\n\n" + files.map((f) => `Contents of ${f.path} (${f.type === "User" ? "user's private global instructions" : "user's auto-memory"}):\n\n${f.content}`).join("\n") + "\n</system-reminder>";
+  const att = (sec, a, rendered) => ({ ...base(sec), type: "attachment", attachment: a, ...(rendered ? { rendered: [{ content: rendered }] } : {}) });
+  const usage = (input, read, write, output) => ({ input_tokens: input, cache_read_input_tokens: read, cache_creation_input_tokens: write, output_tokens: output });
+  const asst = (sec, rid, u) => ({ ...base(sec), type: "assistant", requestId: rid, message: { id: "m" + rid, model: "claude-test", role: "assistant", content: [{ type: "text", text: "ok" }], usage: u } });
+  const lines = [
+    att(1, { type: "prompt_snapshot", systemPrompt: ["You are a test."] }),
+    att(1, { type: "skill_listing", skillCount: 2, names: ["a", "b"], content: "- a: does a\n- b: does b" }, "<system-reminder>\nThe following skills are available for use with the Skill tool:\n\n- a: does a\n- b: does b\n</system-reminder>"),
+    att(1, { type: "instructions", files }, content),
+    { ...base(2), type: "user", message: { role: "user", content: "hello" } },
+    asst(3, "r1", usage(10, 0, 3000, 20)),
+    att(4, { type: "nested_memory", path: files[0].path, displayPath: ".claude/CLAUDE.md", content: { path: files[0].path, type: "User", content: files[0].content.trimEnd() } }, `<system-reminder>\nContents of ${files[0].path}:\n\n${files[0].content}\n</system-reminder>`),
+    { ...base(5), type: "user", message: { role: "user", content: "again" } },
+    asst(6, "r2", usage(10, 3000, 400, 20))
+  ];
+  writeFileSync(join(dir, `${sid}.jsonl`), lines.map((l) => JSON.stringify(l)).join("\n") + "\n");
+  const { trace, sources } = await loadTrace(await entriesFor([dir]));
+  const root = trace.agents[0];
+  const claude = root.blocks.find((b) => b.label === "instructions file · ~/.claude/CLAUDE.md");
+  const mem = root.blocks.find((b) => b.label === "memory index · ~/.claude/projects/p/memory/MEMORY.md");
+  assert.ok(claude && mem, "one block per file, labelled by path");
+  assert.deepEqual([claude.kind, claude.own, mem.kind, mem.own], ["you", true, "you", true]);
+  assert.ok((await readRef(sources[0], claude.ref)).startsWith(`Contents of ${files[0].path}`));
+  assert.ok((await readRef(sources[0], claude.ref)).includes("No emojis — naïve ☃"));
+  assert.ok((await readRef(sources[0], mem.ref)).includes("a memory"));
+  assert.equal(root.blocks.find((b) => b.label === "instructions wrapper").kind, "injected");
+  assert.deepEqual([root.blocks.find((b) => b.label === "skills list (2)").kind, root.blocks.find((b) => b.label === "skills list (2)").own], ["injected", true]);
+  const nested = root.blocks.find((b) => b.label === "nested memory · ~/.claude/CLAUDE.md");
+  assert.equal(nested.resendOf, claude.i);
+  assert.equal(nested.resendSame, true);
+  assert.ok(root.requests[1].own.you > root.requests[0].own.you);
+  assertStrata(trace);
+  await assertRoundTrip(trace, sources, 8);
 });
 
 test("claude-code: iterations split, advisor side agent, harness snapshot pair", async () => {

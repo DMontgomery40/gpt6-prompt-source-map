@@ -265,6 +265,12 @@ button { font: inherit; color: inherit; }
 .sval { font-variant-numeric: tabular-nums; }
 .spct { color: var(--ink-3); text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; }
 .slist .note { padding: 0 6px 4px 28px; }
+.slist .sown { padding: 0 6px 4px 28px; color: var(--you); font-size: 12.5px; }
+/* the user's own setup: a quiet accent, not a separate category */
+.group.mine .ghead { box-shadow: inset 3px 0 0 var(--you); }
+.items.setup .item .tool { font-weight: 600; overflow-wrap: anywhere; }
+.reader pre.text .tl { color: var(--ink-3); }
+.reader pre.text .ml { color: var(--ink); background: #16210f; }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; margin: 8px 0; }
 .kv dt { color: var(--ink-3); font-size: 13px; }
 .kv dd { margin: 0; font-variant-numeric: tabular-nums; }

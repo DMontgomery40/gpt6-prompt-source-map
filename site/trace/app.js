@@ -2,6 +2,7 @@
 // Everything runs locally. The only network requests are this page's own static files.
 import { STRATA, STRATUM_INDEX, STATUS, LENSES, el, fmtTok, fmtInt, fmtDur, fmtClock, fmtWhen, sessionStats, renderPanel, blockTokens, agentStats, clip, modelFamily } from "./panels.js";
 import { buildLayout, renderOverview, renderAgentColumns, legend } from "./minimap.js";
+import { lineHash, normalizeLine, MIN_INDEXED_LINE } from "./model.js";
 
 const params = new URLSearchParams(location.search);
 const $ = s => document.querySelector(s);
@@ -683,6 +684,12 @@ const A = {
     if (bi >= 0) A.openBlockAt(agentId, bi);
   },
   getText: (agentId, ref) => (text ? text(agentId, ref) : Promise.reject(new Error("no text source"))),
+  // Per line of `text`: true when the site publishes that line (the product's wording). Null without an index.
+  async templateLines(text) {
+    const ix = await loadIndex();
+    if (!ix || !ix.lines) return null;
+    return String(text).split("\n").map(raw => normalizeLine(raw).length >= MIN_INDEXED_LINE && Object.prototype.hasOwnProperty.call(ix.lines, lineHash(raw)));
+  },
   up
 };
 function up() {
