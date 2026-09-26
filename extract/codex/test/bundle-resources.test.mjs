@@ -120,6 +120,26 @@ test("calendar section: generated from anchors, facts and inferences only with e
   assert.equal(shipped.summary.calendar.not_shipped_heading, false);
 });
 
+test("a changed layout is listed under Not found on both pages, and the build still succeeds", () => {
+  const resources = fakeResources();
+  fs.rmSync(path.join(resources, "plugins/openai-bundled/plugins"), { recursive: true });
+  fs.rmSync(path.join(resources, BINARIES[1].rel));
+  fs.mkdirSync(path.join(resources, "plugins/openai-bundled/plugins/gamma/.codex-plugin"), { recursive: true });
+  fs.writeFileSync(path.join(resources, "plugins/openai-bundled/plugins/gamma/.codex-plugin/plugin.json"), JSON.stringify({ name: "gamma" }));
+  const result = buildPages({ resources });
+  const plugins = result.pages[NAMES.plugins];
+  const notFound = plugins.slice(plugins.indexOf("## Not found in this build"));
+  assert.match(notFound, /### sky-app\n\nSource: not found in this build \(the folder is missing\)\./);
+  assert.match(notFound, /### plugins\/openai-bundled\/plugins\/gamma\/\.codex-plugin\/plugin\.json\n\nSource: not found in this build \(no top-level description string\)\./);
+  assert.match(result.pages[NAMES.cu], /### SkyComputerUseClient\n\nSource: not found in this build \(the program is missing\)\./);
+  // The Service binary alone still yields the placeholder.
+  assert.match(result.pages[NAMES.cu], /### Placeholder tool description\n\nSource: `[^\n]*SkyComputerUseService` at 0x[0-9a-f]+; SHA-256/);
+
+  fs.rmSync(path.join(resources, "plugins"), { recursive: true });
+  const bare = buildPages({ resources });
+  assert.match(bare.pages[NAMES.plugins], /## Not found in this build\n\n### plugins\n\nSource: not found in this build \(the plugin folder is missing\)\./);
+});
+
 test("key filter: prefixed and random keys are key-like, long identifiers are not", () => {
   assert(keyLike(`a ${KEY} b`));
   assert(keyLike("token br04gwIKFntB05BUONtNnF3NhWQsvmSI8R97Pigr7A5"));

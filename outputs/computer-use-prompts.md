@@ -6,7 +6,7 @@ Source: `cua_node/lib/node_modules/@oai/sky/Codex Computer Use.app/Contents/MacO
 
 Source: `cua_node/lib/node_modules/@oai/sky/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient`, SHA-256 `ba5705d80a32fdd766c43a90ff37975d463378cc45d94e3c83e0798d673ac1be`.
 
-Prompts, tool descriptions, parameter descriptions and tool-result text compiled into the two Computer Use programs that ship with the ChatGPT desktop app. The Messages, Computer History and Record & Replay plugins run the client program as their MCP servers. Each entry is the exact NUL-terminated string found at the listed offset, decoded as UTF-8. Text that appears in both programs lists both.
+Prompts, tool descriptions, parameter descriptions and tool-result text compiled into the Computer Use programs that ship with the ChatGPT desktop app. The Messages, Computer History and Record & Replay plugins run the client program as their MCP servers. Each entry is the exact NUL-terminated string found at the listed offset, decoded as UTF-8. Text that appears in both programs lists both.
 
 ## Messages
 

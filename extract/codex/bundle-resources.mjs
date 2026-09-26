@@ -412,11 +412,14 @@ export function buildPages({ resources, app = {}, scanFiles = [] }) {
   // Page 1.
   const selectorHits = envSelectorHits(scanFiles);
   const groups = fileGroups(resources);
+  const fileMissing = [];
+  const missFile = (id, anchor, reason) => { fileMissing.push({ id, anchor, reason }); summary.not_found.push({ id, anchor }); };
+  if (!fs.existsSync(inRes(PLUGINS))) missFile("plugins", PLUGINS, "the plugin folder is missing");
   const claimed = new Set();
   const fileItems = [];
   for (const group of groups) {
     group.items = [];
-    if (!fs.existsSync(inRes(group.root))) { summary.not_found.push({ id: group.key, anchor: group.root }); group.missing = true; continue; }
+    if (!fs.existsSync(inRes(group.root))) { missFile(group.key, group.root, "the folder is missing"); continue; }
     for (const relInGroup of walk(inRes(group.root))) {
       const rel = `${group.root}/${relInGroup}`;
       const mode = includeFile(rel);
@@ -430,7 +433,7 @@ export function buildPages({ resources, app = {}, scanFiles = [] }) {
       if (mode === "description") {
         let description;
         try { description = JSON.parse(text).description; } catch { description = undefined; }
-        if (typeof description !== "string") { summary.not_found.push({ id: rel, anchor: "top-level description" }); continue; }
+        if (typeof description !== "string") { missFile(rel, `${rel}: description`, "no top-level description string"); continue; }
         text = description;
         label = "exact field value";
       }
@@ -456,13 +459,13 @@ export function buildPages({ resources, app = {}, scanFiles = [] }) {
 
   // Page 2.
   const binaries = [];
+  const missing = [];
   for (const binary of BINARIES) {
-    if (!fs.existsSync(inRes(binary.rel))) { summary.not_found.push({ id: binary.name, anchor: binary.rel }); continue; }
+    if (!fs.existsSync(inRes(binary.rel))) { missing.push({ id: binary.name, anchor: binary.rel, reason: "the program is missing" }); summary.not_found.push({ id: binary.name, anchor: binary.rel }); continue; }
     const bytes = fs.readFileSync(inRes(binary.rel));
     binaries.push({ ...binary, bytes, sha256: sha256(bytes) });
   }
   const spanItems = [];
-  const missing = [];
   const curatedTexts = new Set();
   const addSpan = (spec, group, label) => {
     const result = findSpan(binaries, spec);
@@ -510,7 +513,7 @@ export function buildPages({ resources, app = {}, scanFiles = [] }) {
   summary.calendar = { placeholder_found: Boolean(placeholder), plugin_folders: calendarFolders, not_shipped_heading: Boolean(placeholder) && !calendarFolders.length };
   summary.env_selector_found_in = selectorHits;
 
-  const context = { app, binaries, groups, thirdParty, selectorHits, spanItems, calendar, calendarFolders, placeholder, missing };
+  const context = { app, binaries, groups, fileMissing, thirdParty, selectorHits, spanItems, calendar, calendarFolders, placeholder, missing };
   return {
     pages: { [NAMES.plugins]: renderPluginsPage(context), [NAMES.cu]: renderComputerUsePage(context) },
     coverage: {
@@ -542,7 +545,7 @@ function textBlock(text) {
 }
 const edgeNote = text => (/^\s/.test(text) || /\s$/.test(text.replace(/\n$/, "")) ? " The string begins or ends with whitespace, which the block cannot show exactly; the JSON file has the exact text." : "");
 
-function renderPluginsPage({ app, groups, thirdParty, selectorHits }) {
+function renderPluginsPage({ app, groups, fileMissing, thirdParty, selectorHits }) {
   const lines = [
     "# ChatGPT bundled plugins and skills", "", appLine(app), "",
     "Plugin guidance, skills, reference files, MCP launch settings and Computer Use docs that the ChatGPT desktop app ships as text files outside `app.asar`. Each file is shown with its exact bytes. For `plugin.json` only the top-level `description` value is shown, since the rest is interface copy, author details and hooks. A file that is byte-identical at several paths appears once, with the other paths on its source line.", ""
@@ -569,7 +572,15 @@ function renderPluginsPage({ app, groups, thirdParty, selectorHits }) {
       "Prompt templates from the Playwright package, which ships with the app's Node runtime. They are Microsoft's, and no OpenAI code in the app refers to them, so only their paths are listed.", "",
       ...thirdParty.map(p => `- \`${p}\``), "");
   }
+  lines.push(...notFound(fileMissing));
   return `${lines.join("\n").trimEnd()}\n`;
+}
+
+function notFound(missing) {
+  if (!missing.length) return [];
+  const lines = ["## Not found in this build", ""];
+  for (const m of missing) lines.push(`### ${m.id}`, "", `Source: not found in this build (${m.reason}).`, "", ...textBlock(m.anchor), "");
+  return lines;
 }
 
 const binaryPath = name => BINARIES.find(b => b.name === name).rel;
@@ -588,7 +599,7 @@ function renderComputerUsePage({ app, binaries, spanItems, calendar, calendarFol
   const lines = [
     "# Computer Use prompts and tool descriptions", "", appLine(app),
     ...binaries.flatMap(b => ["", `Source: \`${b.rel}\`, SHA-256 \`${b.sha256}\`.`]), "",
-    "Prompts, tool descriptions, parameter descriptions and tool-result text compiled into the two Computer Use programs that ship with the ChatGPT desktop app. The Messages, Computer History and Record & Replay plugins run the client program as their MCP servers. Each entry is the exact NUL-terminated string found at the listed offset, decoded as UTF-8. Text that appears in both programs lists both.", ""
+    "Prompts, tool descriptions, parameter descriptions and tool-result text compiled into the Computer Use programs that ship with the ChatGPT desktop app. The Messages, Computer History and Record & Replay plugins run the client program as their MCP servers. Each entry is the exact NUL-terminated string found at the listed offset, decoded as UTF-8. Text that appears in both programs lists both.", ""
   ];
   const entry = item => [`### ${item.title}`, "", spanSource(item), "", `${LABEL_TEXT[item.label]}${item.kind && item.kind !== "unreviewed" ? ` Kind: ${item.kind}.` : ""}${edgeNote(item.text)}`, "", ...textBlock(item.text), ""];
   const groups = new Map();
@@ -628,10 +639,7 @@ function renderComputerUsePage({ app, binaries, spanItems, calendar, calendarFol
     }
   }
 
-  if (missing.length) {
-    lines.push("## Not found in this build", "");
-    for (const m of missing) lines.push(`### ${m.id}`, "", `Source: not found in this build (${m.reason}).`, "", ...textBlock(m.anchor), "");
-  }
+  lines.push(...notFound(missing));
   return `${lines.join("\n").trimEnd()}\n`;
 }
 
