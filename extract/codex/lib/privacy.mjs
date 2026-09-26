@@ -16,7 +16,8 @@ export function privacyScan(docs, { identity } = {}) {
     { label: "API key", pattern: /\bsk-[A-Za-z0-9_-]{20,}/ },
     { label: "bearer token", pattern: /Bearer [A-Za-z0-9._-]{20,}/ },
     { label: "auth field", pattern: /"(?:access_token|refresh_token|id_token|account_id|api_key)"\s*:/ },
-    { label: "Codex config path", pattern: /\.codex\/(?:config\.toml|auth\.json)/ },
+    // Product text may name a project's .codex/config.toml; auth files and the home config may not appear.
+    { label: "Codex config path", pattern: /\.codex\/auth\.json|~\/\.codex\/config\.toml/ },
     ...(identity ? [{ label: "catalog account identity", literal: identity }] : [])
   ];
   for (const [name, content] of docs) {

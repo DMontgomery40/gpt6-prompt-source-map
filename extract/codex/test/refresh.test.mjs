@@ -98,6 +98,9 @@ test("privacy scan refuses paths, e-mail, tokens and the account identity", () =
   assert.throws(scan("see /Users/someone/.codex"), /local user path/);
   assert.throws(scan("see /home/alice/notes"), /local user path/);
   assert.doesNotThrow(scan("Files shared with the cloud browser live in /home/oai/share."));
+  assert.throws(scan("read ~/.codex/config.toml"), /Codex config path/);
+  assert.throws(scan("copy .codex/auth.json"), /Codex config path/);
+  assert.doesNotThrow(scan("Edit the project's .codex/config.toml file."));
   assert.throws(scan("mail me at person@example.com"), /e-mail address/);
   assert.throws(scan('{"access_token": "x"}'), /auth field/);
   assert.throws(scan("hash 10b5ffb0abcdef", "10b5ffb0abcdef"), /account identity/);

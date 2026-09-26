@@ -83,7 +83,9 @@ export function literalRole(src, outer, index) {
 // holds the inventory's anchor phrases. A literal inside a known prompt, or containing an
 // anchor, is covered.
 export function promptCandidates(asar, { known = [], anchors = [] } = {}) {
-  const knownText = known.map(squash);
+  // Placeholders (<…>) stand for run-time values; compare the fixed text on both sides.
+  const fixed = text => squash(text.replace(/<…>/g, " "));
+  const knownText = known.map(fixed);
   const found = new Map();
   for (const entry of asar.appScripts.filter(entry => !isLocaleBundle(entry.path))) {
     const src = asar.textOf(entry);
@@ -95,7 +97,7 @@ export function promptCandidates(asar, { known = [], anchors = [] } = {}) {
       const role = literalRole(src, outer, index);
       if (role.kind === "translator-note") continue;
       const flat = squash(text);
-      if (anchors.some(anchor => flat.includes(anchor)) || knownText.some(k => k.includes(flat.replace(/<…>/g, "").slice(0, 120)))) continue;
+      if (anchors.some(anchor => flat.includes(anchor)) || knownText.some(k => k.includes(fixed(text).slice(0, 120)))) continue;
       const hash = candidateHash(text);
       if (!found.has(hash)) found.set(hash, { hash, file: entry.path, offset: literal.start, role, text });
     }

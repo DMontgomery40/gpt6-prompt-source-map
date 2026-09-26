@@ -2626,9 +2626,9 @@
       "namespace": "codex_app",
       "group": "codex_app",
       "name": "write_settings",
-      "label": "withheld",
-      "text": null,
-      "sha256": null,
+      "label": "exact",
+      "text": "Update one or more Codex settings. For supported user config.toml settings, always use this tool instead of editing the file with terminal or file-edit tools. Ordinary app settings go in settings. Supported agent configuration goes in config and is limited to approval policy, sandbox mode, workspace network access, web search, output detail, and reasoning summary. settings and config cannot be combined; use separate calls. Project configuration can be read but cannot be changed through chat yet; tell the user to open Settings → Configuration in the desktop app and select the project, or edit the project's .codex/config.toml file. Read settings first. Config changes require user confirmation, respect managed restrictions, and apply to new threads. After a successful write, briefly confirm the updated values and scope.",
+      "sha256": "4f9ae96947e3682bd5cbe6340c92e2c5f172f2cf8ff9cc03172f79bfaa1deef3",
       "parameters": {
         "label": "exact",
         "schema": {
@@ -3520,10 +3520,5 @@
     "mcp__messages__send_message"
   ],
   "not_found": [],
-  "withheld": [
-    {
-      "id": "codex_app/write_settings",
-      "reason": "Codex config path"
-    }
-  ]
+  "withheld": []
 }

@@ -2771,9 +2771,13 @@ Unchanged since the 2026-09-24 capture.
 
 ### write_settings
 
-Source: `app.asar › webview/assets/app-initial-0a6dd402dd72.js`, offset 6673822.
+Source: `app.asar › webview/assets/app-initial-0a6dd402dd72.js`, offset 6673822, SHA-256 `4f9ae96947e3682bd5cbe6340c92e2c5f172f2cf8ff9cc03172f79bfaa1deef3`.
 
-Description: withheld; the privacy scan flagged a Codex config path.
+Description: exact.
+
+```text
+Update one or more Codex settings. For supported user config.toml settings, always use this tool instead of editing the file with terminal or file-edit tools. Ordinary app settings go in settings. Supported agent configuration goes in config and is limited to approval policy, sandbox mode, workspace network access, web search, output detail, and reasoning summary. settings and config cannot be combined; use separate calls. Project configuration can be read but cannot be changed through chat yet; tell the user to open Settings → Configuration in the desktop app and select the project, or edit the project's .codex/config.toml file. Read settings first. Config changes require user confirmation, respect managed restrictions, and apply to new threads. After a successful write, briefly confirm the updated values and scope.
+```
 
 Parameters, exact (the JSON Schema literal, evaluated):
 

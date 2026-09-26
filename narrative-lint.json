@@ -28,6 +28,7 @@
     "outputs/chatgpt-finance-health-prompts.md",
     "outputs/chatgpt-sites-artifacts-prompts.md",
     "outputs/chatgpt-bundled-plugins.md",
-    "outputs/computer-use-prompts.md"
+    "outputs/computer-use-prompts.md",
+    "outputs/desktop-tool-manifest.md"
   ]
 }
