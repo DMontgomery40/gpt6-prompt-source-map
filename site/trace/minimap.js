@@ -248,7 +248,8 @@ export function renderOverview(host, trace, L, opts) {
     const taken = [];
     for (const gap of L.gaps) {
       if (gap.b - gap.a < (long ? 6 : 2) * 3600e3) continue;
-      const x = (px(gap.x0) + px(gap.x1)) / 2, text = `≈ ${fmtDur(gap.b - gap.a)} idle`, half = text.length * 3.4;
+      const text = `≈ ${fmtDur(gap.b - gap.a)} idle`, half = text.length * 3.4;
+      const x = Math.min(W - right - half, Math.max(left + half, (px(gap.x0) + px(gap.x1)) / 2));
       if (taken.some(([a, b]) => x + half > a && x - half < b)) continue;
       taken.push([x - half - 8, x + half + 8]);
       g.append(S("text", { x, y: H - 8, "text-anchor": "middle", class: "ax gapl" }, text));
@@ -309,20 +310,6 @@ export function renderAgentColumns(host, agent, opts) {
   const colW = Math.max(3, Math.min(14, (W - left - right) / Math.max(1, n)));
   const visible = Math.floor((W - left - right) / colW);
   const start = Math.max(0, Math.min(n - visible, (reqIdx ?? 0) - Math.floor(visible / 2)));
-  // The adapter's returns: where each report landed in the parent, drawn from the burst it followed.
-  for (const a of trace.agents) {
-    if (a.kind !== "subagent" || !Array.isArray(a.returns)) continue;
-    const parent = byId.get(a.parentId);
-    const segments = info.get(a.id)?.segments || [];
-    if (!parent || !parent.requests.length || !segments.length) continue;
-    for (const r of a.returns) {
-      let seg = segments[0];
-      for (const sg of segments) if (a.requests[sg.i0].t <= r.t + 1000) seg = sg;
-      const pr = r.parentRequest != null ? Math.min(r.parentRequest, parent.requests.length - 1) : reqAt(parent, r.t, true);
-      links.push({ type: "return", parent, child: a, seg, parentReq: pr, size: parent.blocks[r.block] ? blockTokens(parent.blocks[r.block]) : null });
-    }
-  }
-
   let yMax = 1;
   for (const r of agent.requests) yMax = Math.max(yMax, r.tokens.context);
   yMax *= 1.05;

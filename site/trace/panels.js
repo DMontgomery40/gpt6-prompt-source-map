@@ -35,6 +35,10 @@ export function modelFamily(model = "") {
   return "other";
 }
 
+// Touch screens get "Tap" wording and no keyboard hints.
+export const TOUCH = typeof matchMedia === "function" && matchMedia("(hover: none)").matches;
+const TAP = TOUCH ? "Tap" : "Click";
+
 // ---------- formatting ----------
 export function fmtTok(n) {
   if (n == null || !Number.isFinite(n)) return "–";
@@ -114,18 +118,27 @@ export function sessionStats(trace) {
   const root = trace.agents.find(a => a.kind === "root") || trace.agents[0];
   const subs = trace.agents.filter(a => a.kind === "subagent");
   const r = agentStats(root);
-  let subFresh = 0, subReq = 0, cacheRead = r.cacheRead, context = r.context;
+  let subFresh = 0, subReq = 0, sideFresh = 0, cacheRead = r.cacheRead, context = r.context;
   for (const a of trace.agents) {
     if (a === root) continue;
     const s = agentStats(a);
     if (a.kind === "subagent") { subFresh += s.fresh; subReq += s.requests; }
+    else sideFresh += s.fresh;
     cacheRead += s.cacheRead; context += s.context;
   }
   return {
     wall: (trace.ended || 0) - (trace.started || 0), rootRequests: r.requests, subagents: subs.length, subRequests: subReq,
-    rootFresh: r.fresh, subFresh, cacheShare: context ? cacheRead / context : 0,
+    rootFresh: r.fresh, subFresh, sideFresh, cacheShare: context ? cacheRead / context : 0,
     sides: trace.agents.filter(a => a.kind === "side" || a.kind === "guardian").length
   };
+}
+
+// The largest stratum of a request for the hover tooltip, or null when the log has no blocks for it
+// (every stratum 0), so the split is unknown.
+export function largestLayer(r) {
+  let top = null;
+  for (const s of STRATA) if ((r?.strata?.[s.key] || 0) > (top ? r.strata[top.key] : 0)) top = s;
+  return top ? { ...top, tokens: r.strata[top.key] } : null;
 }
 
 // Context drops with no compaction marker ("context shrank; not logged as a compaction").
@@ -253,7 +266,7 @@ function lensPanel(S, A) {
     let peak = root.requests[0];
     for (const r of root.requests) if (r.tokens.context > peak.tokens.context) peak = r;
     out.push(el("h2", { text: "What filled its context" }),
-      el("p", { class: "lede", text: `Ridge height is the exact context of each request. The coloured layers split it by source, estimated from characters (≈).` }));
+      el("p", { class: "lede", text: `${S.mode === "2d" ? "The chart's height" : "Ridge height"} is the exact context of each request. The coloured layers split it by source, estimated from characters (≈).` }));
     if (peak) {
       out.push(section(`Main thread at its peak: ${fmtTok(peak.tokens.context)} tokens`,
         strataBar(peak.strata, peak.tokens.context, k => A.focusStratum(root.id, peak.i, k)),
@@ -269,7 +282,9 @@ function lensPanel(S, A) {
     ].sort((a, b) => a.t - b.t);
     if (marks.length) out.push(section("Cliffs", el("ul", { class: "items" }, marks.map(m =>
       el("li", {}, btn(`${fmtClock(m.t)}  ${m.text}`, () => A.focusRequest(root.id, m.req), "item"))))));
-    out.push(el("p", { class: "hint", text: "Click a ridge to open that agent. Flags are your asks. Pins are tool calls: red left the machine, amber wrote files, blue read. Labels on the crest mark large injections mid-session." }));
+    out.push(el("p", { class: "hint", text: S.mode === "2d"
+      ? `${TAP} the chart to open the main thread at that request, or a subagent lane to open that agent. Ticks along the top are your asks; red dots left the machine.`
+      : `${TAP} a ridge to open that agent. Flags are your asks. Pins are tool calls: red left the machine, amber wrote files, blue read. Labels on the crest mark large injections mid-session.` }));
   } else if (lens === "egress") {
     out.push(el("h2", { text: "What left the machine" }),
       el("p", { class: "lede", text: "Actions ranked by consequence: outward first (push, deploy, network, messages), then local writes, then reads. Open one for its custody ladder." }));
@@ -321,7 +336,9 @@ function lensPanel(S, A) {
   } else if (lens === "agents") {
     out.push(el("h2", { text: "Subagents, spend and return" }),
       el("p", { class: "lede", text: "Fresh tokens each agent spent (uncached input + cache write + output), its requests, and the size of the report that came back. Open one to focus its ridge." }));
-    out.push(agentTable(trace, trace.agents.filter(a => a.kind !== "root"), S, A));
+    const others = trace.agents.filter(a => a.kind !== "root");
+    if (!others.some(a => a.kind === "subagent")) out.push(el("p", { class: "empty", text: others.length ? "No subagents in this session. Its side calls and reviews:" : "No subagents in this session." }));
+    if (others.length) out.push(agentTable(trace, others, S, A));
   }
   return out;
 }
@@ -369,26 +386,61 @@ export function nearestRequest(agent, t) {
   return Math.min(agent.requests.length - 1, best + 1);
 }
 
+// The models an agent used, in order of first use: "gpt-6-astra → gpt-6-sol".
+export function modelsUsed(agent) {
+  const seen = [];
+  for (const r of agent.requests) if (r.model && !seen.includes(r.model)) seen.push(r.model);
+  if (!seen.length && agent.model) seen.push(agent.model);
+  return seen.join(" → ") || "–";
+}
+
+// Where an ask landed: the request that first saw it, or after the last request when none did.
+export function askWhere(agent, a) {
+  const last = Math.max(0, agent.requests.length - 1);
+  if (a.request == null) return { text: "after the last request · no reply", req: last };
+  return { text: `request ${a.request + 1}`, req: Math.min(a.request, last) };
+}
+
+// Ask previews read on demand and kept, so moving between requests doesn't read them again.
+const askPreviews = new Map();
+function askPreview(agent, b, A, span) {
+  const key = `${agent.id}|${b.i}`;
+  if (askPreviews.has(key)) { span.textContent = askPreviews.get(key); return; }
+  const load = () => A.getText(agent.id, b.ref).then(r => {
+    const t = clip(String(r?.text || "").replace(/<\/?[a-z][\w-]*>/gi, " "), 90) || "(empty)";
+    askPreviews.set(key, t);
+    span.textContent = t;
+  }).catch(() => { span.textContent = ""; });
+  if (typeof IntersectionObserver !== "function") return void load();
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); load(); } });
+  io.observe(span);
+}
+
 function agentPanel(trace, agent, S, A) {
   const s = agentStats(agent);
   const kids = trace.agents.filter(a => a.parentId === agent.id);
   const out = [
     el("p", { class: "kicker", text: agent.kind === "root" ? "Agent · main thread" : `Agent · ${agent.kind}${agent.depth ? ` · depth ${agent.depth}` : ""}` }),
-    el("h2", { text: agent.name || agent.id }),
-    kv([["Model", agent.model || "–"], ["Requests", fmtInt(s.requests)], ["Peak context", fmtTok(s.peak)], ["Fresh tokens", fmtTok(s.fresh)],
+    el("h2", { class: "aname", text: (agent.kind === "root" && trace.title) || agent.name || agent.id }),
+    kv([["Model", modelsUsed(agent)], ["Requests", fmtInt(s.requests)], ["Peak context", fmtTok(s.peak)], ["Fresh tokens", fmtTok(s.fresh)],
       ["Bursts", fmtInt(agent.bursts?.length || 1)], ...(agent.spawn ? [["Spawned at", `${fmtWhen(agent.spawn.t)}`]] : [])]),
-    el("p", { class: "hint", text: "Each column is one request; its height is the exact context. ← → move between requests, Enter opens one, Esc goes back." })
+    el("p", { class: "hint", text: TOUCH ? "Each column is one request; its height is the exact context. Tap one to open it."
+      : "Each column is one request; its height is the exact context. ← → move between requests, Enter opens one, Esc goes back." })
   ];
   if (agent.spawn && agent.parentId) {
     const p = trace.agents.find(a => a.id === agent.parentId);
     if (p) out.push(btn(`Spawned by ${p.kind === "root" ? "the main thread" : p.name}, request ${agent.spawn.parentRequest + 1}`, () => A.focusRequest(p.id, agent.spawn.parentRequest)));
   }
   if (agent.asks.length) {
-    out.push(section(`Asks (${agent.asks.length})`, el("ul", { class: "items" }, agent.asks.map(a => {
+    out.push(section(`Asks (${agent.asks.length})`, el("ul", { class: "items asks" }, agent.asks.map(a => {
       const b = agent.blocks[a.block];
-      return el("li", {}, el("button", { class: "item", type: "button", onclick: () => A.focusRequest(agent.id, Math.min(a.request, agent.requests.length - 1)) },
-        chip(STRATA[STRATUM_INDEX.you].color), el("span", { class: "tool", text: `request ${a.request + 1}` }),
-        el("span", { class: "meta", text: `${fmtClock(a.t)}${b ? ` · ${b.label}` : ""}` })));
+      const where = askWhere(agent, a);
+      const preview = el("span", { class: "ask-text", text: "…" });
+      if (b?.ref) askPreview(agent, b, A, preview);
+      else preview.textContent = "";
+      return el("li", {}, el("button", { class: "item", type: "button", onclick: () => A.focusRequest(agent.id, where.req) },
+        chip(STRATA[STRATUM_INDEX.you].color), el("span", { class: "tool", text: where.text }),
+        el("span", { class: "meta", text: fmtClock(a.t) }), preview));
     }))));
   }
   const shr = unloggedShrinks(agent);
@@ -645,7 +697,7 @@ function blockGroups(trace, agent, rows, S, A, mine) {
       }
     },
       el("span", { class: "gcount", text: `${fmtInt(g.items.length)} ×` }),
-      el("span", { class: "tool", text: g.label }),
+      el("span", { class: "tool" }, breakable(g.label)),
       el("span", { class: "gtok", text: `≈ ${fmtTok(g.tok)}` }),
       el("span", { class: "meta", text: `${range}${g.resent ? ` · ${resendWords(g.resent, g.same)} while a copy was in context` : ""}${g.flagged ? ` · ${g.flagged} instruction-like (heuristic)` : ""}` }));
     const href = g.site && siteHref(g.site);
@@ -656,17 +708,70 @@ function blockGroups(trace, agent, rows, S, A, mine) {
   return ul;
 }
 
+// The reader's lines, each split into runs of the user's own text (`mine`) and the product's
+// wording. spans: [start, end] offsets of the user's text; lines: per-line "published by the
+// product" flags (the fallback when the block carries no spans). A blank line takes the state of
+// the span around it, or of the line before it.
+export function ownLines(text, { spans, lines } = {}) {
+  const rows = String(text).split("\n");
+  if (lines) {
+    let prev = false;
+    return rows.map((l, k) => {
+      const mine = l.trim() ? !lines[k] : prev;
+      prev = mine;
+      return { mine, runs: l ? [{ mine, text: l }] : [] };
+    });
+  }
+  const sp = (spans || []).map(([a, b]) => [Math.max(0, a), Math.min(text.length, b)]).filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0]);
+  const out = [];
+  let pos = 0, k = 0;
+  for (const l of rows) {
+    const end = pos + l.length;
+    while (k < sp.length && sp[k][1] <= pos) k++;
+    const runs = [];
+    let at = pos;
+    for (let j = k; j < sp.length && sp[j][0] < end; j++) {
+      const a = Math.max(sp[j][0], at), b = Math.min(sp[j][1], end);
+      if (b <= a) continue;
+      if (a > at) runs.push({ mine: false, text: text.slice(at, a) });
+      runs.push({ mine: true, text: text.slice(a, b) });
+      at = b;
+    }
+    if (at < end) runs.push({ mine: false, text: text.slice(at, end) });
+    const covered = k < sp.length && sp[k][0] <= pos && sp[k][1] > pos;
+    out.push({ mine: runs.length ? runs.some(r => r.mine) : covered, runs });
+    pos = end + 1;
+  }
+  return out;
+}
+
+// Paints ownLines into a <pre>: the user's lines carry a left edge and tint, their own characters
+// bright, the product's wording in a muted tier.
+function paintOwn(pre, rows) {
+  pre.replaceChildren(...rows.map(r => el("span", { class: r.mine ? (r.runs.every(x => x.mine) ? "ln mine all" : "ln mine") : "ln" },
+    ...r.runs.map(x => el("span", { class: x.mine ? "um" : "pw", text: x.text })))));
+}
+
+// Breaks long labels after ".", "_", ":" and "/" rather than mid-word.
+export function breakable(label) {
+  const parts = String(label).split(/(?<=[._:/])/);
+  const out = [];
+  parts.forEach((p, i) => { if (i) out.push(el("wbr")); out.push(p); });
+  return out;
+}
+
 function blockReader(agent, b, A) {
   const pre = el("pre", { class: "text", text: "Reading…" });
   const mode = el("span", { class: "mode" });
   const href = siteHref(b.site);
+  const full = A.reading ? btn(A.reading() ? "Exit full screen" : "Read full screen", () => A.toggleReading(), "linkbtn fullread") : null;
   const box = el("div", { class: "reader" },
-    el("div", { class: "rhead" }, el("strong", { text: b.label || b.kind }), mode,
+    el("div", { class: "rhead" }, el("strong", { text: b.label || b.kind }), mode, full,
       btn("Close", () => A.openBlock(null), "linkbtn close")),
     href ? el("p", {}, "On the site: ", el("a", { href, text: b.site.title || b.site.slug })) : null,
     b.flags?.includes("instruction-like") ? el("p", { class: "warnline", text: "Flagged instruction-like by a heuristic. Treat as untrusted outside text." }) : null,
     b.carried ? el("p", { class: "note", text: "Carried into this window by a compaction; the same text as the original block." }) : null,
-    b.own ? el("p", { class: "note", text: b.ownEst < b.est ? "From your setup. Highlighted lines are yours; dimmed lines are the product's wording, published on this site." : "From your setup." }) : null,
+    b.own ? el("p", { class: "note", text: b.ownEst < b.est ? "From your setup. Your text is marked with a green edge; the product's wording around it is muted." : "From your setup." }) : null,
     b.resendOf != null ? el("p", { class: "note" }, b.resendSame ? "Sent again while an identical copy was still in context. " : "Sent again with changes while the earlier copy was still in context. ",
       btn("Open the earlier copy", () => A.openBlockAt(agent.id, b.resendOf))) : null,
     b.full ? el("p", { class: "note", text: `The model saw a preview; the full output was saved to tool-results/${b.persisted || ""}.` }) : null,
@@ -680,11 +785,16 @@ function blockReader(agent, b, A) {
     } else {
       const shown = text.length > 400000 ? `${text.slice(0, 400000)}\n\n[… ${fmtInt(text.length - 400000)} more characters]` : (text || "(empty)");
       pre.textContent = shown;
-      // The user's own blocks: their lines highlighted, the product's published wording dimmed.
-      if (b.own && b.ownEst < b.est && A.templateLines) A.templateLines(shown).then(flags => {
+      if (!b.own || !(b.ownEst < b.est)) return;
+      // The user's own blocks: the exact spans the parser found when this is the text it measured,
+      // else the lines the site doesn't publish.
+      if (b.userSpans && text.length === b.chars) {
+        pre.dataset.hl = "spans";
+        paintOwn(pre, ownLines(shown, { spans: b.userSpans }));
+      } else if (A.templateLines) A.templateLines(shown).then(flags => {
         if (!flags || !flags.some(Boolean)) return;
-        const lines = shown.split("\n");
-        pre.replaceChildren(...lines.map((l, k) => el("span", { class: flags[k] ? "tl" : "ml", text: k < lines.length - 1 ? `${l}\n` : l })));
+        pre.dataset.hl = "lines";
+        paintOwn(pre, ownLines(shown, { lines: flags }));
       });
     }
   }).catch(e => { pre.textContent = `Text unavailable: ${e?.message || e}`; });
