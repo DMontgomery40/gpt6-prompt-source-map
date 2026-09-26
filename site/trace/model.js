@@ -156,6 +156,65 @@ export function imageDims(b64) {
   return null;
 }
 
+// ---------------------------------------------------------------- reference index
+//
+// Each site publishes /trace/reference-index.json: { site, origin, pages: [{ slug, title }],
+// lines: { <lineHash>: pageIndex }, harness: { <cc version>: { systemChars, toolsChars } },
+// reminders: { <attachment type>: { slug, anchor, title } } }. The site build imports
+// lineHash/textLineHashes from here so both sides hash identically.
+
+const utf8 = new TextEncoder();
+
+// FNV-1a 64-bit over bytes, in two 32-bit halves (no BigInt): 16 lowercase hex chars.
+export function fnv1a64(bytes) {
+  let hi = 0xcbf29ce4, lo = 0x84222325;
+  for (let i = 0; i < bytes.length; i++) {
+    lo = (lo ^ bytes[i]) >>> 0;
+    // (hi·2^32 + lo) · (2^40 + 0x1b3) mod 2^64
+    const a = lo * 0x1b3;
+    hi = (Math.imul(hi, 0x1b3) + Math.floor(a / 4294967296) + ((lo << 8) >>> 0)) >>> 0;
+    lo = a >>> 0;
+  }
+  return hi.toString(16).padStart(8, "0") + lo.toString(16).padStart(8, "0");
+}
+
+export const MIN_INDEXED_LINE = 25;
+export const normalizeLine = (line) => String(line).replace(/\s+/g, " ").trim();
+export const lineHash = (line) => fnv1a64(utf8.encode(normalizeLine(line)));
+
+// Hashes of the lines of a text (split on \n) that are indexed: normalized length >= 25.
+export function textLineHashes(text) {
+  const out = [];
+  for (const raw of String(text).split("\n")) {
+    const l = normalizeLine(raw);
+    if (l.length >= MIN_INDEXED_LINE) out.push(fnv1a64(utf8.encode(l)));
+  }
+  return out;
+}
+
+export function prepareIndex(index) {
+  if (!index || typeof index !== "object") return null;
+  return { site: index.site || null, origin: index.origin || null, pages: index.pages || [], lines: index.lines || {}, harness: index.harness || {}, reminders: index.reminders || {} };
+}
+
+// The page holding most of the text's indexed lines: at least 2 matching lines, or
+// all of them when the text has fewer than 2 indexed lines. Otherwise null.
+export function siteForText(ix, text) {
+  if (!ix || !text) return null;
+  const hashes = textLineHashes(text);
+  if (!hashes.length) return null;
+  const counts = new Map();
+  for (const h of hashes) {
+    const p = Object.prototype.hasOwnProperty.call(ix.lines, h) ? ix.lines[h] : null;
+    if (p != null) counts.set(p, (counts.get(p) || 0) + 1);
+  }
+  let best = null, n = 0;
+  for (const [p, c] of counts) if (c > n) { best = p; n = c; }
+  if (best == null || n < Math.min(2, hashes.length) || !ix.pages[best]) return null;
+  const page = ix.pages[best];
+  return { slug: page.slug, title: page.title, matched: n, lines: hashes.length };
+}
+
 // ---------------------------------------------------------------- tokens
 
 const n0 = (x) => (Number.isFinite(x) ? x : 0);
@@ -178,18 +237,24 @@ export function tokensClaude(u) {
 
 // ---------------------------------------------------------------- agents
 
-export function newAgent(fields) {
-  return {
+export function newAgent(fields, ix = null) {
+  const agent = {
     id: null, parentId: null, kind: "root", name: null, model: null, depth: 0, spawn: null, bursts: [],
     requests: [], asks: [], compactions: [], shrinks: [], returns: [], blocks: [], harnessSource: "logged",
     file: null, ...fields,
   };
+  Object.defineProperty(agent, "_ix", { value: ix, enumerable: false, writable: true });
+  return agent;
 }
 
 // Appends a block. `text` is used only to measure and flag it and is not kept.
-export function addBlock(agent, { t, kind, label, ref, text = "", est, image, render, carried, flagText }) {
+// Harness and injected blocks are looked up in the site's reference index, if one
+// was given (agent._ix); `site` passes a known link through (carried copies).
+export function addBlock(agent, { t, kind, label, ref, text = "", est, image, render, carried, flagText, site }) {
   const chars = image ? 0 : text.length;
   const b = { i: agent.blocks.length, t, kind, label, chars, est: est != null ? est : image ? estImage(image) : estText(chars), ref, site: null };
+  if (site !== undefined) b.site = site;
+  else if (agent._ix && !image && text && (kind === "harness" || kind === "injected")) b.site = siteForText(agent._ix, text);
   if (image) b.image = image;
   if (render) b.render = render;
   if (carried) b.carried = true;
@@ -252,7 +317,10 @@ export function computeStrata(agent) {
     const est = {};
     for (const k of KINDS) est[k] = b >= a ? P[k][b + 1] - P[k][a] : 0;
     for (const j of r.extra || []) est[agent.blocks[j].kind] += agent.blocks[j].est;
-    r.strata = scaleStrata(est, r.tokens.context, agent.harnessSource === "inferred");
+    // harnessSource: "logged" (blocks in the log), "inferred" (reference index size
+    // for the logged version), "residual" (default: harness = context − other strata).
+    if (agent.harnessSource === "inferred" && agent.harnessEst) est.harness += agent.harnessEst;
+    r.strata = scaleStrata(est, r.tokens.context, agent.harnessSource === "residual");
   }
 }
 

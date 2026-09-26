@@ -38,8 +38,8 @@ const firstLine = (s) => (s.match(/^\s*(?:<([\w-]+)|#+\s*(.+)|(.{0,60}))/) || []
 
 // Parses one rollout file. Returns a thread record: { meta, agent, ... } with the
 // raw links needed to join threads afterwards.
-export async function parseCodexThread(source, fileIndex, { onProgress } = {}) {
-  const agent = newAgent({ file: fileIndex });
+export async function parseCodexThread(source, fileIndex, { onProgress, index = null } = {}) {
+  const agent = newAgent({ file: fileIndex }, index);
   const th = {
     meta: null, agent, callIndex: new Map(), spawns: [], agentMessages: [], reviews: [], escalations: [],
     perms: [], contextWindow: null, title: null, badLines: 0, bytesRead: 0, firstT: null, lastT: null,
@@ -195,7 +195,7 @@ export async function parseCodexThread(source, fileIndex, { onProgress } = {}) {
       windowStart = agent.blocks.length;
       requestsInWindow = 0;
       outStart = null;
-      if (harnessBase) addBlock(agent, { t, kind: "harness", label: harnessBase.label, ref: harnessBase.ref, est: harnessBase.est, text: "", carried: true }).chars = harnessBase.chars;
+      if (harnessBase) addBlock(agent, { t, kind: "harness", label: harnessBase.label, ref: harnessBase.ref, est: harnessBase.est, text: "", carried: true, site: harnessBase.site }).chars = harnessBase.chars;
       let summary = null;
       (p.replacement_history || []).forEach((it, j) => {
         const pb = ["payload", "replacement_history", j];

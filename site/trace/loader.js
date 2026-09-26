@@ -4,7 +4,7 @@
 //
 // entries: [{ path, source }] where path is the dropped relative path (or an
 // absolute path in Node) and source is { name, size, slice(a, b) }.
-import { readFirstLine } from "./model.js";
+import { readFirstLine, prepareIndex } from "./model.js";
 import { isCodexFirstLine, parseCodexThread, buildCodexTrace } from "./adapters/codex.js";
 import { isClaudeRow, parseClaudeFile, buildClaudeTrace } from "./adapters/claude-code.js";
 
@@ -71,7 +71,8 @@ async function readJson(source) {
 
 // Loads one session into a Trace. options: { root, onProgress({ phase, done, total, file }) }.
 // Returns { trace, sources } where sources[i] backs trace.files[i] (for text reads).
-export async function loadTrace(entries, { root = null, onProgress = () => {} } = {}) {
+export async function loadTrace(entries, { root = null, onProgress = () => {}, index = null } = {}) {
+  const ix = prepareIndex(index);
   onProgress({ phase: "scan", done: 0, total: entries.length });
   const sessions = await findSessions(entries);
   if (!sessions.length) throw new Error("No Codex rollout or Claude Code transcript found in the dropped files.");
@@ -88,7 +89,7 @@ export async function loadTrace(entries, { root = null, onProgress = () => {} } 
     const onFile = (pos, size) => onProgress({ phase: "parse", done: done + pos, total, file: e.path, fileDone: pos >= size });
     let p;
     if (pick.product === "codex") {
-      p = await parseCodexThread(e.source, fileIndex, { onProgress: onFile });
+      p = await parseCodexThread(e.source, fileIndex, { onProgress: onFile, index: ix });
       if (!p.meta) continue;
     } else {
       const sub = /\/subagents\/agent-([^/]+)\.jsonl$/.exec(e.path);
@@ -97,7 +98,7 @@ export async function loadTrace(entries, { root = null, onProgress = () => {} } 
         const me = (pick.metas || []).find((m) => m.path.endsWith(`agent-${sub[1]}.meta.json`));
         if (me) try { meta = await readJson(me.source); } catch { meta = null; }
       }
-      p = await parseClaudeFile(e.source, fileIndex, { meta: meta || (sub ? {} : null), agentId: sub ? sub[1] : null, onProgress: onFile });
+      p = await parseClaudeFile(e.source, fileIndex, { meta: meta || (sub ? {} : null), agentId: sub ? sub[1] : null, onProgress: onFile, index: ix });
     }
     files[fileIndex].size = p.bytesRead || e.source.size;
     parsed.push(p);
@@ -113,6 +114,7 @@ export async function loadTrace(entries, { root = null, onProgress = () => {} } 
     const i = persisted.get(b.persisted);
     b.full = { file: i, offset: 0, length: files[i].size };
   }
+  trace.reference = ix ? { site: ix.site, origin: ix.origin, pages: ix.pages.length } : null;
   trace.candidates = sessions.map((s) => ({ product: s.product, id: s.id, name: s.name, files: s.entries.length, bytes: s.bytes }));
   onProgress({ phase: "done", done: total, total });
   return { trace, sources };

@@ -34,9 +34,9 @@ function textKind(s, isSub) {
   return { kind: "you", label: "user", ask: true, human: true };
 }
 
-export async function parseClaudeFile(source, fileIndex, { meta = null, agentId = null, onProgress } = {}) {
+export async function parseClaudeFile(source, fileIndex, { meta = null, agentId = null, onProgress, index = null } = {}) {
   const isSub = !!meta || !!agentId;
-  const agent = newAgent({ file: fileIndex, kind: isSub ? "subagent" : "root" });
+  const agent = newAgent({ file: fileIndex, kind: isSub ? "subagent" : "root" }, index);
   const st = {
     agent, meta, agentId, sessionId: null, version: null, title: null, spawnCalls: [], agentBlocks: [],
     side: [], badLines: 0, firstT: null, lastT: null, attachmentTypes: {}, bytesRead: 0,
@@ -82,7 +82,7 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
 
   function flushPending() {
     if (needHarness && harness.length) {
-      harness = harness.map((h) => { const b = addBlock(agent, { t: lastT, kind: "harness", label: h.label, ref: h.ref, est: h.est, render: h.render, carried: true }); b.chars = h.chars; return b; });
+      harness = harness.map((h) => { const b = addBlock(agent, { t: lastT, kind: "harness", label: h.label, ref: h.ref, est: h.est, render: h.render, carried: true, site: h.site }); b.chars = h.chars; return b; });
       needHarness = false;
     }
   }
@@ -160,7 +160,8 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
           const pres = (cm.preservedMessages && (cm.preservedMessages.allUuids || cm.preservedMessages.uuids)) || [];
           for (const u of pres) for (const bi of uuidBlocks.get(u) || []) {
             const src = agent.blocks[bi];
-            const b = addBlock(agent, { t, kind: src.kind, label: src.label, ref: src.ref, est: src.est, image: src.image, render: src.render, carried: true });
+            const b = addBlock(agent, { t, kind: src.kind, label: src.label, ref: src.ref, est: src.est, image: src.image, render: src.render, carried: true, site: src.site });
+            if (src.rebuilt) b.rebuilt = true;
             b.chars = src.chars;
             if (src.flags) { b.flags = src.flags; b.flagHits = src.flagHits; }
           }
@@ -193,7 +194,8 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
         if (Array.isArray(r.rendered) && r.rendered.length) {
           const text = partText(r.rendered);
           const kind = ATT_KIND[type] || "injected";
-          const b = addBlock(agent, { t, kind, label: type, ref: { ...lineRef, path: ["rendered"] }, text, render: "literal" });
+          const rm = agent._ix && agent._ix.reminders[type];
+          const b = addBlock(agent, { t, kind, label: type, ref: { ...lineRef, path: ["rendered"] }, text, render: "literal", ...(rm ? { site: { ...rm } } : {}) });
           track(r.uuid, b);
           tally.literal++;
           if (type === "queued_command" && (a.humanTurn || (a.origin && a.origin.kind === "human")) && !isSub) agent.asks.push({ t, request: null, block: b.i, from: "human" });
@@ -201,7 +203,9 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
         }
         if (NOT_IN_CONTEXT.has(type) || type === "queued_command") { tally.skipped++; continue; }
         // Unknown attachment with no rendered text: show its data, labelled structured.
-        const b = addBlock(agent, { t, kind: "injected", label: type, ref: { ...lineRef, path: ["attachment"] }, text: JSON.stringify(a), render: "structured" });
+        const rm = agent._ix && agent._ix.reminders[type];
+        const b = addBlock(agent, { t, kind: "injected", label: type, ref: { ...lineRef, path: ["attachment"] }, text: JSON.stringify(a), render: "structured", site: rm ? { ...rm } : null });
+        if (rm) b.rebuilt = true;
         track(r.uuid, b);
         tally.structured++;
         continue;
@@ -302,7 +306,12 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
     }
   }
   flushPending();
-  agent.harnessSource = sawSnapshot ? "logged" : "inferred";
+  // Harness not in the log: the reference index's size for this version (chars/4,
+  // "inferred"), else the default: harness = context − other strata ("residual").
+  const hx = !sawSnapshot && agent._ix && st.version && agent._ix.harness[st.version];
+  if (sawSnapshot) agent.harnessSource = "logged";
+  else if (hx) { agent.harnessSource = "inferred"; agent.harnessEst = Math.ceil(((hx.systemChars || 0) + (hx.toolsChars || 0)) / 4); }
+  else agent.harnessSource = "residual";
   return st;
 }
 

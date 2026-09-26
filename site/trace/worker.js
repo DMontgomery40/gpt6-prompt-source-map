@@ -2,6 +2,14 @@
 // block text on demand. Load with: new Worker("worker.js", { type: "module" }).
 //
 // API
+//   postMessage({ type: "index", index })   optional, before load: the site's parsed
+//     /trace/reference-index.json (the page fetches it; the worker never fetches).
+//     -> { type: "index", ok, pages }
+//     With an index, harness/injected blocks get block.site = { slug, title, matched, lines }
+//     (the page holding most of the block's indexed lines; >= 2 lines, or all if fewer),
+//     Claude Code attachments mapped in index.reminders get block.site = { slug, anchor, title }
+//     (+ block.rebuilt = true when the row is structured, not literal), and a Claude Code
+//     agent with no logged harness uses index.harness[version] (harnessSource "inferred").
 //   postMessage({ type: "load", files: [File | { file: File, path: string }], root?: string })
 //     -> { type: "progress", phase: "scan"|"parse"|"build"|"done", done, total, file?, fileDone? }
 //        (done/total in bytes; parse events at most every 80 ms, plus one at the end of each file)
@@ -22,6 +30,7 @@ import { loadTrace } from "./loader.js";
 import { readRef } from "./model.js";
 
 let sources = [];
+let index = null;
 
 const fileSource = (file) => ({
   name: file.name,
@@ -31,7 +40,10 @@ const fileSource = (file) => ({
 
 self.onmessage = async (e) => {
   const m = e.data || {};
-  if (m.type === "load") {
+  if (m.type === "index") {
+    index = m.index || null;
+    self.postMessage({ type: "index", ok: !!index, pages: index && index.pages ? index.pages.length : 0 });
+  } else if (m.type === "load") {
     try {
       const entries = (m.files || []).map((f) => {
         const file = f instanceof Blob ? f : f.file;
@@ -41,6 +53,7 @@ self.onmessage = async (e) => {
       let last = 0;
       const { trace, sources: s } = await loadTrace(entries, {
         root: m.root || null,
+        index,
         onProgress: (p) => {
           const now = Date.now();
           if (p.phase !== "parse" || p.fileDone || now - last > 80) { last = now; self.postMessage({ type: "progress", ...p }); }

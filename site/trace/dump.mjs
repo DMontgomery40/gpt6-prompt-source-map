@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Runs the Trace adapters on disk files and writes the model JSON (no block text).
-//   node site/trace/dump.mjs <file|dir>... [--root <id>] [--out model.json] [--roundtrip]
+//   node site/trace/dump.mjs <file|dir>... [--root <id>] [--index reference-index.json] [--out model.json] [--roundtrip]
 // Directories are walked recursively. --roundtrip re-reads every BlockRef and
 // checks the bytes decode to one parseable line.
-import { open, readdir, stat, writeFile } from "node:fs/promises";
+import { open, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { loadTrace } from "./loader.js";
 import { readRef, readRefLine } from "./model.js";
@@ -44,19 +44,20 @@ export async function entriesFor(paths) {
 
 async function main() {
   const args = process.argv.slice(2);
-  const opt = { root: null, out: null, roundtrip: false };
+  const opt = { root: null, out: null, roundtrip: false, index: null };
   const paths = [];
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--root") opt.root = args[++i];
     else if (args[i] === "--out") opt.out = args[++i];
     else if (args[i] === "--roundtrip") opt.roundtrip = true;
+    else if (args[i] === "--index") opt.index = JSON.parse(await readFile(args[++i], "utf8"));
     else paths.push(args[i]);
   }
   if (!paths.length) { console.error("usage: dump.mjs <file|dir>... [--root id] [--out file] [--roundtrip]"); process.exit(2); }
   const t0 = performance.now();
   const entries = await entriesFor(paths);
   const t1 = performance.now();
-  const { trace, sources } = await loadTrace(entries, { root: opt.root });
+  const { trace, sources } = await loadTrace(entries, { root: opt.root, index: opt.index });
   const t2 = performance.now();
   const reqs = trace.agents.reduce((n, a) => n + a.requests.length, 0);
   const blocks = trace.agents.reduce((n, a) => n + a.blocks.length, 0);
