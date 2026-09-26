@@ -127,12 +127,15 @@ function workerText(agentId, ref) {
 }
 // The site's reference index (same-origin static file) lets the worker link harness and injected
 // blocks to the pages that publish them. It is optional: without it blocks simply have no link.
-let indexSent = null;
-function sendIndex() {
-  indexSent ||= fetch(new URL("./reference-index.json", import.meta.url))
+let indexLoad = null, indexSent = null;
+function loadIndex() {
+  indexLoad ||= fetch(new URL("./reference-index.json", import.meta.url))
     .then(r => (r.ok ? r.json() : null))
-    .then(index => { if (index) getWorker().postMessage({ type: "index", index }); })
     .catch(() => null);
+  return indexLoad;
+}
+function sendIndex() {
+  indexSent ||= loadIndex().then(index => { if (index) getWorker().postMessage({ type: "index", index }); });
   return indexSent;
 }
 async function parseInWorker(files, root) {
@@ -292,6 +295,7 @@ function normalize(trace) {
 }
 
 async function start(trace) {
+  S.tools = (await loadIndex())?.tools || null; // tool name -> site page, for the custody ladder's "Guided by"
   S.trace = normalize(trace);
   S.layout = buildLayout(S.trace);
   window.__trace = { S, set };

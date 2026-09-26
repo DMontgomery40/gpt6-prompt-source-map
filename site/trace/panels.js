@@ -149,6 +149,15 @@ export function unloggedShrinks(agent) {
   return out;
 }
 
+// The site page for a tool, from the reference index's `tools` map: the exact name first, then the
+// name after the last `__` or `.` for namespaced tools (mcp__codex_app__create_worktree -> create_worktree).
+export function toolSite(tools, name) {
+  if (!tools || !name) return null;
+  if (Object.hasOwn(tools, name)) return tools[name];
+  const short = String(name).split(/__|\./).pop();
+  return short && short !== name && Object.hasOwn(tools, short) ? tools[short] : null;
+}
+
 export function siteHref(site) {
   if (!site || typeof site.slug !== "string" || !/^[a-z0-9-]+$/.test(site.slug)) return null;
   const anchor = typeof site.anchor === "string" && /^[A-Za-z0-9_-]+$/.test(site.anchor) ? `#${site.anchor}` : "";
@@ -471,8 +480,9 @@ function custodySection(trace, agent, req, S, A) {
       }))
     : el("p", { class: "note", text: "No permission rows or reviews logged before this request." }));
   const g = c.guidedBy;
-  const href = g && siteHref(g.site);
-  rung("Guided by", el("p", {}, `Tool: ${g?.tool || "–"}. `, href ? el("a", { href, text: g.site.title || "Tool description" }) : el("span", { class: "note", text: "The tool's description page isn't in this site's reference index." })));
+  const href = g && (siteHref(g.site) || siteHref(toolSite(S.tools, g.tool)));
+  const gsite = g && (g.site || toolSite(S.tools, g.tool));
+  rung("Guided by", el("p", {}, `Tool: ${g?.tool || "–"}. `, href ? el("a", { href, text: gsite.title || "Tool description" }) : el("span", { class: "note", text: "The tool's description page isn't in this site's reference index." })));
   const iv = c.inView;
   rung("In view", el("p", {}, `${fmtInt(iv.count)} outside and agent blocks, ≈ ${fmtTok(iv.tokens)} tokens${iv.flaggedCount ? `; ${fmtInt(iv.flaggedCount)} flagged instruction-like (heuristic)` : ""}.`),
     iv.flagged.length ? el("ul", { class: "items" }, iv.flagged.slice(0, 6).map(b => el("li", {},
