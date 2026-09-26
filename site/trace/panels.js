@@ -1,6 +1,6 @@
 // Shared vocabulary (strata, statuses, formatting) and the HTML side panels for every level.
 // All trace strings are untrusted: they reach the DOM through textContent only, never innerHTML.
-import { stratumRows, blockPart, windowBlocks as modelWindowBlocks } from "./model.js";
+import { stratumRows, blockPart, windowBlocks as modelWindowBlocks, egressGroups } from "./model.js";
 
 export const STRATA = [
   { key: "harness", name: "Harness", long: "The harness: system prompt, tools, base instructions", color: "#8b97a8" },
@@ -15,6 +15,7 @@ export const STRATUM_INDEX = Object.fromEntries(STRATA.map((s, i) => [s.key, i])
 export const STATUS = {
   outward: { color: "#ff6b6b", label: "Left the machine" },
   write: { color: "#ffd479", label: "Wrote locally" },
+  blocked: { color: "#c9a0a0", label: "Attempted, blocked" },
   read: { color: "#8fd0ff", label: "Read" },
   flag: { color: "#ff8c42", label: "Instruction-like text" }
 };
@@ -272,24 +273,26 @@ function lensPanel(S, A) {
     out.push(el("p", { class: "hint", text: "Click a ridge to open that agent. Flags are your asks. Pins are tool calls: red left the machine, amber wrote files, blue read. Labels on the crest mark large injections mid-session." }));
   } else if (lens === "egress") {
     out.push(el("h2", { text: "What left the machine" }),
-      el("p", { class: "lede", text: "Actions ranked by consequence: outward first (push, deploy, network, messages), then local writes, then reads. Open one for its custody ladder." }));
-    const acts = [];
-    for (const a of trace.agents) for (const r of a.requests) if (r.action && ["outward", "write", "read"].includes(r.action.class)) acts.push({ a, r });
-    const rank = { outward: 0, write: 1, read: 2 };
-    acts.sort((x, y) => rank[x.r.action.class] - rank[y.r.action.class] || x.r.t - y.r.t);
-    for (const cls of ["outward", "write", "read"]) {
-      const list = acts.filter(x => x.r.action.class === cls);
+      el("p", { class: "lede", text: "Every tool call, ranked by consequence: what left the machine (deploys, pushes, messages, data sent, then network), attempts the sandbox blocked, local writes, then reads. Open one for its custody ladder." }));
+    const groups = egressGroups(trace);
+    const row = ({ a, r, x, kind }) => el("li", {},
+      el("button", { class: "item act", type: "button", onclick: () => A.focusRequest(a.id, r.i) },
+        chip(STATUS[x.class].color), kind ? el("span", { class: "tool", text: kind }) : null,
+        el("span", { class: kind ? null : "tool", text: x.tool || "text" }),
+        el("code", { text: x.target || "" }),
+        el("span", { class: "meta", text: [a.kind === "root" ? "main" : a.name, fmtClock(r.t), x.via ? `via ${x.via}` : null, x.blocked ? `network off: ${x.blocked}` : null].filter(Boolean).join(" · ") })));
+    for (const cls of ["outward", "blocked", "write", "read"]) {
+      const list = groups[cls];
       if (!list.length) continue;
-      const shown = cls === "outward" ? list : list.slice(0, 40);
-      out.push(section(`${STATUS[cls].label} (${fmtInt(list.length)})`,
-        el("ul", { class: "items" }, shown.map(({ a, r }) => el("li", {},
-          el("button", { class: "item act", type: "button", onclick: () => A.focusRequest(a.id, r.i) },
-            chip(STATUS[cls].color), el("span", { class: "tool", text: r.action.tool || "text" }),
-            el("code", { text: r.action.target || "" }),
-            el("span", { class: "meta", text: `${a.kind === "root" ? "main" : a.name} · ${fmtClock(r.t)}` }))))),
-        list.length > shown.length ? el("p", { class: "note", text: `Showing the first ${shown.length}.` }) : null));
+      const shown = cls === "outward" ? list.length : 40;
+      const ul = el("ul", { class: "items" }, list.slice(0, shown).map(row));
+      const more = list.length > shown ? btn(`Show all ${fmtInt(list.length)}`, () => { ul.replaceChildren(...list.map(row)); more.remove(); }) : null;
+      const kinds = {};
+      for (const x of list) if (x.kind) kinds[x.kind] = (kinds[x.kind] || 0) + 1;
+      const tally = Object.entries(kinds).map(([k, n]) => `${fmtInt(n)} ${k}`).join(" · ");
+      out.push(section(`${STATUS[cls].label} (${fmtInt(list.length)})`, tally && cls === "outward" ? el("p", { class: "meta", text: tally }) : null, ul, more));
     }
-    if (!acts.length) out.push(el("p", { text: "No classified actions in this session." }));
+    if (!Object.values(groups).some((l) => l.length)) out.push(el("p", { text: "No classified actions in this session." }));
   } else if (lens === "inflow") {
     out.push(el("h2", { text: "Where outside text came in" }),
       el("p", { class: "lede", text: "The largest single inflows of outside text, and outside blocks that contain instruction-like text. The flag is a heuristic, not a verdict." }));

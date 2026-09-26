@@ -2,7 +2,7 @@
 // spawned subagents, guardian reviews) -> the normalized Trace model.
 import {
   readLines, newAgent, addBlock, tokensCodex, imageDims, estEncrypted, estText,
-  classifyCodexCall, RANK, finalizeAgent, partText,
+  classifyCodexCall, RANK, finalizeAgent, partText, codexWrites, recordScripts, blockedNetwork,
 } from "../model.js";
 
 const ts = (s) => Date.parse(s);
@@ -69,6 +69,7 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
   let outStart = null;
   let pendingCalls = [];
   const calls = new Map(); // callId -> call record
+  const scripts = new Map(); // path -> text of scripts this thread wrote, for calls that run them
   let openCall = null;
   let model = null;
   let harnessBase = null;
@@ -181,9 +182,16 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
 
   function finishCall(call) {
     if (call.classified) return;
-    const c = classifyCodexCall(call.name, call.input, call.completed);
+    const c = classifyCodexCall(call.name, call.input, call.completed, scripts);
     call.classified = true;
-    Object.assign(call.action, { class: c.class, target: c.target });
+    let perm = null;
+    for (const x of th.perms) if (x.t <= call.t) perm = x;
+    const blocked = blockedNetwork(c, call.output, perm);
+    call.output = null;
+    Object.assign(call.action, { class: blocked ? "blocked" : c.class, target: c.target });
+    if (c.egress) call.action.egress = c.egress;
+    if (c.via) call.action.via = c.via;
+    if (blocked) call.action.blocked = blocked;
     const patchFiles = typeof call.input === "string" ? [...call.input.matchAll(/\*\*\* (?:Add|Update|Delete) File: ([^\n\\"'`]+)/g)].map((m) => m[1].trim()) : [];
     if (c.justification || patchFiles.length) th.escalations.push({ justification: c.justification || null, cmds: c.cmds || [], patchFiles, request: call.request, callId: call.callId, t: call.t });
     const req = agent.requests[call.request];
@@ -325,6 +333,7 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
       const b = addBlock(agent, { t, kind: "model", label: `${p.namespace ? p.namespace + "." : ""}${p.name} call`, ref: { ...lineRef, path: ["payload", p.type === "custom_tool_call" ? "input" : "arguments"] }, text: typeof input === "string" ? input : partText(input), carried: inherited });
       const action = { kind: "tool", tool: p.namespace ? `${p.namespace}.${p.name}` : p.name, target: null, class: "read", args: b.ref, result: null, callId: p.call_id };
       const call = { callId: p.call_id, name: p.name, namespace: p.namespace || null, input, completed: [], action, request: null, t, classified: false };
+      recordScripts(scripts, codexWrites(p.name, input));
       if (!inherited) { calls.set(p.call_id, call); pendingCalls.push(call); openCall = call; }
       continue;
     }
@@ -334,6 +343,8 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
       if (inherited) made.forEach((b) => (b.carried = true));
       if (call) {
         call.action.result = made[0] ? made[0].ref : null;
+        const o = typeof p.output === "string" ? p.output : partText(p.output);
+        call.output = o.length > 20000 ? o.slice(0, 10000) + "\n" + o.slice(-10000) : o;
         finishCall(call);
         if (openCall === call) openCall = null;
       }
