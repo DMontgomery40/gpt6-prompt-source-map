@@ -12,7 +12,7 @@ import { BASE_H, landscapeRule, tread, treadAt, crestEvents, placeLabel, modelSw
 const H = BASE_H;         // world height of the tallest context
 const ROOT_DEPTH = 7, SUB_DEPTH = 3.4, VALLEY = 9, LANE = 4.2, SIDE_Z = 5.5, STAGE_Z = 15;
 const MASSIF = Number(new URLSearchParams(location.search).get("massif") ?? 2); // main ridge: slope depth per unit of height
-const VIEW = (() => { const q = new URLSearchParams(location.search); return { az: Number(q.get("az") ?? -42), el: Number(q.get("el") ?? 30), fov: Number(q.get("fov") ?? 34), paz: Number(q.get("paz") ?? -50), pel: Number(q.get("pel") ?? 32), caz: Number(q.get("caz") ?? -16), cel: Number(q.get("cel") ?? 22), cpaz: Number(q.get("cpaz") ?? -24), cpel: Number(q.get("cpel") ?? 18) }; })();
+const VIEW = (() => { const q = new URLSearchParams(location.search); return { az: Number(q.get("az") ?? -42), el: Number(q.get("el") ?? 30), fov: Number(q.get("fov") ?? 34), paz: Number(q.get("paz") ?? -50), pel: Number(q.get("pel") ?? 32), caz: Number(q.get("caz") ?? -16), cel: Number(q.get("cel") ?? 22), cpaz: Number(q.get("cpaz") ?? -30), cpel: Number(q.get("cpel") ?? 30) }; })();
 const SP = 0.62, CORE_R = 0.24, H1 = 12, LIFT_R = 1.25, LIFT_H = 13;
 const RINGS = 9;
 const FOG = new THREE.Color("#0d121a");
@@ -524,7 +524,7 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
     edge.count = pen.count = items.length;
     edge.frustumCulled = pen.frustumCulled = false;
     const poles = makePins(items.length, false);
-    poles.userData.set(items.map(f => ({ x: f.x, y: f.y, z: f.z, len: f.h, color: youHex, w: 4.4 })));
+    poles.userData.set(items.map(f => ({ x: f.x, y: f.y, z: f.z, len: f.h, color: youHex, w: 5.4 })));
     const g = new THREE.Group(); g.add(edge, pen, poles);
     return g;
   }
