@@ -836,7 +836,7 @@ function flatInsets() {
   const top = Math.max(bottomOf(".hud"), bottomOf("#crumbs"), mobile ? bottomOf("#lenses") : 0) + 12;
   if (!mobile) {
     $(".viewtools").style.bottom = "";
-    return { top, right: innerWidth - $("#panel").getBoundingClientRect().left + 12, bottom: 16, left: 24 };
+    return { top, right: innerWidth - $("#panel").getBoundingClientRect().left + 12, bottom: 56, left: 24 };
   }
   const panelTop = $("#panel").getBoundingClientRect().top;
   $(".viewtools").style.bottom = `${Math.round(innerHeight - panelTop + 8)}px`;
