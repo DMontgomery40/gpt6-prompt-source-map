@@ -1,7 +1,7 @@
 // The shared session layout (compressed time axis, subagent lanes, spawn/return links) and the
 // 2D SVG overview drawn from it. The overview is the corner minimap, and the main view when
 // motion is reduced or WebGL is unavailable.
-import { STRATA, STATUS, MODEL_COLORS, modelFamily, freshTokens, fmtTok, fmtClock, fmtDur, blockTokens, unloggedShrinks, el } from "./panels.js";
+import { STRATA, STATUS, MODEL_COLORS, modelFamily, freshTokens, fmtTok, fmtClock, fmtDur, fmtTick, spansDays, blockTokens, unloggedShrinks, el } from "./panels.js";
 
 const GAP_MS = 20 * 60e3;   // idle stretches longer than this are compressed
 const BURST_MS = 10 * 60e3; // a subagent pause longer than this starts a new burst
@@ -13,6 +13,9 @@ export function buildLayout(trace) {
     for (const r of a.requests) times.push(r.t);
     for (const b of a.bursts || []) times.push(b.a, b.b);
   }
+  // The session's own start and end anchor the axis, so a long idle head or tail (a thread
+  // reopened days later with no requests) shows as a compressed, labelled gap.
+  for (const t of [trace.started, trace.ended]) if (Number.isFinite(t)) times.push(t);
   times.sort((x, y) => x - y);
   const t0 = times[0], t1 = times.at(-1);
   const gaps = [];
@@ -184,8 +187,13 @@ export function renderOverview(host, trace, L, opts) {
   for (const gap of L.gaps) {
     const x0 = px(gap.x0), x1 = px(gap.x1);
     g.append(S("rect", { x: x0, y: top - (full ? 16 : 6), width: Math.max(2, x1 - x0), height: H - top, fill: "#0b0e13" }));
-    if (full) g.append(S("text", { x: (x0 + x1) / 2, y: top - 20, "text-anchor": "middle", class: "gap" }, "≈"));
-    g.lastChild && g.lastChild.append?.(S("title", {}, `${fmtDur(gap.b - gap.a)} idle, compressed`));
+    const tip = `≈ ${fmtDur(gap.b - gap.a)} idle, compressed`;
+    g.lastChild.append(S("title", {}, tip));
+    if (full) {
+      const mark = S("text", { x: (x0 + x1) / 2, y: top - 20, "text-anchor": "middle", class: "gap" }, "≈");
+      mark.append(S("title", {}, tip));
+      g.append(mark);
+    }
   }
   // compactions and unlogged shrinks
   for (const c of root.compactions) {
@@ -233,12 +241,23 @@ export function renderOverview(host, trace, L, opts) {
     g.append(S("text", { x: left - 8, y: askY1 - 2, "text-anchor": "end", class: "lab" }, "your asks"));
     g.append(S("text", { x: left - 8, y: railY + 4, "text-anchor": "end", class: "lab" }, "left the machine"));
     if (L.lanes) g.append(S("text", { x: left - 8, y: lane0 + 9, "text-anchor": "end", class: "lab" }, "subagents"));
+    const long = spansDays(trace);
+    // Long idle stretches get their duration on the axis row; hour ticks keep clear of them.
+    const taken = [];
+    for (const gap of L.gaps) {
+      if (gap.b - gap.a < (long ? 6 : 2) * 3600e3) continue;
+      const x = (px(gap.x0) + px(gap.x1)) / 2, text = `≈ ${fmtDur(gap.b - gap.a)} idle`, half = text.length * 3.4;
+      if (taken.some(([a, b]) => x + half > a && x - half < b)) continue;
+      taken.push([x - half - 8, x + half + 8]);
+      g.append(S("text", { x, y: H - 8, "text-anchor": "middle", class: "ax gapl" }, text));
+    }
     let lastX = -1e9;
     for (const t of L.hours) {
       const x = px(L.X(t));
-      if (x - lastX < 56) continue;
+      const half = long ? 42 : 18;
+      if (x - lastX < (long ? 104 : 56) || x < left + half || x > W - right - half || taken.some(([a, b]) => x + half > a && x - half < b)) continue;
       lastX = x;
-      g.append(S("text", { x, y: H - 8, "text-anchor": "middle", class: "ax" }, fmtClock(t).replace(":00", "")));
+      g.append(S("text", { x, y: H - 8, "text-anchor": "middle", class: "ax" }, fmtTick(t, long)));
     }
   }
   // focus marker

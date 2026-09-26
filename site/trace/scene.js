@@ -5,7 +5,7 @@
 import * as THREE from "./vendor/three.module.min.js";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { CSS2DRenderer, CSS2DObject } from "./vendor/CSS2DRenderer.js";
-import { STRATA, STRATUM_INDEX, STATUS, fmtTok, fmtClock, fmtDur, freshTokens, unloggedShrinks, agentStats } from "./panels.js";
+import { STRATA, STRATUM_INDEX, STATUS, fmtTok, fmtClock, fmtDur, fmtTick, spansDays, freshTokens, unloggedShrinks, agentStats } from "./panels.js";
 
 const W = 220;            // world width of the whole session
 const H = 32;             // world height of the tallest context
@@ -476,7 +476,7 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
 
   // spawn and return links: flat luminous ribbons arcing over the valley
   function ribbons(list, widthOf, colorOf) {
-    const pos = [], col = [], idx = [];
+    const pos = [], col = [], idx = [], ag = [];
     const c = new THREE.Color();
     const p0 = new THREE.Vector3(), p1 = new THREE.Vector3(), pc = new THREE.Vector3(), q = new THREE.Vector3(), q2 = new THREE.Vector3();
     for (const l of list) {
@@ -496,17 +496,32 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
         const ox = -q2.z / len * w / 2, oz = q2.x / len * w / 2;
         pos.push(q.x + ox, q.y, q.z + oz, q.x - ox, q.y, q.z - oz);
         col.push(c.r, c.g, c.b, c.r, c.g, c.b);
+        const ai = agentIndex.get(l.child.id);
+        ag.push(ai, ai);
         if (k < N) { const a = v0 + k * 2; idx.push(a, a + 2, a + 3, a, a + 3, a + 1); }
       }
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    g.setAttribute("aAgent", new THREE.Float32BufferAttribute(ag, 1));
     g.setIndex(idx);
-    const mesh = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.8, depthWrite: false }));
+    const mesh = new THREE.Mesh(g, new THREE.ShaderMaterial({
+      uniforms: { uOpacity: { value: 0.3 }, uHover: linkHover },
+      vertexShader: `attribute vec3 color; attribute float aAgent; uniform float uHover; varying vec3 vC; varying float vOn;
+        void main(){ vC = color; vOn = abs(aAgent - uHover) < 0.5 ? 1.0 : 0.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `uniform float uOpacity; varying vec3 vC; varying float vOn;
+        void main(){
+          gl_FragColor = vec4(vC * (1.0 + 0.3 * vOn), mix(uOpacity, 1.0, vOn));
+          #include <colorspace_fragment>
+        }`,
+      side: THREE.DoubleSide, transparent: true, depthWrite: false
+    }));
+    mesh.material.opacity = 0.3;
     mesh.frustumCulled = false;
     return mesh;
   }
+  const linkHover = { value: -1 };
   const maxReport = Math.max(1, ...L.links.map(l => l.size || 0));
   const spawnLinks = ribbons(L.links.filter(l => l.type === "spawn"), () => 0.1, () => "#aab8cc");
   const returnLinks = ribbons(L.links.filter(l => l.type === "return"), l => 0.1 + 0.5 * Math.sqrt((l.size || 0) / maxReport), () => STRATA[STRATUM_INDEX.agents].color);
@@ -600,20 +615,32 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
   function buildL0Labels() {
     const g = labelGroups.l0;
     for (const m of markLines) label(m.text, m.dashed ? "cliff" : "cliff soft", new THREE.Vector3(m.x, m.y1 + 1.8, 0.1), [0, 1], g);
-    for (const gap of L.gaps) label(`≈ ${fmtDur(gap.b - gap.a)} idle`, "gap", new THREE.Vector3((gap.x0 + gap.x1) / 2 * W, 0, SIDE_Z + 3.2), [0.5, 0], g);
+    for (const gap of L.gaps) {
+      const xm = (gap.x0 + gap.x1) / 2;
+      // Gaps at either end of the axis (an idle head or tail) align inward so they stay on screen.
+      label(`≈ ${fmtDur(gap.b - gap.a)} idle`, "gap", new THREE.Vector3(xm * W, 0, SIDE_Z + 3.2), [xm > 0.9 ? 1 : xm < 0.1 ? 0 : 0.5, 0], g);
+    }
     for (const v of rulerTicks(L.yMax)) label(fmtTok(v), "tick", new THREE.Vector3(-4, v * yScale, 0), [1, 0.5], g);
     label("context tokens", "tick cap", new THREE.Vector3(-3, H + 1.2, 0), [0.5, 1], g);
     if (trace.contextWindow && trace.contextWindow <= L.yMax * 1.2) label(`context window ${fmtTok(trace.contextWindow)}`, "tick", new THREE.Vector3(W + 2.5, trace.contextWindow * yScale, 0), [0, 0.5], g);
+    const long = spansDays(trace);
     let last = -1e9;
     for (const t of L.hours) {
       const x = L.X(t) * W;
-      if (x - last < W / 11 || L.gaps.some(g => Math.abs((g.x0 + g.x1) / 2 * W - x) < W / 28)) continue;
+      if (x - last < W / (long ? 8 : 11) || L.gaps.some(g => Math.abs((g.x0 + g.x1) / 2 * W - x) < W / 28)) continue;
       last = x;
-      label(fmtClock(t).replace(":00", ""), "tick time", new THREE.Vector3(x, 0, SIDE_Z + 7.5), [0.5, 0], g);
+      label(fmtTick(t, long), "tick time", new THREE.Vector3(x, 0, SIDE_Z + 7.5), [0.5, 0], g);
     }
     const r0 = rootInfo.segments[0];
     if (r0) label(L.root.kind === "root" ? "main thread" : L.root.name, "row", new THREE.Vector3(rootInfo.xs[r0.i0] * W, crest(L.root, r0.i0) + 4, -1), [0.5, 1], g);
-    if (L.lanes) label("subagents", "row", new THREE.Vector3(-4, 0, laneZ(L.lanes - 1)), [1, 0.5], g);
+    const nSub = agents.filter(a => a.kind === "subagent").length;
+    // One quiet label behind the subagent field. A shallow field sits right behind the main ridge,
+    // so its label is raised above the ridge's crest to stay clear of the ridge face.
+    if (L.lanes) {
+      let rise = 0;
+      if (L.lanes < 4) rootInfo.xs.forEach((x, i) => { if (x > 0.35 && x < 0.65) rise = Math.max(rise, crest(L.root, i) * 1.05 + 1.5); });
+      label(`subagents (${nSub})`, "row quiet", new THREE.Vector3(W * 0.5, rise, laneZ(L.lanes - 1) - SUB_DEPTH - 2), [0.5, 1], g);
+    }
   }
   buildL0Labels();
 
@@ -778,8 +805,9 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
     beamMat.uniforms.uGain.value = next === "egress" ? 1.2 : 0.95;
     flags.visible = next === "context" || next === "egress";
     warnMesh.visible = next === "inflow";
-    spawnLinks.material.opacity = next === "agents" ? 0.9 : 0.32;
-    returnLinks.material.opacity = next === "agents" ? 1 : 0.45;
+    // Arcs stay faint until their agent is hovered, except in the subagents lens.
+    spawnLinks.material.uniforms.uOpacity.value = next === "agents" ? 0.85 : 0.1;
+    returnLinks.material.uniforms.uOpacity.value = next === "agents" ? 0.95 : 0.14;
     dirty = 3;
   }
   let focusAgentId = null;
@@ -1030,7 +1058,7 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
     else onPick({ level: 1, agentId: hit.agentId, reqIdx: hit.reqIdx });
   });
   cv.addEventListener("pointermove", e => { hoverQueued = { x: e.clientX, y: e.clientY }; });
-  cv.addEventListener("pointerleave", () => { hoverQueued = null; onHover(null); coreMat.uniforms.uHover.value = -1; dirty = 2; });
+  cv.addEventListener("pointerleave", () => { hoverQueued = null; onHover(null); coreMat.uniforms.uHover.value = -1; linkHover.value = -1; dirty = 2; });
 
   // ---- loop ----
   let dirty = 3, raf = 0, bench = null;
@@ -1052,6 +1080,8 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
       const h = hoverQueued; hoverQueued = null;
       const hit = pickAt(h.x, h.y);
       coreMat.uniforms.uHover.value = hit && hit.kind === "core" ? hit.reqIdx : -1;
+      const hovAgent = hit && hit.kind === "ridge" ? agentIndex.get(hit.agentId) : -1;
+      linkHover.value = hovAgent != null && agents[hovAgent]?.kind === "subagent" ? hovAgent : -1;
       onHover(hit ? { ...hit, x: h.x, y: h.y } : null);
       dirty = Math.max(dirty, 1);
     }

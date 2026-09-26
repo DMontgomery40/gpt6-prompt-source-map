@@ -202,6 +202,7 @@ button { font: inherit; color: inherit; }
 .lbl.tick { color: var(--ink-2); font-size: 11.5px; padding: 1px 5px; }
 .lbl.tick.cap { color: var(--ink-3); }
 .lbl.row { font-size: 12.5px; font-weight: 650; color: var(--ink); }
+.lbl.row.quiet { font-weight: 500; color: var(--ink-2); }
 .lbl.cursor { font-size: 13px; font-weight: 650; border: 1px solid #5b8cc4; }
 .lbl.corehead { font-size: 14px; font-weight: 700; background: rgba(10, 13, 19, 0.92); }
 .lbl.stratum {
@@ -272,6 +273,27 @@ button { font: inherit; color: inherit; }
 .ladder h4 { margin: 0 0 3px; font-size: 13.5px; color: var(--ink); }
 .ladder p { margin: 2px 0; }
 .quote { margin: 4px 0 0; padding: 6px 10px; border-left: 3px solid var(--you); background: #11170f; color: var(--ink); font-size: 14px; }
+/* L3: blocks grouped by label */
+.groups { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.group .grow { display: flex; align-items: flex-start; gap: 6px; }
+.ghead {
+  flex: 1; min-width: 0; text-align: left; background: none; border: 0; border-radius: 6px; padding: 6px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 1px 8px; align-items: baseline; cursor: pointer; font-size: 14px;
+}
+.ghead:hover { background: #172030; }
+.group.open > .grow .ghead { background: #152033; }
+.ghead .gcount { color: var(--ink-2); font-variant-numeric: tabular-nums; font-size: 13px; min-width: 3.2em; }
+.ghead .tool { font-weight: 600; overflow-wrap: anywhere; }
+.ghead .gtok { font-variant-numeric: tabular-nums; }
+.ghead .meta { grid-column: 2 / 4; }
+.ghead[aria-expanded]::before { content: none; }
+.group .badge {
+  flex: none; margin-top: 6px; font-size: 12px; padding: 2px 7px; border-radius: 999px; text-decoration: none;
+  border: 1px solid #3d6796; color: var(--link); background: #111c2b; white-space: nowrap;
+}
+.group .badge:hover { background: #172a42; }
+.group > .items { margin: 2px 0 6px 18px; border-left: 2px solid var(--line-2); padding-left: 6px; }
+.group > .items li.note { padding: 4px 6px; color: var(--ink-3); font-size: 12.5px; }
 .reader { margin: 12px 0; border: 1px solid var(--line-2); border-radius: 10px; background: #0b0e13; padding: 10px; }
 .rhead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
 .rhead .mode { color: var(--ink-3); font-size: 12.5px; }
@@ -295,6 +317,7 @@ svg.ov .ax { fill: var(--ink-3); font-size: 11.5px; }
 svg.ov .lab { fill: var(--ink-2); font-size: 12px; }
 svg.ov .bar { fill: #0b0f14; font-size: 11.5px; font-weight: 650; }
 svg.ov .gap { fill: var(--ink-3); font-size: 13px; }
+svg.ov .gapl { fill: var(--ink-2); }
 svg.ov .lane, svg.ov .hit { cursor: pointer; }
 svg.ov .hit:hover { fill: rgba(255, 255, 255, 0.12); }
 .flat h2 { margin: 0 0 10px; font-size: 16px; color: var(--ink-2); font-weight: 600; }

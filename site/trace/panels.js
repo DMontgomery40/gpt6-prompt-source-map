@@ -47,9 +47,16 @@ export function fmtDur(ms) {
   const m = Math.round(ms / 60000);
   if (m < 60) return `${m} min`;
   const h = Math.floor(m / 60), r = m % 60;
-  if (h < 48) return r ? `${h} h ${r} min` : `${h} h`;
-  return `${(h / 24).toFixed(1)} days`;
+  if (h < 24) return r ? `${h} h ${r} min` : `${h} h`;
+  const d = Math.floor(h / 24), hr = h % 24;
+  return hr ? `${d} d ${hr} h` : `${d} d`;
 }
+// Axis ticks: the hour alone, or the date and hour when the session spans more than a day.
+export function fmtTick(t, long) {
+  const hour = fmtClock(t).replace(":00", "");
+  return long ? `${new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · ${hour}` : hour;
+}
+export const spansDays = trace => (trace.ended || 0) - (trace.started || 0) > 24 * 3600e3;
 export function fmtClock(t) {
   const d = new Date(t);
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase();
@@ -515,13 +522,64 @@ function stratumPanel(trace, agent, req, S, A) {
     if (hs) out.push(el("a", { href: hs, text: `Read it on the site: ${trace.harnessSite.title || "system prompt"}` }));
     return out;
   }
-  out.push(section(`${fmtInt(blocks.length)} blocks in context at this request`,
-    el("ul", { class: "items blocks" }, blocks.slice(-400).reverse().map(b => el("li", { class: S.block === b.i ? "on" : "" },
-      el("button", { class: "item", type: "button", onclick: () => A.openBlock(b.i) },
-        el("span", { class: "tool", text: b.label || b.kind }),
-        el("span", { class: "meta", text: `≈ ${fmtTok(blockTokens(b))} · ${fmtClock(b.t)}${b.flags?.includes("instruction-like") ? " · instruction-like (heuristic)" : ""}` }))))),
-    blocks.length > 400 ? el("p", { class: "note", text: `Showing the latest 400 of ${fmtInt(blocks.length)}.` }) : null));
+  out.push(section(`${fmtInt(blocks.length)} blocks in context at this request, grouped by label`, blockGroups(trace, agent, blocks, S, A)));
   return out;
+}
+
+// One row per label (count, total ≈ tokens, first–last time, site badge), largest first. A row expands
+// to its instances, most recent first; a single-instance row opens its block directly.
+const expandedGroups = new Set();
+function blockGroups(trace, agent, blocks, S, A) {
+  const long = spansDays(trace);
+  const when = t => (long ? fmtWhen(t) : fmtClock(t));
+  const groups = new Map();
+  for (const b of blocks) {
+    const key = b.label || b.kind;
+    let g = groups.get(key);
+    if (!g) groups.set(key, g = { label: key, items: [], tok: 0, t0: Infinity, t1: -Infinity, site: null, flagged: 0 });
+    g.items.push(b);
+    g.tok += blockTokens(b);
+    g.t0 = Math.min(g.t0, b.t); g.t1 = Math.max(g.t1, b.t);
+    if (!g.site && siteHref(b.site)) g.site = b.site;
+    if (b.flags?.includes("instruction-like")) g.flagged++;
+  }
+  const list = [...groups.values()].sort((x, y) => y.tok - x.tok);
+  const ul = el("ul", { class: "groups" });
+  for (const g of list) {
+    const key = `${agent.id}|${S.stratum}|${g.label}`;
+    const open = expandedGroups.has(key) || (S.block != null && g.items.some(b => b.i === S.block));
+    const inner = el("ul", { class: "items blocks", hidden: !open });
+    const fill = () => {
+      if (inner.childElementCount) return;
+      const items = g.items.slice().sort((x, y) => y.t - x.t || y.i - x.i);
+      inner.append(...items.slice(0, 300).map(b => el("li", { class: S.block === b.i ? "on" : "" },
+        el("button", { class: "item", type: "button", onclick: () => { expandedGroups.add(key); A.openBlock(b.i); } },
+          el("span", { class: "tool", text: when(b.t) }),
+          el("span", { class: "meta", text: `≈ ${fmtTok(blockTokens(b))}${b.carried ? " · carried" : ""}${b.flags?.includes("instruction-like") ? " · instruction-like (heuristic)" : ""}` })))));
+      if (items.length > 300) inner.append(el("li", { class: "note", text: `Showing the latest 300 of ${fmtInt(items.length)}.` }));
+    };
+    if (open) fill();
+    const range = g.items.length > 1 ? `${when(g.t0)} – ${when(g.t1)}` : when(g.t0);
+    const head = el("button", {
+      class: "ghead", type: "button", "aria-expanded": g.items.length > 1 ? String(open) : null,
+      onclick: () => {
+        if (g.items.length === 1) return A.openBlock(g.items[0].i);
+        const now = inner.hidden;
+        inner.hidden = !now;
+        head.setAttribute("aria-expanded", String(now));
+        if (now) { expandedGroups.add(key); fill(); } else expandedGroups.delete(key);
+      }
+    },
+      el("span", { class: "gcount", text: `${fmtInt(g.items.length)} ×` }),
+      el("span", { class: "tool", text: g.label }),
+      el("span", { class: "gtok", text: `≈ ${fmtTok(g.tok)}` }),
+      el("span", { class: "meta", text: `${range}${g.flagged ? ` · ${g.flagged} instruction-like (heuristic)` : ""}` }));
+    const href = g.site && siteHref(g.site);
+    ul.append(el("li", { class: `group${open ? " open" : ""}` },
+      el("div", { class: "grow" }, head, href ? el("a", { class: "badge", href, title: g.site.title || g.site.slug, text: "on the site" }) : null),
+      inner));
+  }
+  return ul;
 }
 
 function blockReader(agent, b, A) {

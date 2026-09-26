@@ -1,6 +1,6 @@
 // Trace viewer: loading, state, levels, keyboard, and wiring between the scene, minimap and panels.
 // Everything runs locally. The only network requests are this page's own static files.
-import { STRATA, STRATUM_INDEX, STATUS, LENSES, el, fmtTok, fmtInt, fmtDur, fmtClock, fmtWhen, sessionStats, renderPanel, blockTokens } from "./panels.js";
+import { STRATA, STRATUM_INDEX, STATUS, LENSES, el, fmtTok, fmtInt, fmtDur, fmtClock, fmtWhen, sessionStats, renderPanel, blockTokens, agentStats, clip, modelFamily } from "./panels.js";
 import { buildLayout, renderOverview, renderAgentColumns, legend } from "./minimap.js";
 
 const params = new URLSearchParams(location.search);
@@ -446,6 +446,7 @@ function onKey(e) {
 // ---------- render ----------
 function render(levelChanged) {
   $("#app").dataset.level = String(S.level);
+  if (levelChanged) $("#tip").hidden = true;
   document.querySelectorAll("#lenses button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lens === S.lens)));
   renderCrumbs();
   renderPanel($("#panel"), S, A);
@@ -509,7 +510,15 @@ function showTip(hit) {
   if (!r) { tip.hidden = true; return; }
   const who = a.kind === "root" ? "Main thread" : `${a.name}${a.kind === "side" ? " (side call)" : a.kind === "guardian" ? " (guardian review)" : ""}`;
   const kids = [el("b", { text: `${who} · request ${hit.reqIdx + 1}` }), el("div", { class: "m", text: `${fmtWhen(r.t)} · ${fmtTok(r.tokens.context)} tokens in context` })];
-  if (hit.kind === "stratum") {
+  if (a.kind === "subagent" && S.level === 0) {
+    // A subagent ridge: who it is and what it cost, rather than one request's detail.
+    const st = agentStats(a);
+    const task = a.description || a.path || null;
+    kids.splice(0, 2, el("b", { text: a.name || a.id }),
+      task ? el("div", { text: clip(task, 160) }) : null,
+      el("div", { class: "m", text: `${modelFamily(a.model) === "other" ? a.model || "" : modelFamily(a.model)} · ${fmtTok(st.fresh)} fresh tokens · ${fmtInt(st.requests)} requests · peak ${fmtTok(st.peak)}` }),
+      el("div", { class: "m", text: "Click to open its ridge" }));
+  } else if (hit.kind === "stratum") {
     const s = STRATA[STRATUM_INDEX[hit.stratum]];
     kids.push(el("div", { text: `${s.name}: ≈ ${fmtTok(r.strata?.[hit.stratum] || 0)} · click to list its blocks` }));
   } else {
@@ -518,7 +527,7 @@ function showTip(hit) {
     if (top) kids.push(el("div", { class: "m", text: `largest layer: ${top.name} ≈ ${fmtTok(r.strata?.[top.key] || 0)}` }));
     if (r.action && r.action.kind === "tool") kids.push(el("div", { text: `${r.action.tool}${r.action.target ? `: ${r.action.target.slice(0, 80)}` : ""}` }));
   }
-  tip.replaceChildren(...kids);
+  tip.replaceChildren(...kids.filter(Boolean));
   tip.hidden = false;
   const x = Math.min(innerWidth - 330, hit.x + 14), y = Math.min(innerHeight - 110, hit.y + 14);
   tip.style.left = `${x}px`; tip.style.top = `${y}px`;
