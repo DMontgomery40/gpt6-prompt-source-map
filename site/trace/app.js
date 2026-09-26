@@ -364,9 +364,9 @@ async function openPasted(info, btn, hint, fresh = false) {
     setProgress(0, "Finding the session's files…");
     try {
       const files = await filesFromHandle(handle, info);
-      if (!files.length) {
+      if (!holdsPaste(files, info.id)) {
         btn.disabled = false;
-        return missingPaste([]);
+        return missingPaste(files);
       }
       return loadFiles(files, info.id);
     } catch (e) {
