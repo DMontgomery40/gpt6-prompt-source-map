@@ -21,6 +21,13 @@
     "outputs/aeon-assembled-instructions.md",
     "outputs/codex-cli-prompts.md",
     "outputs/codex-cli-bundled-skills.md",
-    "outputs/desktop-model-facing-text.md"
+    "outputs/desktop-model-facing-text.md",
+    "outputs/chatgpt-conversation-prompts.md",
+    "outputs/chatgpt-gpt-builder-prompts.md",
+    "outputs/chatgpt-work-prompts.md",
+    "outputs/chatgpt-finance-health-prompts.md",
+    "outputs/chatgpt-sites-artifacts-prompts.md",
+    "outputs/chatgpt-bundled-plugins.md",
+    "outputs/computer-use-prompts.md"
   ]
 }

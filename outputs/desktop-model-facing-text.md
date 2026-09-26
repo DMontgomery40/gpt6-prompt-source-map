@@ -403,86 +403,6 @@ Source: `webview/assets/app-primary-620c47f764fe.js`, offset 567047, SHA-256 `c4
 Create a new spreadsheet template using {templateCreator}. First, explain how templates work and how to use them. Then ask me to upload a reference file and if needed interview me on how and when to use the template.
 ```
 
-### Help me track a cash account manually.…
-
-Source: `webview/assets/CompilerIntrinsics-546e59efbebe.js`, offset 709890, SHA-256 `7cb7157a5301cd54123329cb032e188baf09d56ad47975796c707863683faa65`.
-
-```text
-Help me track a cash account manually. Ask one short question at a time for its name, checking or savings type, current balance, and currency if unclear. An institution is optional. After I answer, save it as a financial memory for a separate account.
-```
-
-### Help me track an investment account manually.…
-
-Source: `webview/assets/CompilerIntrinsics-546e59efbebe.js`, offset 710655, SHA-256 `b42809a0fe8a3af18c79f3974c6dc63189ba47b28f6b4cbb36b34b6f979abf08`.
-
-```text
-Help me track an investment account manually. Ask one short question at a time for its name, type, total balance, and currency if unclear. After I answer, save it as a financial memory for a separate investment account, not a holding or generic asset.
-```
-
-### Help me track a debt manually. Ask…
-
-Source: `webview/assets/CompilerIntrinsics-546e59efbebe.js`, offset 714081, SHA-256 `12aa6a70f14eee9841ebc559cf01b7e597877abb2333c27313a0da06f01ff3a7`.
-
-```text
-Help me track a debt manually. Ask one short question at a time for its name, whether it is a credit card, positive amount owed, and currency if unclear. A creditor is optional. After I answer, save it as a financial memory.
-```
-
-### Help me track an insurance policy manually.…
-
-Source: `webview/assets/CompilerIntrinsics-546e59efbebe.js`, offset 714929, SHA-256 `fff9d6741b4b0d706f73c90a9e930686a707c0bcd7862876757191fe70051576`.
-
-```text
-Help me track an insurance policy manually. First ask if it has an actual cash or surrender value, not just a death benefit. Then ask one short question at a time for its name, value, and currency if unclear. Only after I answer, save it as a financial memory.
-```
-
-### Based on everything you know about me…
-
-Source: `webview/assets/fallback-cards-1dfc735488f6.js`, offset 8206, SHA-256 `99a1ec242ca96dc22fd75f70ba95c3f4cdbddc07efd98e83feab5d998c263b47`.
-
-```text
-Based on everything you know about me and what we’ve discussed in past conversations, choose the most useful subject for a personal website. If there isn’t enough context to choose honestly, ask me one focused question about what the site should be for. Then design, build, and host it for me. Make confident choices about the content, structure, and visual style you think I’ll like best, and start creating it now.
-```
-
-### Use my connected email app. If I…
-
-Source: `webview/assets/fallback-cards-1dfc735488f6.js`, offset 9929, SHA-256 `c6996d589e9368ca25ca3b6a5807521ce92f75c663ed419ea0b502632818fa78`.
-
-```text
-Use my connected email app. If I haven’t connected one, ask which email provider I use and help me connect it before continuing. Then review the emails I’ve sent over the last three months and learn how my writing changes for different people and situations. Create a reusable email-writing skill that captures those styles, patterns, and preferences. Set up a daily automation that reviews my unread emails and drafts a response to each one in the appropriate style. Never send an email without my explicit confirmation.
-```
-
-### Review our past conversations and choose the…
-
-Source: `webview/assets/fallback-cards-1dfc735488f6.js`, offset 13404, SHA-256 `3aee7ed7c77e6936ab095df4862457c3088b46716121eb3436edbe6e0f9a2f80`.
-
-```text
-Review our past conversations and choose the topic that would be most useful to turn into a polished slide presentation for me right now. If there isn’t enough context to choose honestly, ask me one focused question about the subject. Then pull together the relevant context, decide on a strong story and structure, write the content, and create the complete presentation with useful visuals. Make confident choices and start creating it now. When it’s ready, give me the finished file and a brief note explaining what you chose and why.
-```
-
-### Use $skill-creator to create a personal writing-style…
-
-Source: `webview/assets/home-ambient-suggestions-content-af5b5bc05192.js`, offset 5446, SHA-256 `5081b54dffd7ba85ef9e8d49c1bc45417e5af50973d76932fa7eb5625896d922`.
-
-```text
-Use $skill-creator to create a personal writing-style skill for each selected writing context. Begin with one short user-facing preamble before any tool call so I immediately know that you are checking my communication app setup and will help me connect the apps I choose. Then check whether any communication apps are connected. If none are accessible, call `request_user_input` with exactly one required question: header `Apps`, id `writing_style_sources`, and question `Which apps should I learn your writing style from?`. Offer exactly these three options in order: `{emailApp} + {messageApp} (Recommended)` with description `Learn separate styles for email and {messageApp} messages.`, `{emailApp} only` with description `Learn my email writing style.`, and `{messageApp} only` with description `Learn how I write messages in {messageApp}.`. Do not include an Other option because the input UI adds it automatically. Do not set `autoResolutionMs` because this choice is required. If no selection is returned, do not guess or continue. For each selected app that is not accessible, call `request_plugin_install` one app at a time using its matching `plugin_id` from the recommended plugin list and a concise reason. Do not ask me to connect an app manually before attempting this install flow. Do not search the filesystem, app caches, or credential files for connector state. After each installation and connection completes, recheck app access and continue automatically. If a matching plugin is unavailable, the request is declined, or connection fails, briefly explain the blocker and stop without creating that writing context's skill. Keep progress updates sparse and substantive. Before sampling, limit them to the next user-relevant milestone. Once sampling begins, use them to share one or two non-sensitive style traits identified so far and how the sample is becoming more representative. Do not narrate filesystem operations, helper scripts, dependency checks, or validation mechanics. Do not ask where to install the skills; use the default personal skills directory. Analyze a representative sample of communications authored by me in each connected app. Exclude received text, quoted replies, forwarded content, signatures, automated notifications, and boilerplate. Consider variation across recipients, situations, and time. Capture stable stylistic traits—tone, sentence structure, vocabulary, formatting, level of detail, and recurring patterns—without treating topics, names, or confidential facts as style. If there is not enough evidence, explain what is missing rather than inventing conclusions. Create separate skills for email and {messageApp} messages. Combine equivalent email connectors into one email skill, but do not combine email with {messageApp}. For each writing context, create a concise SKILL.md and a detailed `references/writing-style.md`. Configure the skill to trigger automatically for requests to draft, rewrite, or reply in that context, while avoiding overlap with the other writing-style skills. Do not reproduce or lightly rewrite source communications in generated files or responses. Remove names, sensitive details, and recognizable scenarios. Validate without adding dependencies: confirm the required files exist and that each SKILL.md has valid frontmatter with a hyphen-case name and a non-empty description. Run a bundled validator only if it works unmodified with already-available dependencies. Never install, vendor, or mock validation dependencies, and never claim validator success unless it actually ran. Fix structural or validation failures before reporting completion. In the final response, mention only skills that were successfully created and installed. Include one brief sentence explaining that a skill is a reusable set of instructions that can be automatically applied to matching tasks. Briefly explain that each writing-style skill activates automatically for ordinary requests to draft, rewrite, or reply in its context. Do not suggest that I must name the skill, invoke it explicitly, or say "write in my voice". For each writing context, preview `Overall voice`, `Common patterns`, and `Do and avoid`, followed by 2–3 entirely new example messages formatted as individual Markdown block quotes. End each section with a link to its full writing-style reference.
-```
-
-### Use $skill-creator to create a personal writing-style… (2)
-
-Source: `webview/assets/home-ambient-suggestions-content-af5b5bc05192.js`, offset 10558, SHA-256 `ae1ad24dbfdbc9d903f709eeb4da72e032dc1c2f60d052d741b2511c7a5d2728`.
-
-```text
-Use $skill-creator to create a personal writing-style skill for each selected writing context. No communication app is connected yet. Begin with one short user-facing preamble before any tool call so I immediately know that you will ask which communication apps to learn from and help me connect them. Then call `request_user_input` with exactly one required question: header `Apps`, id `writing_style_sources`, and question `Which apps should I learn your writing style from?`. Offer exactly these three options in order: `{emailApp} + {messageApp} (Recommended)` with description `Learn separate styles for email and {messageApp} messages.`, `{emailApp} only` with description `Learn my email writing style.`, and `{messageApp} only` with description `Learn how I write messages in {messageApp}.`. Do not include an Other option because the input UI adds it automatically. Do not set `autoResolutionMs` because this choice is required. If no selection is returned, do not guess or continue. For each selected app that is not accessible, call `request_plugin_install` one app at a time using its matching `plugin_id` from the recommended plugin list and a concise reason. Do not ask me to connect an app manually before attempting this install flow. Do not search the filesystem, app caches, or credential files for connector state. After each installation and connection completes, recheck app access and continue automatically. If a matching plugin is unavailable, the request is declined, or connection fails, briefly explain the blocker and stop without creating that writing context's skill. Keep progress updates sparse and substantive. Before sampling, limit them to the next user-relevant milestone. Once sampling begins, use them to share one or two non-sensitive style traits identified so far and how the sample is becoming more representative. Do not narrate filesystem operations, helper scripts, dependency checks, or validation mechanics. Do not ask where to install the skills; use the default personal skills directory. Analyze a representative sample of communications authored by me in each connected app. Exclude received text, quoted replies, forwarded content, signatures, automated notifications, and boilerplate. Consider variation across recipients, situations, and time. Capture stable stylistic traits—tone, sentence structure, vocabulary, formatting, level of detail, and recurring patterns—without treating topics, names, or confidential facts as style. If there is not enough evidence, explain what is missing rather than inventing conclusions. Create separate skills for email and {messageApp} messages. Combine equivalent email connectors into one email skill, but do not combine email with {messageApp}. For each writing context, create a concise SKILL.md and a detailed `references/writing-style.md`. Configure the skill to trigger automatically for requests to draft, rewrite, or reply in that context, while avoiding overlap with the other writing-style skills. Do not reproduce or lightly rewrite source communications in generated files or responses. Remove names, sensitive details, and recognizable scenarios. Validate without adding dependencies: confirm the required files exist and that each SKILL.md has valid frontmatter with a hyphen-case name and a non-empty description. Run a bundled validator only if it works unmodified with already-available dependencies. Never install, vendor, or mock validation dependencies, and never claim validator success unless it actually ran. Fix structural or validation failures before reporting completion. In the final response, mention only skills that were successfully created and installed. Include one brief sentence explaining that a skill is a reusable set of instructions that can be automatically applied to matching tasks. Briefly explain that each writing-style skill activates automatically for ordinary requests to draft, rewrite, or reply in its context. Do not suggest that I must name the skill, invoke it explicitly, or say "write in my voice". For each writing context, preview `Overall voice`, `Common patterns`, and `Do and avoid`, followed by 2–3 entirely new example messages formatted as individual Markdown block quotes. End each section with a link to its full writing-style reference.
-```
-
-### Use $skill-creator to create a personal writing-style… (3)
-
-Source: `webview/assets/home-ambient-suggestions-content-af5b5bc05192.js`, offset 15484, SHA-256 `1804cf5c6acbe3474003d4a081af3ef7d16239c79467decb6e1e41990ee988cd`.
-
-```text
-Use $skill-creator to create a personal writing-style skill for each writing context represented by {connectedApps}. Keep progress updates sparse and substantive. Before sampling, limit them to the next user-relevant milestone. Once sampling begins, use them to share one or two non-sensitive style traits identified so far and how the sample is becoming more representative. Do not narrate filesystem operations, helper scripts, dependency checks, or validation mechanics. Do not ask where to install the skills; use the default personal skills directory. Analyze a representative sample of communications authored by me in each connected app. Exclude received text, quoted replies, forwarded content, signatures, automated notifications, and boilerplate. Consider variation across recipients, situations, and time. Capture stable stylistic traits—tone, sentence structure, vocabulary, formatting, level of detail, and recurring patterns—without treating topics, names, or confidential facts as style. If there is not enough evidence, explain what is missing rather than inventing conclusions. Keep email and messaging apps separate, while combining equivalent email connectors into one email skill. For each writing context, create a concise SKILL.md and a detailed `references/writing-style.md`. Configure the skill to trigger automatically for requests to draft, rewrite, or reply in that context, while avoiding overlap with the other writing-style skills. Do not reproduce or lightly rewrite source communications in generated files or responses. Remove names, sensitive details, and recognizable scenarios. Validate without adding dependencies: confirm the required files exist and that each SKILL.md has valid frontmatter with a hyphen-case name and a non-empty description. Run a bundled validator only if it works unmodified with already-available dependencies. Never install, vendor, or mock validation dependencies, and never claim validator success unless it actually ran. Fix structural or validation failures before reporting completion. In the final response, mention only skills that were successfully created and installed. Include one brief sentence explaining that a skill is a reusable set of instructions that can be automatically applied to matching tasks. Briefly explain that each writing-style skill activates automatically for ordinary requests to draft, rewrite, or reply in its context. Do not suggest that I must name the skill, invoke it explicitly, or say "write in my voice". For each writing context, preview `Overall voice`, `Common patterns`, and `Do and avoid`, followed by 2–3 entirely new example messages formatted as individual Markdown block quotes. End each section with a link to its full writing-style reference.
-```
-
 ### Use valid JSON with the same object…
 
 Source: `webview/assets/panel-dbe07cf0956d.js`, offset 46111, SHA-256 `bf7b73e0ddee96a39468a33de390b7021e56c3349229fe556b35d3c392f7b9a2`.
@@ -569,14 +489,6 @@ Source: `webview/assets/publish-19d5d5ad0493.js`, offset 1893, SHA-256 `b0880692
 
 ```text
 {sites} turn the attached HTML file into a working website, preserving its layout, styling, content, and interactions as closely as possible. Make only the changes necessary for it to function and be hosted.
-```
-
-### @Sites turn the attached HTML file into…
-
-Source: `webview/assets/sites-handoff-f7a8325a811e.js`, offset 1709, SHA-256 `ed257996ff58851e27fda3e054b8d506df4c08768f58ece31d7a4c621b609341`.
-
-```text
-@Sites turn the attached HTML file into a working website, preserving its layout, styling, content, and interactions as closely as possible. Make only the changes necessary for it to function and be hosted.
 ```
 
 ### Demonstrate your ability to use this computer…
@@ -1022,14 +934,6 @@ Source: `webview/assets/app-initial-0a6dd402dd72.js`, offset 7511202, SHA-256 `6
 Clean up dictation transcripts. Fix likely speech recognition mistakes, punctuation, capitalization, and formatting. Remove filler words and disfluencies when they do not add meaning. When the user clearly self-corrects or backtracks, keep the corrected intent. Use surrounding text only as context. Dictionary entries are canonical spellings, names, file paths, and code symbols; when the transcript likely refers to one, copy the dictionary entry exactly, including casing and punctuation. Preserve the user's meaning, wording, and flow unless a small cleanup makes the transcript more coherent. Do not answer the user or add new content. Return only the cleaned transcript.
 ```
 
-### The user started this task from ChatGPT…
-
-Source: `webview/assets/app-primary-620c47f764fe.js`, offset 820008, SHA-256 `547c8b02467fcade54e6d31d6b42f9ff3d2df1bbbc82d8f6bdf0c8721146e644`.
-
-```text
-The user started this task from ChatGPT Library to create a file. Use the available Library skill or Library access method to save each completed user-facing document, spreadsheet, presentation, or PDF to their ChatGPT Library. Create one Library file for each new deliverable. If the same deliverable is edited later, preserve its Library file identity and update the existing file instead of creating a duplicate.
-```
-
 ### The user currently has the writing block…
 
 Source: `webview/assets/app-primary-620c47f764fe.js`, offset 1176613, SHA-256 `b5ffc18bcb8263bf946b0d12790d933f5389a7b1b905ad8a2bf15c82e77213dd`.
@@ -1117,44 +1021,6 @@ Source: `webview/assets/app-shared-588591d226f4.js`, offset 3716321, SHA-256 `41
 Create, update, view, or delete recurring automations in the Codex app. The automation prompt is user-visible and is replayed by the scheduler. Write clear, cohesive, human-readable prose. Use this when the user asks for a scheduled task, automation, recurring run, repeated task, reminder, follow-up, monitor, or asks you to watch something, keep an eye on it, check back later, wake up later, notify them, or keep working later. Heartbeat automations are proactive follow-ups attached to the current local thread and are the default for recurring requests. Use a heartbeat unless the user explicitly asks for a new task per run or standalone project work. Cron automations run as standalone local jobs against one project; use list_projects to find its project id. Never write raw automation directives by hand, show raw RRULE strings to the user, or create a workaround cron automation for a thread heartbeat unless the user explicitly asks for that. For requests about existing automations, inspect $CODEX_HOME/automations/*/automation.toml to find matching automation ids by name or prompt. Prefer updating an existing automation over creating a duplicate. For updates, preserve existing fields unless the user asks to change them, and call automation_update with the resolved id and full updated fields. Treat requests such as 'don't notify me' or 'mute this automation' as notificationPolicy=failed_runs_only, and set notificationPolicy=null when the user asks to unmute. Keep notification preferences out of the automation prompt.
 ```
 
-### The user provided feedback on a previous…
-
-Source: `webview/assets/chatgpt-conversation-turn-content-ba659e150632.js`, offset 296686, SHA-256 `d68556b8a8cac27620e6c3fca92aa36debd19bd595957d8b899ebf69130d4a9d`.
-
-```text
-The user provided feedback on a previous completion. Use it to generate a new completion. The output should be a standalone response that reflects the feedback without acknowledging it. Do not mention, suggest, or imply that this is a revision, improvement, or result of feedback. Respond in the same language as the original completion, even if the feedback is in another language. Only switch if the feedback explicitly asks you to translate the completion. Here is the feedback:
-```
-
-### Look across my past conversations, including older…
-
-Source: `webview/assets/fallback-cards-1dfc735488f6.js`, offset 14973, SHA-256 `70c95b76c0daf513a45e3e80b3415b9df59146bb6791b797cde5784537f1cf14`.
-
-```text
-Look across my past conversations, including older chats, for a workflow I repeat that spans apps, websites, or files. Use only context you can actually access; never invent conversations or examples. If there is not enough evidence to identify a recurring workflow, first call `request_user_input` to ask one focused question about a workflow I repeat and a real example, then wait for my answer before proposing one. Once a workflow is supported by the available history or my answer, show a section titled ‘Workflow I found’ with a plain-language description of the workflow, real supporting examples (2–3 when available), and the background and decisions the skill would preserve. Do not create the skill, call Skill Creator, or continue to any next step in that response. After the evidence is visible, stop and call `request_user_input` to ask: ‘Is this workflow accurate, and should I turn it into a skill?’ Offer two choices: ‘Yes, create it’ and ‘No, revise it’. Do not ask for confirmation in ordinary chat text. Wait for the tool response before doing anything else.
-
-Only after I explicitly confirm, create it as a reusable skill. Give it a descriptive lowercase kebab-case name in the `your-new-skill` format. Do not stop after saving it. In the same response, show a section titled ‘Try it next’ with a numbered list of exactly 3 concrete requests I could use the skill for in future work. Do not invoke or apply the skill yet. End by asking whether I would like to try one of those three examples, and which one.
-```
-
-### For the first turn only, treat the…
-
-Source: `webview/assets/home-ambient-suggestions-content-af5b5bc05192.js`, offset 18704, SHA-256 `2fca00df9c58d896f7410a511bbdbd087c417d368a57ea14d46dd7835bf04424`.
-
-```text
-For the first turn only, treat the user's starter-prompt selection as the following user request. In that request, first-person pronouns refer to the user:
-
-<…>
-
-This instruction applies only to the initial request. Later user messages may revise or cancel it.
-```
-
-### Use the write-like-me skill to find relevant…
-
-Source: `webview/assets/home-de5048cdb688.js`, offset 123441, SHA-256 `a2c0eb8bf7416ac9470101d649035405a469efe11033acf6108e34dd34379e92`.
-
-```text
-Use the write-like-me skill to find relevant examples of the user's own writing in their connected apps. Ground the draft in the selected email thread, messaging conversation, or documents. Show the draft in chat; do not send, post, or modify anything. Don't invent facts, decisions, or commitments. If there isn't enough usable context, ask one focused question.
-```
-
 ### The user is replying to the confirmation…
 
 Source: `webview/assets/landing-b60b108c3d97.js`, offset 1988, SHA-256 `396ee71b107edc6075885dd83e9bc1f36d4a8ea7ccff59e77b22372ba4ce3feb`.
@@ -1173,16 +1039,6 @@ Create a Codex local environment for this repository at <…>.
 Inspect the repository's AGENTS.md files, development documentation, manifests, scripts, CI configuration, and existing Codex hooks before editing. Create a version 1 TOML environment with a clear project name, an idempotent non-interactive setup script for a fresh worktree, and a small set of useful actions backed by commands that actually exist.
 
 Use the repository's package manager and verified commands. Do not duplicate setup already performed by a Codex hook. Add platform-specific configuration only when needed. Validate the TOML and non-persistent setup, check, test, or build commands where practical. Do not start persistent processes or edit unrelated files. Do not commit or push.
-```
-
-### The user changed these settings directly. Treat…
-
-Source: `webview/assets/page-495bef09b5fb.js`, offset 3762, SHA-256 `ea7dce415e54fedafd65dae250ebf5f69c582f95090f34695d878ffe2fd0573c`.
-
-```text
-<…>
-
-The user changed these settings directly. Treat these fields, abilities, and files as the current GPT configuration. Do not call update_behavior yet; incorporate these changes in your next update_behavior call. Files absent from file_ids are no longer available to the GPT.
 ```
 
 ### Rewrite only the selected text according to…
