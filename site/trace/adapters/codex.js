@@ -367,7 +367,7 @@ export function buildCodexTrace(threads, files) {
         if (!cands.length && Array.isArray(pl.files) && pl.files.length) { cands = parent.escalations.filter((e) => e.patchFiles.some((f) => pl.files.includes(f))); how = "patch file"; }
         if (!cands.length && cmd) { cands = parent.escalations.filter((e) => e.cmds.some((c) => c === cmd || (c && c.endsWith("…") && cmd.startsWith(c.slice(0, -1))))); how = "command"; }
         const before = cands.filter((e) => e.t <= rv.t + 1000);
-        const e = (before.length ? before : cands).slice(-1)[0] || null;
+        const e = before.slice(-1)[0] || null;
         const joined = { t: rv.t, block: rv.block, result: rv.result, outcome: rv.outcome, risk: rv.risk, userAuthorization: rv.userAuthorization || null, command: cmd || (pl.files ? `apply_patch ${pl.files.join(", ")}` : null), parentRequest: e ? e.request : null, callId: e ? e.callId : null, joinedBy: e ? how : null };
         a.reviews.push(joined);
         if (e) {

@@ -379,6 +379,8 @@ const OUT_CMDS = new Set(["curl", "wget", "http", "https", "xh", "httpie", "ssh"
 const WRITE_CMDS = new Set(["rm", "rmdir", "mv", "cp", "mkdir", "touch", "tee", "ln", "chmod", "chown", "truncate", "dd", "install", "patch", "kill", "pkill", "killall", "launchctl", "crontab", "unzip", "tar", "trash", "apply_patch", "rsync"]);
 const WRAPPERS = new Set(["sudo", "env", "time", "nohup", "exec", "command", "xargs", "nice", "timeout", "caffeinate", "then", "do", "else", "!", "{", "(", "if", "while", "until"]);
 const RUNNERS = new Set(["npx", "bunx", "pnpx"]);
+// Package scripts and make targets named like a release step (`npm run deploy`, `make publish`).
+const DEPLOY_NAME = /^(deploy|publish|release|upload)([:_-].*)?$/;
 
 // Rough shell tokenizer: splits into simple commands on unquoted ; && || | & and
 // newlines, removing heredoc bodies first. Returns { argvs, heredocs }.
@@ -448,8 +450,10 @@ function classifyArgv(argv) {
     if (c === "osascript") return "write";
     return "outward";
   }
+  if (c === "make" && sub.some((x) => DEPLOY_NAME.test(x))) return "outward";
   if (["npm", "pnpm", "yarn", "bun"].includes(c)) {
     if (["publish", "deprecate", "unpublish", "dist-tag", "login", "adduser"].includes(s0)) return "outward";
+    if ((s0 === "run" && DEPLOY_NAME.test(s1 || "")) || (c !== "npm" && DEPLOY_NAME.test(s0 || ""))) return "outward";
     if (["install", "i", "add", "remove", "rm", "uninstall", "ci", "update", "upgrade", "link", "init", "version"].includes(s0)) return "write";
     return "read";
   }

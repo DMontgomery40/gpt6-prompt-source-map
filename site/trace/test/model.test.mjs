@@ -77,7 +77,7 @@ test("classifyCommand: documented patterns", () => {
   const cases = [
     ["git push origin main", "outward"], ["git -C repo push", "outward"], ["git fetch --all", "outward"], ["gh pr create --fill", "outward"],
     ["curl -fsS https://x.test | jq .", "outward"], ["wget https://x.test/f", "outward"], ["npx wrangler deploy", "outward"],
-    ["npm publish", "outward"], ["ssh host ls", "outward"], ["rsync -a dist/ host:/srv/", "outward"], ["open https://example.com", "outward"],
+    ["npm publish", "outward"], ["npm run deploy", "outward"], ["pnpm release", "outward"], ["make deploy", "outward"], ["npm run build", "read"], ["ssh host ls", "outward"], ["rsync -a dist/ host:/srv/", "outward"], ["open https://example.com", "outward"],
     ["python3 - <<'PY'\nimport requests\nrequests.get('https://x')\nPY", "outward"],
     ["cat > app.js <<'JS'\nfetch('https://x')\nJS", "write"],
     ["git commit -m 'x'", "write"], ["git switch -c feat", "write"], ["rm -rf build", "write"], ["sed -i '' s/a/b/ f", "write"],
