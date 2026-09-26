@@ -5,7 +5,8 @@
 import * as THREE from "./vendor/three.module.min.js";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { CSS2DRenderer, CSS2DObject } from "./vendor/CSS2DRenderer.js";
-import { STRATA, STRATUM_INDEX, STATUS, fmtTok, fmtClock, fmtDur, fmtTick, spansDays, freshTokens, unloggedShrinks, agentStats, clip, scaledTokens } from "./panels.js";
+import { STRATA, STRATUM_INDEX, STATUS, fmtTok, fmtClock, fmtDur, fmtTick, spansDays, freshTokens, unloggedShrinks, agentStats, clip } from "./panels.js";
+import { blockPart } from "./model.js";
 import { BASE_H, landscapeRule, tread, treadAt, crestEvents, placeLabel, modelSwitches } from "./scene-rules.js";
 
 const H = BASE_H;         // world height of the tallest context
@@ -680,7 +681,9 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
   // model switch, a skills list sent again, skills re-sent after a compaction), and any copy of the
   // user's own setup sent again. The standing harness (system prompt, tools) is not an event.
   // Labelled where they arrived, the largest first.
-  const events = crestEvents(L.root.blocks, b => scaledTokens(L.root, b));
+  // Sized as its row in that request's stratum list: the block's part in its own stratum (the product's
+  // wording around the user's setup is Harness), on the scale of the request that first saw it.
+  const events = crestEvents(L.root.blocks, b => blockPart(b, b.kind) * (L.root.requests[b.seenBy]?.scale?.[b.kind] ?? 1));
   for (const e of events) e.own = !!L.root.blocks[e.top].own;
   // A model switch is a landmark whether or not the log carries an instruction block for it.
   const switches = modelSwitches(L.root.requests);
@@ -1273,7 +1276,8 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
     if (!hit) return;
     if (hit.kind === "stratum") onPick({ level: 3, agentId: hit.agentId, reqIdx: hit.reqIdx, stratum: hit.stratum });
     else if (hit.kind === "core") onPick({ level: 2, agentId: hit.agentId, reqIdx: hit.reqIdx });
-    else if (hit.kind === "action" || hit.kind === "side") onPick({ level: 2, agentId: hit.agentId, reqIdx: hit.reqIdx });
+    // A pin on the main thread opens its request; a subagent's pins belong to its ridge, which opens at L1 on that request.
+    else if (hit.kind === "side" || (hit.kind === "action" && agents[agentIndex.get(hit.agentId)]?.kind !== "subagent")) onPick({ level: 2, agentId: hit.agentId, reqIdx: hit.reqIdx });
     else onPick({ level: 1, agentId: hit.agentId, reqIdx: hit.reqIdx });
   });
   cv.addEventListener("pointermove", e => { hoverQueued = { x: e.clientX, y: e.clientY }; });
