@@ -91,14 +91,15 @@ const AGENT_TOOLS = new Set(["Agent", "Task", "SendMessage", "TaskOutput"]);
 // A user text that opens with <teammate-message> elements (after at most a short harness prefix,
 // "Another Claude session sent a message:") batches several messages: one segment per element,
 // credited to its own sender, the prefix going with the first. Text between and after the elements
-// is split into reminders and the rest as usual; a reminder quoted inside an element stays the
-// sender's. Null when the text is not such a batch.
+// is reminders or the harness's note on the batch ("This came from another Claude session…"),
+// never the human's; a reminder quoted inside an element stays the sender's. Null when the text is
+// not such a batch.
 function splitTeammates(s) {
   const open = /<teammate-message\b[^>]*>/g;
   let m = open.exec(s);
   if (!m || m.index > 400 || /<system-reminder>/.test(s.slice(0, m.index))) return null;
   const out = [];
-  const gap = (a, b) => { for (const g of splitReminders(s.slice(a, b))) out.push({ ...g, start: a + g.start, end: a + g.end }); };
+  const gap = (a, b) => { for (const g of splitReminders(s.slice(a, b))) out.push({ ...g, start: a + g.start, end: a + g.end, note: !g.reminder }); };
   let last = 0;
   for (let first = true; m; first = false) {
     const close = s.indexOf("</teammate-message>", m.index + m[0].length);
@@ -190,6 +191,7 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
       const ref = { ...lineRef, path, ...(whole ? {} : { range: [seg.start, seg.end] }) };
       const text = s.slice(seg.start, seg.end);
       if (seg.reminder) { track(uuid, addBlock(agent, { t, kind: "injected", label: "system-reminder", ref, text, render: "literal" })); continue; }
+      if (seg.note) { track(uuid, addBlock(agent, { t, kind: "injected", label: "cross-session note", ref, text, render: "literal" })); continue; }
       if (forceKind) {
         const b = addBlock(agent, { t, kind: forceKind.kind, label: forceKind.label, ref, text });
         const pm = text.match(/tool-results\/([\w.-]+)/);

@@ -36,7 +36,8 @@ test("claude-code: a batched teammate message is one agents block per sender, ea
   const beta = `<teammate-message teammate_id="beta" color="blue">\n${"b".repeat(800)}\n</teammate-message>`;
   const alpha2 = `<teammate-message teammate_id="alpha" color="red">\n{"type":"idle_notification"}\n</teammate-message>`;
   const reminder = "<system-reminder>\nharness note\n</system-reminder>";
-  const batched = `Another Claude session sent a message:\n${alpha}\n\n${beta}\n\n${alpha2}\n${reminder}`;
+  const note = "This came from another Claude session, not typed by your user.";
+  const batched = `Another Claude session sent a message:\n${alpha}\n\n${beta}\n\n${alpha2}\n\n${note}\n${reminder}`;
   const spawn = (sec, rid, id, name) => asst(sec, rid, [{ type: "tool_use", id, name: "Agent", input: { name, description: name, prompt: `do ${name}`, subagent_type: "general-purpose" } }], u(2000));
   const rootRows = [
     { ...base(1), type: "user", message: { role: "user", content: "Start the team" } },
@@ -65,6 +66,9 @@ test("claude-code: a batched teammate message is one agents block per sender, ea
   const rem = root.blocks.filter((b) => b.label === "system-reminder");
   assert.equal(rem.length, 1);
   assert.equal(await readRef(sources[rem[0].ref.file], rem[0].ref), reminder);
+  // The harness's note after the batch is injected wording, not the human's.
+  const nb = root.blocks.find((b) => b.label === "cross-session note");
+  assert.deepEqual([nb.kind, await readRef(sources[nb.ref.file], nb.ref)], ["injected", note]);
   // The prefix is not a human ask, and the title is still the human's.
   assert.equal(root.asks.length, 1);
   assert.equal(trace.title, "Start the team");
