@@ -502,7 +502,7 @@ export function buildCustody(agent, permissionAt) {
     const flagged = [];
     for (let j = b; j >= a && flagged.length < 5; j--) if (agent.blocks[j].flags) flagged.push(j);
     r.action.custody = {
-      askedBy: ask ? { t: ask.t, block: ask.block, from: ask.from } : null,
+      askedBy: ask ? { t: ask.t, block: ask.block, from: ask.from, ...(ask.by ? { by: ask.by } : {}), ...(ask.message ? { message: ask.message } : {}) } : null,
       permittedBy: permissionAt(r),
       guidedBy: { tool: r.action.tool },
       inView: b >= a ? { count: PV[b + 1] - PV[a], tokens: (r.strata ? r.strata.outside + r.strata.agents : 0), flagged: PF[b + 1] - PF[a], flaggedBlocks: flagged } : null,

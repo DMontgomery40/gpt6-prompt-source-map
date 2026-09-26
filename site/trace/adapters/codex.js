@@ -307,7 +307,7 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
       if (p.role === "assistant" && th.reviews.length) {
         const rv = th.reviews[th.reviews.length - 1];
         const txt = (p.content || []).map((c) => c.text || "").join("");
-        try { const j = JSON.parse(txt); rv.outcome = j.outcome || null; rv.risk = j.risk_level || null; rv.userAuthorization = j.user_authorization || null; } catch { /* free text */ }
+        try { const j = JSON.parse(txt); rv.outcome = j.outcome || null; rv.risk = j.risk_level || null; rv.userAuthorization = j.user_authorization || null; rv.rationale = j.rationale || null; } catch { /* free text */ }
         rv.result = agent.blocks.length - 1;
       }
       continue;
@@ -343,10 +343,15 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
       const content = Array.isArray(p.content) ? p.content : [];
       const header = content.filter((c) => typeof c.text === "string").map((c) => c.text).join("\n");
       const enc = content.filter((c) => c.encrypted_content).reduce((s, c) => s + c.encrypted_content.length, 0);
-      const b = addBlock(agent, { t, kind: "agents", label: `message from ${p.author || "agent"}`, ref: { ...lineRef, path: ["payload", "content"] }, text: header, est: estText(header.length) + estEncrypted(enc), carried: inherited });
+      // Only the header (message type, task name, sender) is readable; the payload is encrypted. A single
+      // text item is the block's text, so the encrypted part is counted but never shown.
+      const texts = content.map((c, k) => (typeof c.text === "string" ? k : -1)).filter((k) => k >= 0);
+      const path = texts.length === 1 ? ["payload", "content", texts[0], "text"] : ["payload", "content"];
+      const b = addBlock(agent, { t, kind: "agents", label: `message from ${p.author || "agent"}`, ref: { ...lineRef, path }, text: header, est: estText(header.length) + estEncrypted(enc), carried: inherited });
       th.agentMessages.push({ author: p.author, recipient: p.recipient, block: b.i, t });
       const me = th.meta && (th.meta.agent_path || (th.meta.source && th.meta.source.subagent && th.meta.source.subagent.thread_spawn && th.meta.source.subagent.thread_spawn.agent_path));
-      if (!inherited && me && p.recipient === me) agent.asks.push({ t, request: null, block: b.i, from: "agent" });
+      const type = (header.match(/^Message Type:[ \t]*(\S+)/m) || [])[1];
+      if (!inherited && me && p.recipient === me) agent.asks.push({ t, request: null, block: b.i, from: "agent", by: p.author || null, ...(type ? { message: type } : {}) });
       continue;
     }
   }
@@ -361,7 +366,7 @@ function permissionAtFor(th) {
     let block = null;
     const [a, b] = req.window || [0, -1];
     for (let j = b; j >= a; j--) if (/permissions/.test(th.agent.blocks[j].label)) { block = j; break; }
-    return { approvalPolicy: perm && perm.approvalPolicy, reviewer: perm && perm.reviewer, sandbox: perm && perm.sandbox, network: perm && perm.network, profile: perm && perm.profile, permissionsBlock: block, guardian: null };
+    return { approvalPolicy: perm && perm.approvalPolicy, reviewer: perm && perm.reviewer, sandbox: perm && perm.sandbox, network: perm && perm.network, profile: perm && perm.profile, permissionsBlock: block, reviews: [] };
   };
 }
 
@@ -384,6 +389,8 @@ export function buildCodexTrace(threads, files) {
     a.harnessSource = "partial";
     finalizeAgent(a, permissionAtFor(th));
   }
+  // A short handle for a thread: its nickname, else its path (root's name is the user's title).
+  const handle = (th) => { const sp = th.meta.source && th.meta.source.subagent && th.meta.source.subagent.thread_spawn; return th.meta.agent_nickname || (sp && sp.agent_nickname) || th.agent.path || th.meta.id; };
   const depthOf = (th, seen = new Set()) => {
     if (th === root || seen.has(th)) return 0;
     seen.add(th);
@@ -395,6 +402,7 @@ export function buildCodexTrace(threads, files) {
     a.depth = depthOf(th);
     const parent = byId.get(th.meta.parent_thread_id);
     if (!parent || th === root) continue;
+    if (a.kind === "guardian") a.name = `guardian for ${parent === root ? parent.agent.path : handle(parent)}`;
     if (a.kind === "subagent") {
       const sp = parent.spawns.find((s) => s.threadId === a.id);
       if (sp) a.spawn = { t: sp.t, parentRequest: parent.callIndex.get(sp.callId) ?? null, callId: sp.callId };
@@ -411,19 +419,23 @@ export function buildCodexTrace(threads, files) {
         if (!cands.length && cmd) { cands = parent.escalations.filter((e) => e.cmds.some((c) => c === cmd || (c && c.endsWith("…") && cmd.startsWith(c.slice(0, -1))))); how = "command"; }
         const before = cands.filter((e) => e.t <= rv.t + 1000);
         const e = before.slice(-1)[0] || null;
-        const joined = { t: rv.t, block: rv.block, result: rv.result, outcome: rv.outcome, risk: rv.risk, userAuthorization: rv.userAuthorization || null, command: cmd || (pl.files ? `apply_patch ${pl.files.join(", ")}` : null), parentRequest: e ? e.request : null, callId: e ? e.callId : null, joinedBy: e ? how : null };
+        const joined = { t: rv.t, block: rv.block, result: rv.result, outcome: rv.outcome, risk: rv.risk, userAuthorization: rv.userAuthorization || null, rationale: rv.rationale || null, command: cmd || (pl.files ? `apply_patch ${pl.files.join(", ")}` : null), parentRequest: e ? e.request : null, callId: e ? e.callId : null, joinedBy: e ? how : null };
         a.reviews.push(joined);
         if (e) {
+          // Every review of a call is kept, in time order. The ladder follows a response's headline
+          // call, so it also lists the reviews of the response's other calls (forCall).
+          const review = { agentId: a.id, outcome: rv.outcome, risk: rv.risk, userAuthorization: joined.userAuthorization, rationale: joined.rationale, t: rv.t, block: rv.block, result: rv.result };
           const req = parent.agent.requests[e.request];
           const act = req && req.action && (req.action.callId === e.callId ? req.action : (req.action.all || []).find((x) => x.callId === e.callId));
           const target = act || (req && req.action);
-          if (target && target.custody) target.custody.permittedBy.guardian = { agentId: a.id, outcome: rv.outcome, risk: rv.risk, t: rv.t, block: rv.block };
-          else if (target) target.guardian = { agentId: a.id, outcome: rv.outcome, risk: rv.risk, t: rv.t, block: rv.block };
-          if (req && req.action && req.action !== target && req.action.custody && req.action.custody.permittedBy) req.action.custody.permittedBy.guardian = req.action.custody.permittedBy.guardian || { agentId: a.id, outcome: rv.outcome, risk: rv.risk, t: rv.t, block: rv.block, forCall: e.callId };
+          if (target && target.custody) target.custody.permittedBy.reviews.push(review);
+          else if (target) (target.reviews = target.reviews || []).push(review);
+          if (req && req.action && req.action !== target && req.action.custody) req.action.custody.permittedBy.reviews.push({ ...review, forCall: e.callId });
         }
       }
       const first = a.reviews.find((x) => x.parentRequest != null);
       if (first) a.spawn = { t: first.t, parentRequest: first.parentRequest, callId: first.callId };
+      for (const req of parent.agent.requests) if (req.action && req.action.custody) req.action.custody.permittedBy.reviews.sort((x, y) => x.t - y.t);
       const unjoined = a.reviews.filter((x) => x.parentRequest == null).length;
       if (unjoined) notes.push(`guardian ${a.id}: ${unjoined} of ${a.reviews.length} reviews not joined to a parent call`);
     }

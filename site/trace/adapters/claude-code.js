@@ -87,6 +87,33 @@ function splitInstructions(content, files) {
 const NOT_IN_CONTEXT = new Set(["hook_success", "thinking_drop", "command_permissions"]);
 const AGENT_TOOLS = new Set(["Agent", "Task", "SendMessage", "TaskOutput"]);
 
+// A user text that opens with <teammate-message> elements (after at most a short harness prefix,
+// "Another Claude session sent a message:") batches several messages: one segment per element,
+// credited to its own sender, the prefix going with the first. Text between and after the elements
+// is split into reminders and the rest as usual; a reminder quoted inside an element stays the
+// sender's. Null when the text is not such a batch.
+function splitTeammates(s) {
+  const open = /<teammate-message\b[^>]*>/g;
+  let m = open.exec(s);
+  if (!m || m.index > 400 || /<system-reminder>/.test(s.slice(0, m.index))) return null;
+  const out = [];
+  const gap = (a, b) => { for (const g of splitReminders(s.slice(a, b))) out.push({ ...g, start: a + g.start, end: a + g.end }); };
+  let last = 0;
+  for (let first = true; m; first = false) {
+    const close = s.indexOf("</teammate-message>", m.index + m[0].length);
+    const end = close < 0 ? s.length : close + "</teammate-message>".length;
+    if (!first) gap(last, m.index);
+    let start = first ? 0 : m.index;
+    while (start < m.index && /\s/.test(s[start])) start++;
+    out.push({ start, end, reminder: false, teammate: (m[0].match(/teammate_id="([^"]+)"/) || [])[1] || "teammate" });
+    last = end;
+    open.lastIndex = end;
+    m = open.exec(s);
+  }
+  gap(last, s.length);
+  return out;
+}
+
 function textKind(s, isSub) {
   const h = s.trimStart();
   // Agent messages may carry a short harness prefix ("Another Claude session sent a message:").
@@ -156,7 +183,7 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
   }
 
   function textBlocks(s, path, t, uuid, row, forceKind) {
-    const segs = splitReminders(s);
+    const segs = (!forceKind && !row.isMeta && splitTeammates(s)) || splitReminders(s);
     for (const seg of segs) {
       const whole = seg.start === 0 && seg.end === s.length;
       const ref = { ...lineRef, path, ...(whole ? {} : { range: [seg.start, seg.end] }) };
@@ -175,12 +202,13 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
         track(uuid, addBlock(agent, { t, kind: "injected", label: row.sourceToolUseID ? (skill ? `skill · ${skill}` : "skill content") : "meta", ref, text, render: "literal", ...(row.sourceToolUseID ? { own: true, userWhole: true, source: skill ? `skill:${skill}` : null } : {}) }));
         continue;
       }
-      const k = row.origin && row.origin.kind === "task-notification" ? { kind: "agents", label: "task-notification" } : textKind(text, isSub);
+      const k = seg.teammate ? { kind: "agents", label: `teammate-message from ${seg.teammate}`, teammate: seg.teammate, ask: isSub }
+        : row.origin && row.origin.kind === "task-notification" ? { kind: "agents", label: "task-notification" } : textKind(text, isSub);
       const b = addBlock(agent, { t, kind: k.kind, label: k.label, ref, text });
       track(uuid, b);
       if (k.kind === "agents") st.agentBlocks.push({ t, block: b.i, teammate: k.teammate || null, ids: (text.match(/\b(?:agentId|agent_id|task-id|task_id)["=:>\s]+([A-Za-z0-9_-]{6,})/g) || []).map((x) => x.replace(/^.*[=:>\s"]/, "")) });
       if (k.ask) {
-        agent.asks.push({ t, request: null, block: b.i, from: k.human ? "human" : "agent" });
+        agent.asks.push({ t, request: null, block: b.i, from: k.human ? "human" : "agent", ...(k.teammate ? { by: k.teammate } : {}) });
         if (!st.title && k.human) st.title = text.trim().slice(0, 120);
       }
     }

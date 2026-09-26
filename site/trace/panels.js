@@ -182,12 +182,12 @@ export function deriveCustody(trace, agent, req) {
     const b = agent.blocks[i];
     if (permRe.test(b.label || "") && !seen.has(b.label)) { seen.add(b.label); permitted.push(b); }
   }
-  const guardians = trace.agents.filter(a => a.kind === "guardian" && a.parentId === agent.id && a.spawn && a.spawn.parentRequest === req.i);
+  const reviews = trace.agents.filter(a => a.kind === "guardian" && a.parentId === agent.id && a.spawn && a.spawn.parentRequest === req.i).map(g => ({ agent: g, t: g.spawn.t }));
   const inView = windowBlocks(agent, req).filter(b => b.kind === "outside" || b.kind === "agents");
   const flagged = inView.filter(b => b.flags && b.flags.includes("instruction-like"));
   return {
     askedBy: ask ? { agent: askAgent, ask, block: askAgent.blocks[ask.block] } : null,
-    permittedBy: { blocks: permitted, guardians },
+    permittedBy: { blocks: permitted, reviews },
     guidedBy: req.action ? { tool: req.action.tool, site: req.action.site || null } : null,
     inView: { count: inView.length, tokens: inView.reduce((s, b) => s + scaledTokens(agent, b, req), 0), flagged },
     did: req.action ? { tool: req.action.tool, target: req.action.target, cls: req.action.class, kind: req.action.kind } : null
@@ -443,23 +443,44 @@ function fromAdapter(trace, agent, req, c) {
   const facts = [];
   const nice = { permissionMode: "permission mode", mode: "mode", allowedTools: "allowed tools", approvalPolicy: "approval policy", reviewer: "reviewer", sandbox: "sandbox", network: "network", profile: "profile" };
   for (const [k, v] of Object.entries(p)) {
-    if (k === "permissionsBlock" || k === "guardian" || v == null || (Array.isArray(v) && !v.length)) continue;
+    if (k === "permissionsBlock" || k === "reviews" || v == null || (Array.isArray(v) && !v.length)) continue;
     facts.push(`${nice[k] || k}: ${Array.isArray(v) ? v.join(", ") : typeof v === "boolean" ? (v ? "on" : "off") : v}`);
   }
   const blocks = p.permissionsBlock != null && agent.blocks[p.permissionsBlock] ? [agent.blocks[p.permissionsBlock]] : [];
-  const guardians = [];
-  if (p.guardian) {
-    const g = trace.agents.find(a => a.id === (p.guardian.agentId || p.guardian.id || p.guardian));
-    if (g) guardians.push({ agent: g, outcome: p.guardian.outcome, risk: p.guardian.risk, block: p.guardian.block });
-  }
+  const reviews = (p.reviews || []).map(r => ({ ...r, agent: trace.agents.find(a => a.id === r.agentId) })).filter(r => r.agent);
   const flaggedBlocks = (c.inView?.flaggedBlocks || []).map(i => agent.blocks[i]).filter(Boolean);
   return {
-    askedBy: ask ? { agent, ask: { ...ask, from: c.askedBy.from }, block: agent.blocks[ask.block] } : null,
-    permittedBy: { blocks, guardians, facts },
+    askedBy: ask ? { agent, ask: { ...ask, from: c.askedBy.from, by: c.askedBy.by, message: c.askedBy.message }, block: agent.blocks[ask.block] } : null,
+    permittedBy: { blocks, reviews, facts },
     guidedBy: { tool: c.guidedBy?.tool || req.action.tool, site: c.guidedBy?.site || null },
     inView: { count: c.inView?.count || 0, tokens: c.inView?.tokens || 0, flagged: flaggedBlocks, flaggedCount: c.inView?.flagged },
     did: { tool: req.action.tool, target: c.did?.target ?? req.action.target, cls: c.did?.class || req.action.class }
   };
+}
+
+// "3 guardian reviews: allow ×2, deny ×1, risk low→high" (risk as the range the reviews gave).
+const RISKS = ["low", "medium", "high", "critical"];
+function reviewSummary(reviews) {
+  const counts = new Map();
+  for (const r of reviews) if (r.outcome) counts.set(r.outcome, (counts.get(r.outcome) || 0) + 1);
+  const risks = reviews.map(r => RISKS.indexOf(r.risk)).filter(k => k >= 0);
+  const parts = [...counts].map(([o, n]) => `${o} ×${n}`);
+  if (risks.length) { const lo = RISKS[Math.min(...risks)], hi = RISKS[Math.max(...risks)]; parts.push(`risk ${lo === hi ? lo : `${lo}→${hi}`}`); }
+  return `${reviews.length} guardian review${reviews.length === 1 ? "" : "s"}${parts.length ? `: ${parts.join(", ")}` : ""}`;
+}
+
+// An ask from another agent reads "Task from /root: <first line>". Codex logs only the message header
+// (type, task name, sender) in the clear; a Claude Code teammate message loses its tags.
+function askLine(ask, text, parent) {
+  if (ask.from !== "agent") return clip(text, 320);
+  const hdr = /^Message Type:[ \t]*(\S+)[\s\S]*?^Payload:[ \t]*\n?([\s\S]*)$/m.exec(text);
+  const body = hdr ? hdr[2] : text.replace(/^[\s\S]*?<teammate-message\b[^>]*>/, "").replace(/<\/teammate-message>\s*$/, "");
+  const first = (body.split("\n").find(l => l.trim()) || "").trim();
+  const what = hdr && !/TASK/i.test(hdr[1]) ? "Message" : "Task";
+  const by = ask.by || (hdr && (text.match(/^Sender:[ \t]*(.+)$/m) || [])[1]) || (parent ? (parent.kind === "root" ? "main thread" : parent.name) : "the parent agent");
+  if (first) return `${what} from ${by}: ${clip(first, 240)}`;
+  const name = hdr && what === "Task" && (text.match(/^Task name:[ \t]*(.+)$/m) || [])[1];
+  return `${what} from ${by}${name ? `: ${name}` : ""}. The text is encrypted in the log.`;
 }
 
 function custodySection(trace, agent, req, S, A) {
@@ -467,20 +488,26 @@ function custodySection(trace, agent, req, S, A) {
   const ol = el("ol", { class: "ladder" });
   const rung = (name, ...body) => ol.append(el("li", {}, el("h4", { text: name }), ...body));
   if (c.askedBy && c.askedBy.block) {
+    const ask = c.askedBy.ask;
     const q = el("blockquote", { class: "quote", text: "…" });
-    A.getText(c.askedBy.agent.id, c.askedBy.block.ref).then(r => { q.textContent = clip(r?.text || "", 320) || "(empty)"; }).catch(() => { q.textContent = "(text unavailable)"; });
-    const from = c.askedBy.ask.from && c.askedBy.ask.from !== "human" ? ` · from ${c.askedBy.ask.from === "agent" ? "the parent agent" : "the harness"}` : "";
-    rung("Asked by", el("p", { class: "meta", text: `${c.askedBy.agent === agent ? "" : `${c.askedBy.agent.kind === "root" ? "main thread" : c.askedBy.agent.name}, `}${fmtWhen(c.askedBy.ask.t)}${from}` }), q);
+    const parent = trace.agents.find(a => a.id === c.askedBy.agent.parentId);
+    A.getText(c.askedBy.agent.id, c.askedBy.block.ref).then(r => { q.textContent = askLine(ask, r?.text || "", parent) || "(empty)"; }).catch(() => { q.textContent = "(text unavailable)"; });
+    const from = ask.from === "harness" ? " · from the harness" : "";
+    rung("Asked by", el("p", { class: "meta", text: `${c.askedBy.agent === agent ? "" : `${c.askedBy.agent.kind === "root" ? "main thread" : c.askedBy.agent.name}, `}${fmtWhen(ask.t)}${from}` }), q);
   } else rung("Asked by", el("p", { class: "note", text: "No human ask before this request." }));
-  const perm = c.permittedBy || { blocks: [], guardians: [] };
-  rung("Permitted by", perm.blocks.length || perm.guardians.length || perm.facts?.length
+  const perm = c.permittedBy || { blocks: [], reviews: [] };
+  const reviews = (perm.reviews || []).slice().sort((x, y) => (x.t ?? 0) - (y.t ?? 0));
+  rung("Permitted by", perm.blocks.length || reviews.length || perm.facts?.length
     ? el("ul", { class: "items" },
       (perm.facts || []).map(f => el("li", { class: "fact", text: f })),
       perm.blocks.map(b => el("li", {}, btn(`${b.label} · ${fmtClock(b.t)}`, () => A.openBlockAt(agent.id, b.i), "item"))),
-      perm.guardians.map(g => {
-        const ga = g.agent || g;
-        const verdict = g.outcome ? `Guardian review: ${g.outcome}${g.risk ? `, risk ${g.risk}` : ""}` : `Guardian review: ${ga.name || ga.id}`;
-        return el("li", {}, btn(verdict, () => (g.block != null ? A.openBlockAt(ga.id, g.block) : A.focusAgent(ga.id)), "item"));
+      reviews.length ? el("li", { class: "fact", text: reviewSummary(reviews) }) : null,
+      reviews.map(r => {
+        const verdict = r.outcome ? [r.outcome, r.risk && `risk ${r.risk}`, r.userAuthorization && `user authorization ${r.userAuthorization}`].filter(Boolean).join(", ") : r.agent.name || "guardian review";
+        const when = r.t != null ? ` · ${fmtClock(r.t)}` : "";
+        const open = r.result ?? r.block;
+        return el("li", {}, btn(`${verdict}${when}${r.forCall ? " · for another call in this response" : ""}`, () => (open != null ? A.openBlockAt(r.agent.id, open) : A.focusAgent(r.agent.id)), "item"),
+          r.rationale ? el("p", { class: "meta", text: r.rationale }) : null);
       }))
     : el("p", { class: "note", text: "No permission rows or reviews logged before this request." }));
   const g = c.guidedBy;
