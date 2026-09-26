@@ -231,6 +231,27 @@ export const categories = [
     ]
   },
   {
+    label: "ChatGPT plugins and Computer Use",
+    files: [
+      {
+        path: "outputs/chatgpt-bundled-plugins.md",
+        anchor: "chatgpt-bundled-plugins-md",
+        slug: "chatgpt-bundled-plugins",
+        format: "markdown",
+        title: "Bundled plugins and skills",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/computer-use-prompts.md",
+        anchor: "computer-use-prompts-md",
+        slug: "computer-use-prompts",
+        format: "markdown",
+        title: "Computer Use prompts and tool descriptions",
+        defaultOpen: false
+      }
+    ]
+  },
+  {
     label: "Other desktop prompts",
     files: [
       {
