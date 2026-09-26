@@ -9,6 +9,10 @@ import { isCodexFirstLine, parseCodexThread, buildCodexTrace } from "./adapters/
 import { isClaudeRow, parseClaudeFile, buildClaudeTrace } from "./adapters/claude-code.js";
 
 const stem = (p) => p.split("/").pop().replace(/\.jsonl$/, "");
+// A Claude Code subagent file, recognised by its folder or, for loose files, by its first row.
+const SUB_PATH = /\/subagents\/agent-([^/]+)\.jsonl$/;
+const isSub = (s) => SUB_PATH.test(s.path) || (s.row?.isSidechain === true && !!s.row?.agentId);
+const agentIdOf = (s) => SUB_PATH.exec(s.path)?.[1] ?? s.row?.agentId ?? /agent-([^/]+)\.jsonl$/.exec(s.path)?.[1] ?? null;
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 async function sniff(entry) {
@@ -44,19 +48,21 @@ export async function findSessions(entries) {
     walk(s);
     sessions.push({ product: "codex", id: s.meta.id, name: s.path, entries: fam, bytes: fam.reduce((n, f) => n + f.source.size, 0) });
   }
-  // Claude Code: <id>.jsonl plus <id>/subagents/agent-*.jsonl (+ .meta.json).
+  // Claude Code: <id>.jsonl plus <id>/subagents/agent-*.jsonl (+ .meta.json). Files picked loose,
+  // without their folders, are grouped by content: subagent rows carry the root's sessionId.
   const cc = sniffed.filter((s) => s.product === "claude-code");
-  const roots = cc.filter((s) => !/\/subagents\//.test(s.path));
+  const roots = cc.filter((s) => !isSub(s));
   for (const r of roots) {
     const id = stem(r.path);
-    const subs = cc.filter((s) => s.path.includes(`${id}/subagents/`));
-    const metas = entries.filter((e) => e.path.includes(`${id}/subagents/`) && /\.meta\.json$/.test(e.path));
+    const sessionId = r.row?.sessionId || id;
+    const subs = cc.filter((s) => isSub(s) && (s.path.includes(`${id}/subagents/`) || s.row?.sessionId === sessionId));
+    const metas = entries.filter((e) => /\.meta\.json$/.test(e.path) && subs.some((s) => e.path.endsWith(`agent-${agentIdOf(s)}.meta.json`)));
     const toolResults = entries.filter((e) => e.path.includes(`${id}/tool-results/`));
     const fam = [r, ...subs];
     sessions.push({ product: "claude-code", id, name: r.path, entries: fam, metas, toolResults, bytes: fam.reduce((n, f) => n + f.source.size, 0) });
   }
   // Subagent files dropped without their root: one session per folder.
-  const orphans = cc.filter((s) => /\/subagents\//.test(s.path) && !sessions.some((x) => x.entries.includes(s)));
+  const orphans = cc.filter((s) => isSub(s) && !sessions.some((x) => x.entries.includes(s)));
   if (orphans.length) {
     const id = (orphans[0].path.match(UUID) || ["subagents"])[0];
     sessions.push({ product: "claude-code", id, name: id, entries: orphans, metas: entries.filter((e) => /\.meta\.json$/.test(e.path)), toolResults: [], bytes: orphans.reduce((n, f) => n + f.source.size, 0), orphan: true });
@@ -92,13 +98,13 @@ export async function loadTrace(entries, { root = null, onProgress = () => {}, i
       p = await parseCodexThread(e.source, fileIndex, { onProgress: onFile, index: ix });
       if (!p.meta) continue;
     } else {
-      const sub = /\/subagents\/agent-([^/]+)\.jsonl$/.exec(e.path);
+      const agentId = isSub(e) ? agentIdOf(e) : null;
       let meta = null;
-      if (sub) {
-        const me = (pick.metas || []).find((m) => m.path.endsWith(`agent-${sub[1]}.meta.json`));
+      if (agentId) {
+        const me = (pick.metas || []).find((m) => m.path.endsWith(`agent-${agentId}.meta.json`));
         if (me) try { meta = await readJson(me.source); } catch { meta = null; }
       }
-      p = await parseClaudeFile(e.source, fileIndex, { meta: meta || (sub ? {} : null), agentId: sub ? sub[1] : null, onProgress: onFile, index: ix });
+      p = await parseClaudeFile(e.source, fileIndex, { meta: meta || (agentId ? {} : null), agentId, onProgress: onFile, index: ix });
     }
     files[fileIndex].size = p.bytesRead || e.source.size;
     parsed.push(p);

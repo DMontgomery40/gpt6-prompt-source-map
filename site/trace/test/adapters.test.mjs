@@ -212,6 +212,20 @@ test("loader: sessions found by first line; a hint picks one", async () => {
   assert.equal(trace.candidates.length, 2);
 });
 
+test("loader: Claude Code files picked loose (no folders) still group their subagents and metadata", async () => {
+  const loose = Object.entries({
+    [`${CC.session}.jsonl`]: `claude/-tmp-proj/${CC.session}.jsonl`,
+    [`agent-${CC.agent}.jsonl`]: `claude/-tmp-proj/${CC.session}/subagents/agent-${CC.agent}.jsonl`,
+    [`agent-${CC.agent}.meta.json`]: `claude/-tmp-proj/${CC.session}/subagents/agent-${CC.agent}.meta.json`,
+  }).map(([path, rel]) => ({ path, source: { name: path, size: readFileSync(FIX + rel).length, slice: async (a, b) => readFileSync(FIX + rel).subarray(a, b) } }));
+  const sessions = await findSessions(loose);
+  assert.deepEqual(sessions.map((s) => [s.product, s.entries.length, s.metas.length]), [["claude-code", 2, 1]]);
+  const { trace: flat } = await loadTrace(loose);
+  const { trace: foldered } = await load("claude");
+  assert.equal(flat.agents.length, foldered.agents.length);
+  assert.deepEqual(flat.agents.map((a) => [a.kind, a.name]), foldered.agents.map((a) => [a.kind, a.name]));
+});
+
 test("worker API: load streams progress then a trace; text returns a block's literal text", async () => {
   const posted = [];
   globalThis.self = { postMessage: (m) => posted.push(m) };
