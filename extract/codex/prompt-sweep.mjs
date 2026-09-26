@@ -38,7 +38,15 @@ const QUESTION_VERSION = "v1";
 const app = codexApp();
 const asar = openAsar(app.asar);
 const extracted = extractAppPrompts(asar);
-const known = [...extracted.staticHelpers, ...extracted.functionHelpers, ...extracted.voice].map(item => item.text);
+// Texts other generated pages already publish (their coverage files) are not repeated here.
+const coverageTexts = fs.readdirSync(path.join(repo, "outputs"))
+  .filter(name => /^(?:chatgpt-.*-prompts|desktop-tool-manifest)\.json$/.test(name))
+  .flatMap(name => {
+    const data = readJson(path.join(repo, "outputs", name), []);
+    const items = Array.isArray(data) ? data : data.items ?? data.tools ?? [];
+    return items.flatMap(item => [item.text, item.description].filter(text => typeof text === "string" && text.length));
+  });
+const known = [...extracted.staticHelpers, ...extracted.functionHelpers, ...extracted.voice].map(item => item.text).concat(coverageTexts);
 const anchors = [...staticHelperPrompts, ...functionHelperPrompts, ...voicePrompts].map(spec => spec.anchor);
 const candidates = promptCandidates(asar, { known, anchors });
 
