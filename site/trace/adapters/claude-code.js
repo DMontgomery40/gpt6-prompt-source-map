@@ -4,6 +4,7 @@ import {
   readLines, newAgent, addBlock, tokensClaude, imageDims, estEncrypted, estText,
   classifyClaudeTool, RANK, finalizeAgent, partText, splitReminders, inheritTraits, spansOf,
 } from "../model.js";
+import { attachmentText } from "./cc-templates.js";
 
 const ts = (s) => Date.parse(s);
 
@@ -87,6 +88,34 @@ function splitInstructions(content, files) {
 const NOT_IN_CONTEXT = new Set(["hook_success", "thinking_drop", "command_permissions"]);
 const AGENT_TOOLS = new Set(["Agent", "Task", "SendMessage", "TaskOutput"]);
 
+// A user text that opens with <teammate-message> elements (after at most a short harness prefix,
+// "Another Claude session sent a message:") batches several messages: one segment per element,
+// credited to its own sender, the prefix going with the first. Text between and after the elements
+// is reminders or the harness's note on the batch ("This came from another Claude session…"),
+// never the human's; a reminder quoted inside an element stays the sender's. Null when the text is
+// not such a batch.
+function splitTeammates(s) {
+  const open = /<teammate-message\b[^>]*>/g;
+  let m = open.exec(s);
+  if (!m || m.index > 400 || /<system-reminder>/.test(s.slice(0, m.index))) return null;
+  const out = [];
+  const gap = (a, b) => { for (const g of splitReminders(s.slice(a, b))) out.push({ ...g, start: a + g.start, end: a + g.end, note: !g.reminder }); };
+  let last = 0;
+  for (let first = true; m; first = false) {
+    const close = s.indexOf("</teammate-message>", m.index + m[0].length);
+    const end = close < 0 ? s.length : close + "</teammate-message>".length;
+    if (!first) gap(last, m.index);
+    let start = first ? 0 : m.index;
+    while (start < m.index && /\s/.test(s[start])) start++;
+    out.push({ start, end, reminder: false, teammate: (m[0].match(/teammate_id="([^"]+)"/) || [])[1] || "teammate" });
+    last = end;
+    open.lastIndex = end;
+    m = open.exec(s);
+  }
+  gap(last, s.length);
+  return out;
+}
+
 function textKind(s, isSub) {
   const h = s.trimStart();
   // Agent messages may carry a short harness prefix ("Another Claude session sent a message:").
@@ -156,12 +185,13 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
   }
 
   function textBlocks(s, path, t, uuid, row, forceKind) {
-    const segs = splitReminders(s);
+    const segs = (!forceKind && !row.isMeta && splitTeammates(s)) || splitReminders(s);
     for (const seg of segs) {
       const whole = seg.start === 0 && seg.end === s.length;
       const ref = { ...lineRef, path, ...(whole ? {} : { range: [seg.start, seg.end] }) };
       const text = s.slice(seg.start, seg.end);
       if (seg.reminder) { track(uuid, addBlock(agent, { t, kind: "injected", label: "system-reminder", ref, text, render: "literal" })); continue; }
+      if (seg.note) { track(uuid, addBlock(agent, { t, kind: "injected", label: "cross-session note", ref, text, render: "literal" })); continue; }
       if (forceKind) {
         const b = addBlock(agent, { t, kind: forceKind.kind, label: forceKind.label, ref, text });
         const pm = text.match(/tool-results\/([\w.-]+)/);
@@ -175,12 +205,13 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
         track(uuid, addBlock(agent, { t, kind: "injected", label: row.sourceToolUseID ? (skill ? `skill · ${skill}` : "skill content") : "meta", ref, text, render: "literal", ...(row.sourceToolUseID ? { own: true, userWhole: true, source: skill ? `skill:${skill}` : null } : {}) }));
         continue;
       }
-      const k = row.origin && row.origin.kind === "task-notification" ? { kind: "agents", label: "task-notification" } : textKind(text, isSub);
+      const k = seg.teammate ? { kind: "agents", label: `teammate-message from ${seg.teammate}`, teammate: seg.teammate, ask: isSub }
+        : row.origin && row.origin.kind === "task-notification" ? { kind: "agents", label: "task-notification" } : textKind(text, isSub);
       const b = addBlock(agent, { t, kind: k.kind, label: k.label, ref, text });
       track(uuid, b);
       if (k.kind === "agents") st.agentBlocks.push({ t, block: b.i, teammate: k.teammate || null, ids: (text.match(/\b(?:agentId|agent_id|task-id|task_id)["=:>\s]+([A-Za-z0-9_-]{6,})/g) || []).map((x) => x.replace(/^.*[=:>\s"]/, "")) });
       if (k.ask) {
-        agent.asks.push({ t, request: null, block: b.i, from: k.human ? "human" : "agent" });
+        agent.asks.push({ t, request: null, block: b.i, from: k.human ? "human" : "agent", ...(k.teammate ? { by: k.teammate } : {}) });
         if (!st.title && k.human) st.title = text.trim().slice(0, 120);
       }
     }
@@ -234,7 +265,7 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
           for (const u of pres) for (const bi of uuidBlocks.get(u) || []) {
             const src = agent.blocks[bi];
             const b = inheritTraits(addBlock(agent, { t, kind: src.kind, label: src.label, ref: src.ref, est: src.est, image: src.image, render: src.render, carried: true, site: src.site }), src);
-            if (src.rebuilt) b.rebuilt = true;
+            if (src.template) b.template = src.template;
             b.chars = src.chars;
             if (src.flags) { b.flags = src.flags; b.flagHits = src.flagHits; }
           }
@@ -302,10 +333,15 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
           tally.literal++;
           continue;
         }
-        // Unknown attachment with no rendered text: show its data, labelled structured.
+        // No rendered text and no text field: rebuilt from the site's template for this type, filled
+        // from the row's fields; else the fields as "key: value" lines, labelled structured.
         const rm = agent._ix && agent._ix.reminders[type];
-        const b = addBlock(agent, { t, kind: "injected", label: type, ref: { ...lineRef, path: ["attachment"] }, text: JSON.stringify(a), render: "structured", site: rm ? { ...rm } : null });
-        if (rm) b.rebuilt = true;
+        const tpl = agent._ix && agent._ix.templates;
+        const { text, template } = attachmentText(type, a, tpl);
+        const at = template && tpl[template];
+        const site = at && at.slug ? { slug: at.slug, anchor: at.anchor || null, title: at.title || template } : rm ? { ...rm } : null;
+        const b = addBlock(agent, { t, kind: "injected", label: type, ref: { ...lineRef, path: ["attachment"], rebuild: type }, text, render: template ? "rebuilt from the ccprompts template" : "structured", site });
+        if (template) b.template = template;
         track(r.uuid, b);
         tally.structured++;
         continue;
