@@ -4,12 +4,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { BINARIES, NAMES, buildPages, keyLike } from "../bundle-resources.mjs";
+import { BINARIES, NAMES, buildPages, keyLike, sha256 } from "../bundle-resources.mjs";
 import { markdownUnits } from "../lib/semantic-diff.mjs";
 
 const script = path.resolve(import.meta.dirname, "..", "bundle-resources.mjs");
 const KEY = "client-br04gwIKFntB05BUONtNnF3NhWQsvmSI8R97Pigr7A5";
 const PLACEHOLDER = "Placeholder for the planned Calendar plugin. Returns not_implemented without accessing or changing calendar data.";
+const CLI_SKILL_TEXT = "# Same as the CLI sample\n";
 const cstrings = (...texts) => Buffer.concat([Buffer.from([0x02, 0x41, 0]), ...texts.map(text => Buffer.from(`${text}\0`, "utf8"))]);
 
 // A Resources folder shaped like build 11431, with a few files and two tiny binaries.
@@ -30,6 +31,8 @@ function fakeResources({ calendarFolder = false } = {}) {
   write("cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/cloud/shared.md", "# Shared doc\n");
   write("cua_node/lib/node_modules/@oai/browser-desktop/environment-docs/cloud/cloud-only.md", "# Cloud only\n");
   write("cua_node/lib/node_modules/playwright/lib/agents/plan.prompt.md", "Third-party prompt.\n");
+  write("skills/skills/.curated/pet/SKILL.md", "# Pet skill\n");
+  write("skills/skills/.curated/pet/references/shared-with-cli.md", CLI_SKILL_TEXT);
   const [service, client] = BINARIES;
   write(service.rel, cstrings(
     "ComputerUseIPCCalendarPlaceholderResponse", PLACEHOLDER, KEY, "Failed to configure Calendar MCP Statsig",
@@ -71,6 +74,18 @@ test("plugin page: walks the directories, publishes exact text, dedupes and with
   assert.match(page, /- `cua_node\/lib\/node_modules\/playwright\/lib\/agents\/plan\.prompt\.md`/);
   assert(!coverage.items.some(item => item.text.includes("Third-party prompt")));
   for (const item of coverage.items) assert.match(item.sha256, /^[0-9a-f]{64}$/);
+});
+
+test("curated skills: published, except text already on the CLI skills page, which gets a pointer", () => {
+  const cliSkills = new Map([[sha256(CLI_SKILL_TEXT), "skills/src/assets/samples/pet/shared.md"]]);
+  const result = buildPages({ resources: fakeResources(), cliSkills });
+  const page = result.pages[NAMES.plugins];
+  const coverage = JSON.parse(result.coverage[NAMES.pluginsJson]);
+  assert.match(page, /## Curated skills\n\n### pet\/SKILL\.md\n\nSource: `skills\/skills\/\.curated\/pet\/SKILL\.md`/);
+  assert.match(page, /### pet\/references\/shared-with-cli\.md\n\nSource: `skills\/skills\/\.curated\/pet\/references\/shared-with-cli\.md`, SHA-256 `[0-9a-f]{64}`\.\n\nSame bytes as `codex-rs\/skills\/src\/assets\/samples\/pet\/shared\.md` on the Codex CLI bundled skills page, so the text is not repeated here\./);
+  assert.doesNotMatch(page, /Same as the CLI sample/);
+  assert(!coverage.items.some(item => item.text === CLI_SKILL_TEXT));
+  assert.deepEqual(coverage.on_cli_skills_page.map(p => p.cli_source), ["skills/src/assets/samples/pet/shared.md"]);
 });
 
 test("computer use page: exact spans, both binaries, missing and ambiguous anchors, no key", () => {

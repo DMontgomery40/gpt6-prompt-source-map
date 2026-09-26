@@ -33,6 +33,8 @@ export const BINARIES = [
   { name: "SkyComputerUseService", rel: `${SKY_APP}/MacOS/SkyComputerUseService` },
   { name: "SkyComputerUseClient", rel: `${SKY_APP}/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient` }
 ];
+const CURATED_SKILLS = "skills/skills/.curated";
+const CLI_SKILLS_PAGE = "codex-cli-bundled-skills.md";
 const ENV_DOCS = `${OAI}/browser-desktop/environment-docs`;
 const UNSELECTED_ENVS = ["cloud", "orbit", "training"];
 const ENV_SELECTOR = "CUA_REPL_BROWSER_ENV";
@@ -72,6 +74,7 @@ const listDirs = dir => (fs.existsSync(dir) ? fs.readdirSync(dir, { withFileType
 function fileGroups(resources) {
   const groups = listDirs(path.join(resources, PLUGINS)).map(name => ({ key: `plugin:${name}`, heading: `Plugin: ${name}`, root: `${PLUGINS}/${name}` }));
   groups.push(
+    { key: "curated-skills", heading: "Curated skills", root: CURATED_SKILLS },
     { key: "sky-app", heading: "Computer Use app: Skysight and per-app instructions", root: `${SKY_APP}/Resources/Package_ComputerUse.bundle/Contents/Resources` },
     { key: "sky", heading: "Sky docs (@oai/sky)", root: `${OAI}/sky` },
     { key: "cua-repl", heading: "cua_repl tool text (@oai/cua-repl)", root: `${OAI}/cua-repl` },
@@ -392,7 +395,8 @@ const firstWords = text => {
 // ---------------------------------------------------------------------------------------------
 // Assembly.
 
-export function buildPages({ resources, app = {}, scanFiles = [] }) {
+// cliSkills maps the SHA-256 of each text on the Codex CLI bundled skills page to its source path.
+export function buildPages({ resources, app = {}, scanFiles = [], cliSkills = new Map() }) {
   const inRes = rel => path.join(resources, rel);
   const summary = { withheld: [], not_found: [], ambiguous: [], sweep_unreviewed: 0, labels: {} };
   const bySha = new Map();
@@ -417,6 +421,7 @@ export function buildPages({ resources, app = {}, scanFiles = [] }) {
   if (!fs.existsSync(inRes(PLUGINS))) missFile("plugins", PLUGINS, "the plugin folder is missing");
   const claimed = new Set();
   const fileItems = [];
+  const pointers = [];
   for (const group of groups) {
     group.items = [];
     if (!fs.existsSync(inRes(group.root))) { missFile(group.key, group.root, "the folder is missing"); continue; }
@@ -440,6 +445,15 @@ export function buildPages({ resources, app = {}, scanFiles = [] }) {
       const textSha = sha256(text);
       const same = bySha.get(textSha);
       if (same) { same.also.push(rel); continue; }
+      if (cliSkills.has(textSha)) {
+        // Already published on the CLI skills page: a pointer, not a second copy.
+        const item = { id: `file:${rel}`, group: group.heading, title: relInGroup, label: "pointer to the CLI skills page", primary: rel, also: [], sha256: textSha, cliSource: cliSkills.get(textSha) };
+        bySha.set(textSha, item);
+        group.items.push(item);
+        pointers.push(item);
+        count(item.label);
+        continue;
+      }
       if (!publishable(rel, text)) continue;
       const item = { id: `file:${rel}`, page: NAMES.plugins, group: group.heading, title: mode === "description" ? `${relInGroup} description` : relInGroup, label, primary: rel, also: [], file_sha256: fileSha, sha256: textSha, bytes: Buffer.byteLength(text), text, unselected: group.unselected };
       bySha.set(textSha, item);
@@ -517,7 +531,10 @@ export function buildPages({ resources, app = {}, scanFiles = [] }) {
   return {
     pages: { [NAMES.plugins]: renderPluginsPage(context), [NAMES.cu]: renderComputerUsePage(context) },
     coverage: {
-      [NAMES.pluginsJson]: coverageJson(app, fileItems, { third_party_paths_only: thirdParty }),
+      [NAMES.pluginsJson]: coverageJson(app, fileItems, {
+        on_cli_skills_page: pointers.map(item => ({ id: item.id, source: [item.primary, ...item.also], sha256: item.sha256, cli_source: item.cliSource })),
+        third_party_paths_only: thirdParty
+      }),
       [NAMES.cuJson]: coverageJson(app, [...spanItems, ...calendar.spans, ...calendar.symbols], { binaries: binaries.map(b => ({ name: b.name, path: b.rel, sha256: b.sha256 })), not_found: missing })
     },
     summary: { ...summary, plugin_page_items: fileItems.length, computer_use_items: spanItems.length + calendar.spans.length + calendar.symbols.length }
@@ -560,6 +577,11 @@ function renderPluginsPage({ app, groups, fileMissing, thirdParty, selectorHits 
     }
     for (const item of group.items) {
       const where = [item.primary, ...item.also].map(p => `\`${p}\``);
+      if (item.cliSource) {
+        lines.push(`### ${item.title}`, "", `Source: ${where.join(", ")}, SHA-256 \`${item.sha256}\`.`, "",
+          `Same bytes as \`codex-rs/${item.cliSource}\` on the Codex CLI bundled skills page, so the text is not repeated here.`, "");
+        continue;
+      }
       const source = item.label === "exact field value"
         ? `Source: ${where.join(", ")} (file SHA-256 \`${item.file_sha256}\`), \`description\` value SHA-256 \`${item.sha256}\`.`
         : `Source: ${where[0]}${where.length > 1 ? ` (also at ${where.slice(1).join(", ")})` : ""}, SHA-256 \`${item.sha256}\`.`;
@@ -662,8 +684,13 @@ function main() {
   const plist = key => { try { return execFileSync("/usr/libexec/PlistBuddy", ["-c", `Print ${key}`, layout.plist], { encoding: "utf8" }).trim(); } catch { return null; } };
   const app = { version: plist("CFBundleShortVersionString"), build: plist("CFBundleVersion") };
   const scanFiles = [layout.asar, layout.binary, path.join(layout.resources, "cua_node/bin/node_repl")];
+  let cliSkills = new Map();
+  try {
+    const cli = JSON.parse(fs.readFileSync(path.join(outDir, "codex-cli-prompts.json"), "utf8"));
+    cliSkills = new Map(cli.items.filter(item => item.document === CLI_SKILLS_PAGE).map(item => [item.sha256, item.source]));
+  } catch { /* no CLI skills page yet: nothing to point to */ }
   let result;
-  try { result = buildPages({ resources: layout.resources, app, scanFiles }); } catch (error) {
+  try { result = buildPages({ resources: layout.resources, app, scanFiles, cliSkills }); } catch (error) {
     if (error.code === "EACCES" || error.code === "EIO") { console.error(`bundle-resources: unreadable input: ${error.message}`); process.exit(2); }
     throw error;
   }
