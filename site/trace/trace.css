@@ -129,6 +129,10 @@ button { font: inherit; color: inherit; }
   font-weight: 750; color: var(--ink); cursor: pointer;
 }
 .brandbtn:hover { border-color: var(--link); }
+.session-pick {
+  font: 13px var(--sans); color: var(--ink); background: #121822; border: 1px solid var(--line-2);
+  border-radius: 7px; padding: 3px 6px; max-width: 360px; flex: none;
+}
 .title { margin: 0; font-size: 17px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stats { display: flex; flex-wrap: wrap; gap: 4px 26px; }
 .stats span { color: var(--ink-2); font-size: 13px; }

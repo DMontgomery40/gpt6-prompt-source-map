@@ -14,6 +14,8 @@ const S = {
 let scene = null;
 let text = null;     // (agentId, ref) => Promise<{text, mode}>
 let worker = null;
+let lastFiles = null; // the dropped files, kept so another session among them can be opened
+let pasteRoot = null; // the thread or session id from the paste box, sent as the worker's `root`
 
 // ---------- loader ----------
 setupLoader();
@@ -122,10 +124,10 @@ function workerText(agentId, ref) {
     getWorker().postMessage({ type: "text", ref, id });
   });
 }
-function parseInWorker(files) {
+function parseInWorker(files, root) {
   return new Promise((resolve, reject) => {
     pendingLoad = { resolve, reject };
-    getWorker().postMessage({ type: "load", files });
+    getWorker().postMessage({ type: "load", files, root: root || null });
   });
 }
 
@@ -134,8 +136,9 @@ async function loadFiles(files) {
   const logs = files.filter(f => /\.(jsonl|json)$/i.test(f.path));
   if (!logs.length) return showError("No .jsonl session logs in what was dropped.");
   setProgress(0, `Reading ${fmtInt(files.length)} files…`);
+  lastFiles = files;
   try {
-    const trace = await parseInWorker(files);
+    const trace = await parseInWorker(files, pasteRoot);
     text = workerText;
     start(trace);
   } catch (e) {
@@ -143,10 +146,31 @@ async function loadFiles(files) {
   }
 }
 
+// Several sessions were dropped: reload the worker's parse with the chosen one as `root`.
+async function switchSession(root) {
+  const pick = $("#session-pick");
+  pick.disabled = true;
+  try {
+    const trace = await parseInWorker(lastFiles, root);
+    scene?.dispose();
+    scene = null;
+    Object.assign(S, { level: 0, agentId: null, agent: null, reqIdx: null, stratum: null, block: null });
+    start(trace);
+  } catch (e) {
+    pick.disabled = false;
+    alert(`Couldn't open that session: ${e.message || e}`);
+  }
+}
+
 async function loadSynthetic() {
   setProgress(0.3, "Generating a synthetic session…");
-  const { syntheticTrace } = await import("./dev-synthetic.js");
-  const syn = syntheticTrace();
+  let syn;
+  try {
+    const { syntheticTrace } = await import("./dev-synthetic.js");
+    syn = syntheticTrace();
+  } catch {
+    return showError("The synthetic session isn't available on this site.");
+  }
   text = async (agentId, ref) => syn.text(ref);
   start(syn.trace);
 }
@@ -171,6 +195,8 @@ function describePaste(v) {
     return note ? [el("div", { class: "path" }, el("code", { text: p }), b), el("p", { text: note })] : [el("div", { class: "path" }, el("code", { text: p }), b)];
   };
   const uuid = (v.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i) || [])[0];
+  pasteRoot = uuid ? uuid.toLowerCase() : null;
+  if (uuid) out.append(el("p", { class: "note", text: "When you drop a folder holding several sessions, this one opens." }));
   if (/^codex:\/\//i.test(v) || (uuid && uuid[14] === "7" && !/\.claude\//.test(v))) {
     if (!uuid) return out.append(el("p", { text: "That deeplink has no thread id." }));
     const ms = parseInt(uuid.replace(/-/g, "").slice(0, 12), 16);
@@ -265,9 +291,13 @@ async function start(trace) {
   if (params.get("view") === "2d") S.mode = "2d";
   if (params.get("view") === "3d" && webglAvailable()) S.mode = "3d";
   await setMode(S.mode);
-  window.addEventListener("keydown", onKey);
-  window.addEventListener("resize", () => { layoutInsets(); if (S.mode === "2d") renderFlat(); renderMinimap(); scene?.refit(); });
+  if (!started) {
+    started = true;
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", () => { layoutInsets(); if (S.mode === "2d") renderFlat(); renderMinimap(); scene?.refit(); });
+  }
 }
+let started = false;
 
 async function setMode(mode) {
   S.mode = mode;
@@ -299,6 +329,17 @@ function buildHud() {
   const t = S.trace;
   const st = sessionStats(t);
   $("#title").textContent = t.title || (t.product === "codex" ? "Codex session" : "Claude Code session");
+  // More than one session among the dropped files: offer the others.
+  const cands = (t.candidates || []).filter(c => c && c.id);
+  const old = $("#session-pick");
+  if (old) old.remove();
+  if (cands.length > 1 && lastFiles) {
+    const cur = cands.find(c => (t.agents[0]?.id || "") === c.id || (t.agents[0]?.id || "").includes(c.id) || c.id.includes(t.agents[0]?.id || "@")) || null;
+    const sel = el("select", { id: "session-pick", class: "session-pick", "aria-label": `${cands.length} sessions in what you dropped` },
+      cands.map(c => el("option", { value: c.id, selected: cur === c ? true : null, text: `${c.product === "codex" ? "Codex" : "Claude Code"} · ${clipName(c.name || c.id)} · ${fmtInt(c.files)} files, ${(c.bytes / 1048576).toFixed(1)} MB` })));
+    sel.addEventListener("change", () => switchSession(sel.value));
+    $(".hud-title").append(sel);
+  }
   const stat = (b, s) => el("span", {}, el("b", { text: b }), s);
   $("#stats").replaceChildren(
     stat(fmtDur(st.wall), "wall clock"),
@@ -315,6 +356,8 @@ function buildHud() {
     onclick: () => { S.lens = l.key; render(); }
   }, el("b", { text: String(i + 1), "aria-hidden": "true" }), l.q)));
 }
+
+function clipName(s) { s = String(s); return s.length > 48 ? `${s.slice(0, 47)}…` : s; }
 
 function layoutInsets() {
   if (!scene) return;

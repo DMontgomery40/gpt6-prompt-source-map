@@ -10,7 +10,7 @@ import { STRATA, STRATUM_INDEX, STATUS, fmtTok, fmtClock, fmtDur, freshTokens, u
 const W = 220;            // world width of the whole session
 const H = 32;             // world height of the tallest context
 const ROOT_DEPTH = 7, SUB_DEPTH = 3.4, VALLEY = 9, LANE = 4.2, SIDE_Z = 5.5, STAGE_Z = 15;
-const VIEW = (() => { const q = new URLSearchParams(location.search); return { az: Number(q.get("az") ?? -42), el: Number(q.get("el") ?? 26), fov: Number(q.get("fov") ?? 34) }; })();
+const VIEW = (() => { const q = new URLSearchParams(location.search); return { az: Number(q.get("az") ?? -42), el: Number(q.get("el") ?? 26), fov: Number(q.get("fov") ?? 34), paz: Number(q.get("paz") ?? -66), pel: Number(q.get("pel") ?? 38) }; })();
 const SP = 0.62, CORE_R = 0.24, H1 = 12, LIFT_R = 1.25, LIFT_H = 13;
 const RINGS = 9;
 const FOG = new THREE.Color("#0d121a");
@@ -576,11 +576,13 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
       }
     }
     items.sort((a, b) => b.p - a.p);
+    // In a tall, narrow viewport the landscape keeps only its cliff and row labels.
+    const sparse = level === 0 && w < h;
     const placed = [];
     for (const it of items) {
       const off = it.x < 2 || it.x + it.w > w - insets.right + 4 || it.y < insets.top - 8 || it.y + it.h > h - 2;
       const hit = placed.some(q => it.x < q.x + q.w + 6 && q.x < it.x + it.w + 6 && it.y < q.y + q.h + 3 && q.y < it.y + it.h + 3);
-      const hide = off || hit;
+      const hide = off || hit || (sparse && it.p < 5);
       if ((it.e.style.visibility === "hidden") !== hide) it.e.style.visibility = hide ? "hidden" : "";
       if (!hide) placed.push(it);
     }
@@ -852,7 +854,7 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
       pts.push(new THREE.Vector3(x, 0, SIDE_Z + 8), new THREE.Vector3(x, hi, 0), new THREE.Vector3(x, 0, back), new THREE.Vector3(x, lo, back));
     }
     const portrait = host.clientWidth < host.clientHeight;
-    const f = fit(null, dirFrom(portrait ? -62 : VIEW.az, portrait ? 30 : VIEW.el), new THREE.Vector3(W / 2, 4, back / 2), pts);
+    const f = fit(null, dirFrom(portrait ? VIEW.paz : VIEW.az, portrait ? VIEW.pel : VIEW.el), new THREE.Vector3(W / 2, 4, back / 2), pts);
     flyTo(f.pos, f.tgt, dur);
   }
   function frameL1(i, dur) {
