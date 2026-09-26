@@ -98,7 +98,8 @@ function getWorker() {
       const frac = data.total ? data.done / data.total : null;
       const mb = n => `${(n / 1048576).toFixed(n > 1e8 ? 0 : 1)} MB`;
       const what = { scan: "Finding sessions", parse: "Reading", build: "Building the landscape", done: "Done" }[data.phase] || "Reading";
-      setProgress(frac, data.total ? `${what}: ${mb(data.done)} of ${mb(data.total)}` : `${what}…`);
+      const file = data.file ? ` · ${String(data.file).split("/").pop()}` : "";
+      setProgress(frac, data.total ? `${what}: ${mb(data.done)} of ${mb(data.total)}${file}` : `${what}…`);
     } else if (data.type === "trace") {
       pendingLoad?.resolve(data.trace); pendingLoad = null;
     } else if (data.type === "error") {
@@ -124,7 +125,18 @@ function workerText(agentId, ref) {
     getWorker().postMessage({ type: "text", ref, id });
   });
 }
-function parseInWorker(files, root) {
+// The site's reference index (same-origin static file) lets the worker link harness and injected
+// blocks to the pages that publish them. It is optional: without it blocks simply have no link.
+let indexSent = null;
+function sendIndex() {
+  indexSent ||= fetch(new URL("./reference-index.json", import.meta.url))
+    .then(r => (r.ok ? r.json() : null))
+    .then(index => { if (index) getWorker().postMessage({ type: "index", index }); })
+    .catch(() => null);
+  return indexSent;
+}
+async function parseInWorker(files, root) {
+  await sendIndex();
   return new Promise((resolve, reject) => {
     pendingLoad = { resolve, reject };
     getWorker().postMessage({ type: "load", files, root: root || null });
@@ -495,7 +507,7 @@ function showTip(hit) {
   const a = agentById(hit.agentId);
   const r = a?.requests[hit.reqIdx];
   if (!r) { tip.hidden = true; return; }
-  const who = a.kind === "root" ? "Main thread" : `${a.name}${a.kind !== "subagent" ? ` (${a.kind})` : ""}`;
+  const who = a.kind === "root" ? "Main thread" : `${a.name}${a.kind === "side" ? " (side call)" : a.kind === "guardian" ? " (guardian review)" : ""}`;
   const kids = [el("b", { text: `${who} · request ${hit.reqIdx + 1}` }), el("div", { class: "m", text: `${fmtWhen(r.t)} · ${fmtTok(r.tokens.context)} tokens in context` })];
   if (hit.kind === "stratum") {
     const s = STRATA[STRATUM_INDEX[hit.stratum]];

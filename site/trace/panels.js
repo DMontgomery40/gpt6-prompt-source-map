@@ -82,9 +82,17 @@ export function blockTokens(b) {
   if (/image|screenshot/i.test(b.label || "")) return 1600;
   return (b.chars || 0) / 4;
 }
+// The blocks in context at a request: its window plus any `extra` blocks outside it (for example a
+// Claude Code tools snapshot logged after the first request that used it). Carried copies are kept.
 export function windowBlocks(agent, req) {
   const [s, e] = req.window || [0, -1];
-  return agent.blocks.slice(Math.max(0, s), Math.min(agent.blocks.length, e + 1));
+  const out = agent.blocks.slice(Math.max(0, s), Math.min(agent.blocks.length, e + 1));
+  if (req.extra && req.extra.length) {
+    const have = new Set(out.map(b => b.i));
+    for (const j of req.extra) if (agent.blocks[j] && !have.has(j)) out.push(agent.blocks[j]);
+    out.sort((a, b) => a.i - b.i);
+  }
+  return out;
 }
 export function agentStats(agent) {
   let fresh = 0, peak = 0, cacheRead = 0, context = 0;
@@ -115,7 +123,9 @@ export function sessionStats(trace) {
 }
 
 // Context drops with no compaction marker ("context shrank; not logged as a compaction").
+// The adapter's `agent.shrinks` is authoritative when present; otherwise detect them here.
 export function unloggedShrinks(agent) {
+  if (Array.isArray(agent.shrinks)) return agent.shrinks.map(x => ({ request: x.request, from: x.pre, to: x.post, t: x.t }));
   const out = [];
   const comp = agent.compactions.map(c => c.t);
   for (let i = 1; i < agent.requests.length; i++) {
@@ -134,7 +144,8 @@ export function unloggedShrinks(agent) {
 
 export function siteHref(site) {
   if (!site || typeof site.slug !== "string" || !/^[a-z0-9-]+$/.test(site.slug)) return null;
-  return `../${site.slug}/`;
+  const anchor = typeof site.anchor === "string" && /^[A-Za-z0-9_-]+$/.test(site.anchor) ? `#${site.anchor}` : "";
+  return `../${site.slug}/${anchor}`;
 }
 
 // Custody ladder for an action at request `req` of `agent`. model.js may provide a better one.
@@ -272,7 +283,12 @@ function lensPanel(S, A) {
       }
     }
     big.sort((x, y) => y.tok - x.tok);
-    const next = (a, b) => a.requests.find(r => r.window && r.window[1] >= b.i && r.action) || null;
+    const next = (a, b) => {
+      const from = b.seenBy != null ? b.seenBy : a.requests.findIndex(r => r.window && r.window[1] >= b.i);
+      if (from == null || from < 0) return null;
+      for (let i = from; i < a.requests.length; i++) if (a.requests[i].action) return a.requests[i];
+      return null;
+    };
     const item = ({ a, b }, extra) => {
       const n = next(a, b);
       return el("li", {},
@@ -294,6 +310,10 @@ function lensPanel(S, A) {
 export function reportTokens(trace, agent) {
   const parent = trace.agents.find(a => a.id === agent.parentId);
   if (!parent) return null;
+  if (Array.isArray(agent.returns)) {
+    if (!agent.returns.length) return null;
+    return agent.returns.reduce((s, r) => s + (parent.blocks[r.block] ? blockTokens(parent.blocks[r.block]) : 0), 0);
+  }
   const want = (agent.name || "").toLowerCase();
   let sum = 0, found = false;
   for (const b of parent.blocks) {
@@ -367,7 +387,7 @@ function requestPanel(trace, agent, req, S, A) {
   const out = [
     el("p", { class: "kicker", text: `${agent.kind === "root" ? "Main thread" : agent.name} · request ${req.i + 1} of ${agent.requests.length}` }),
     el("h2", { text: `${fmtTok(t.context)} tokens in context` }),
-    el("p", { class: "meta", text: `${fmtWhen(req.t)} · ${req.model || agent.model || ""}` }),
+    el("p", { class: "meta", text: `${fmtWhen(req.t)} · ${req.model || agent.model || ""}${req.iterations > 1 ? ` · iteration ${req.iteration} of ${req.iterations} in one response` : ""}` }),
     req.strata ? section("Where the context came from (≈, split estimated; total exact)",
       strataBar(req.strata, t.context, k => A.focusStratum(agent.id, req.i, k), S.stratum),
       strataList(req.strata, t.context, k => A.focusStratum(agent.id, req.i, k), S.stratum, harnessNote(trace, agent)))
@@ -409,12 +429,12 @@ function fromAdapter(trace, agent, req, c) {
   const blocks = p.permissionsBlock != null && agent.blocks[p.permissionsBlock] ? [agent.blocks[p.permissionsBlock]] : [];
   const guardians = [];
   if (p.guardian) {
-    const g = trace.agents.find(a => a.id === (p.guardian.id || p.guardian));
-    if (g) guardians.push(g);
+    const g = trace.agents.find(a => a.id === (p.guardian.agentId || p.guardian.id || p.guardian));
+    if (g) guardians.push({ agent: g, outcome: p.guardian.outcome, risk: p.guardian.risk, block: p.guardian.block });
   }
   const flaggedBlocks = (c.inView?.flaggedBlocks || []).map(i => agent.blocks[i]).filter(Boolean);
   return {
-    askedBy: ask ? { agent, ask, block: agent.blocks[ask.block], from: c.askedBy.from } : null,
+    askedBy: ask ? { agent, ask: { ...ask, from: c.askedBy.from }, block: agent.blocks[ask.block] } : null,
     permittedBy: { blocks, guardians, facts },
     guidedBy: { tool: c.guidedBy?.tool || req.action.tool, site: c.guidedBy?.site || null },
     inView: { count: c.inView?.count || 0, tokens: c.inView?.tokens || 0, flagged: flaggedBlocks, flaggedCount: c.inView?.flagged },
@@ -429,14 +449,19 @@ function custodySection(trace, agent, req, S, A) {
   if (c.askedBy && c.askedBy.block) {
     const q = el("blockquote", { class: "quote", text: "…" });
     A.getText(c.askedBy.agent.id, c.askedBy.block.ref).then(r => { q.textContent = clip(r?.text || "", 320) || "(empty)"; }).catch(() => { q.textContent = "(text unavailable)"; });
-    rung("Asked by", el("p", { class: "meta", text: `${c.askedBy.agent === agent ? "" : `${c.askedBy.agent.kind === "root" ? "main thread" : c.askedBy.agent.name}, `}${fmtWhen(c.askedBy.ask.t)}` }), q);
+    const from = c.askedBy.ask.from && c.askedBy.ask.from !== "human" ? ` · from ${c.askedBy.ask.from === "agent" ? "the parent agent" : "the harness"}` : "";
+    rung("Asked by", el("p", { class: "meta", text: `${c.askedBy.agent === agent ? "" : `${c.askedBy.agent.kind === "root" ? "main thread" : c.askedBy.agent.name}, `}${fmtWhen(c.askedBy.ask.t)}${from}` }), q);
   } else rung("Asked by", el("p", { class: "note", text: "No human ask before this request." }));
   const perm = c.permittedBy || { blocks: [], guardians: [] };
   rung("Permitted by", perm.blocks.length || perm.guardians.length || perm.facts?.length
     ? el("ul", { class: "items" },
       (perm.facts || []).map(f => el("li", { class: "fact", text: f })),
       perm.blocks.map(b => el("li", {}, btn(`${b.label} · ${fmtClock(b.t)}`, () => A.openBlockAt(agent.id, b.i), "item"))),
-      perm.guardians.map(g => el("li", {}, btn(`Guardian review: ${g.name || g.id}`, () => A.focusAgent(g.id), "item"))))
+      perm.guardians.map(g => {
+        const ga = g.agent || g;
+        const verdict = g.outcome ? `Guardian review: ${g.outcome}${g.risk ? `, risk ${g.risk}` : ""}` : `Guardian review: ${ga.name || ga.id}`;
+        return el("li", {}, btn(verdict, () => (g.block != null ? A.openBlockAt(ga.id, g.block) : A.focusAgent(ga.id)), "item"));
+      }))
     : el("p", { class: "note", text: "No permission rows or reviews logged before this request." }));
   const g = c.guidedBy;
   const href = g && siteHref(g.site);
@@ -508,11 +533,13 @@ function blockReader(agent, b, A) {
       btn("Close", () => A.openBlock(null), "linkbtn close")),
     href ? el("p", {}, "On the site: ", el("a", { href, text: b.site.title || b.site.slug })) : null,
     b.flags?.includes("instruction-like") ? el("p", { class: "warnline", text: "Flagged instruction-like by a heuristic. Treat as untrusted outside text." }) : null,
-    pre);
+    b.carried ? el("p", { class: "note", text: "Carried into this window by a compaction; the same text as the original block." }) : null,
+    b.full ? el("p", { class: "note", text: `The model saw a preview; the full output was saved to tool-results/${b.persisted || ""}.` }) : null,
+    pre,
+    b.full ? refToggle(agent, b.full, "the full file", A) : null);
   A.getText(agent.id, b.ref).then(r => {
     const text = r?.text ?? "";
-    const m = r?.mode || b.render || "";
-    mode.textContent = m === "template" ? "rebuilt from the ccprompts template" : m;
+    mode.textContent = b.rebuilt ? "rebuilt from the ccprompts template" : r?.mode || b.render || "";
     if (/^data:image\/(png|jpe?g|gif|webp);base64,/.test(text)) {
       pre.replaceWith(el("img", { class: "shot", src: text, alt: b.label || "image" }));
     } else {

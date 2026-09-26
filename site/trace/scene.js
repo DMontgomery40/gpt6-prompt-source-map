@@ -452,7 +452,10 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
   const sideReqs = [];
   for (const a of sideAgents) a.requests.forEach((r, i) => sideReqs.push({ a, i, x: L.X(r.t) * W }));
   const coreGeo = new THREE.CylinderGeometry(1, 1, 1, 18, 1).translate(0, 0.5, 0);
-  const cairns = new THREE.InstancedMesh(coreGeo, strataMaterial(), Math.max(1, sideReqs.length));
+  // Side calls (advisor iterations, guardian reviews) are small outcrops beside the main ridge, not
+  // spikes in it; their exact context is in the tooltip and panel, so they are not drawn to height scale.
+  const outcropGeo = new THREE.CylinderGeometry(0.72, 1, 1, 6, 1).translate(0, 0.5, 0);
+  const cairns = new THREE.InstancedMesh(outcropGeo, strataMaterial(), Math.max(1, sideReqs.length));
   {
     const b0 = new Float32Array(Math.max(1, sideReqs.length) * 4), b1 = new Float32Array(Math.max(1, sideReqs.length) * 4);
     const m = new THREE.Matrix4();
@@ -460,10 +463,10 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
       const r = s.a.requests[s.i];
       const t = topsOf(r, 1 / Math.max(1, r.tokens.context || 1));
       b0.set([t[0], t[1], t[2], t[3]], n * 4); b1.set([t[4], t[5], 1, t[7]], n * 4);
-      m.makeScale(0.32, Math.max(0.2, (r.tokens.context || 0) * yScale), 0.32).setPosition(s.x, 0, SIDE_Z);
+      m.makeScale(0.55, 0.6 + 1.8 * Math.sqrt((r.tokens.context || 0) / L.yMax), 0.55).setPosition(s.x, 0, SIDE_Z);
       cairns.setMatrixAt(n, m);
     });
-    cairns.geometry = coreGeo.clone();
+    cairns.geometry = outcropGeo.clone();
     cairns.geometry.setAttribute("aB0", new THREE.InstancedBufferAttribute(b0, 4));
     cairns.geometry.setAttribute("aB1", new THREE.InstancedBufferAttribute(b1, 4));
     cairns.count = sideReqs.length;
@@ -1002,8 +1005,8 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
       const t = (SIDE_Z + 0.55 - o.z) / d.z;
       if (!(t > 0)) continue;
       const x = o.x + d.x * t, y = o.y + d.y * t;
-      const h = Math.max(0.2, (s.a.requests[s.i].tokens.context || 0) * yScale);
-      if (Math.abs(x - s.x) < 0.7 && y >= 0 && y <= h && (!best || t < best.t)) best = { t, kind: "side", agentId: s.a.id, reqIdx: s.i };
+      const h = 0.6 + 1.8 * Math.sqrt((s.a.requests[s.i].tokens.context || 0) / L.yMax);
+      if (Math.abs(x - s.x) < 0.8 && y >= 0 && y <= h + 0.2 && (!best || t < best.t)) best = { t, kind: "side", agentId: s.a.id, reqIdx: s.i };
     }
     return best;
   }

@@ -92,7 +92,7 @@ export function buildLayout(trace) {
       const t0s = a.requests[s.i0].t, t1s = a.requests[s.i1].t;
       const from = k === 0 && a.spawn && a.spawn.parentRequest != null ? Math.min(a.spawn.parentRequest, parent.requests.length - 1) : reqAt(parent, t0s, false);
       links.push({ type: "spawn", parent, child: a, seg: s, parentReq: from });
-      if (a.kind === "subagent") {
+      if (a.kind === "subagent" && !Array.isArray(a.returns)) {
         const back = reqAt(parent, t1s, true);
         // Report size: the parent's first agents-kind block after this burst ends that names this agent.
         let size = null;
@@ -104,6 +104,20 @@ export function buildLayout(trace) {
         links.push({ type: "return", parent, child: a, seg: s, parentReq: back, size });
       }
     });
+  }
+
+  // The adapter's returns: where each report landed in the parent, drawn from the burst it followed.
+  for (const a of trace.agents) {
+    if (a.kind !== "subagent" || !Array.isArray(a.returns)) continue;
+    const parent = byId.get(a.parentId);
+    const segments = info.get(a.id)?.segments || [];
+    if (!parent || !parent.requests.length || !segments.length) continue;
+    for (const r of a.returns) {
+      let seg = segments[0];
+      for (const sg of segments) if (a.requests[sg.i0].t <= r.t + 1000) seg = sg;
+      const pr = r.parentRequest != null ? Math.min(r.parentRequest, parent.requests.length - 1) : reqAt(parent, r.t, true);
+      links.push({ type: "return", parent, child: a, seg, parentReq: pr, size: parent.blocks[r.block] ? blockTokens(parent.blocks[r.block]) : null });
+    }
   }
 
   let yMax = 1;
@@ -274,6 +288,20 @@ export function renderAgentColumns(host, agent, opts) {
   const colW = Math.max(3, Math.min(14, (W - left - right) / Math.max(1, n)));
   const visible = Math.floor((W - left - right) / colW);
   const start = Math.max(0, Math.min(n - visible, (reqIdx ?? 0) - Math.floor(visible / 2)));
+  // The adapter's returns: where each report landed in the parent, drawn from the burst it followed.
+  for (const a of trace.agents) {
+    if (a.kind !== "subagent" || !Array.isArray(a.returns)) continue;
+    const parent = byId.get(a.parentId);
+    const segments = info.get(a.id)?.segments || [];
+    if (!parent || !parent.requests.length || !segments.length) continue;
+    for (const r of a.returns) {
+      let seg = segments[0];
+      for (const sg of segments) if (a.requests[sg.i0].t <= r.t + 1000) seg = sg;
+      const pr = r.parentRequest != null ? Math.min(r.parentRequest, parent.requests.length - 1) : reqAt(parent, r.t, true);
+      links.push({ type: "return", parent, child: a, seg, parentReq: pr, size: parent.blocks[r.block] ? blockTokens(parent.blocks[r.block]) : null });
+    }
+  }
+
   let yMax = 1;
   for (const r of agent.requests) yMax = Math.max(yMax, r.tokens.context);
   yMax *= 1.05;
