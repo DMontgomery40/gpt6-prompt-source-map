@@ -7,21 +7,21 @@
    "label": "Auth, providers and network",
    "kind": "topic",
    "definition": "Settings and environment variables for signing in and reaching model backends: login method and credential storage, API keys and access tokens, model provider definitions and base URLs, cloud-provider credentials (such as AWS/Bedrock), HTTP proxies, CA certificates and request headers. It applies in any group, including requirements: variants. It does not cover the sandbox's network allowlist for commands the agent runs, or MCP-server-specific auth.",
-   "count": 51
+   "count": 50
   },
   {
    "id": "sandbox-approvals",
    "label": "Sandbox and approvals",
    "kind": "topic",
    "definition": "Settings that limit or approve what the agent may execute or touch: sandbox mode and permission profiles, filesystem and network access for commands, approval policy and approvals reviewer (including guardian auto-review), exec-policy / prefix rules, shell environment policy, and variables Codex sets to mark or escalate sandboxed processes. It applies in any group, including features.* flags and requirements: variants. It does not cover keybindings in approval dialogs or generic terminal-detection variables.",
-   "count": 16
+   "count": 15
   },
   {
    "id": "built-in-tools",
    "label": "Built-in tools",
    "kind": "topic",
    "definition": "Settings for tools that ship with Codex and that the model calls directly: shell / unified exec and background terminals, apply_patch, plan updates, web search, browser use, computer use, image generation and viewing, JS REPL and code mode, clock/sleep and async user-message tools, and tool discovery or suggestion. It applies in any group, including features.* flags and requirements: variants. It does not cover external MCP servers or approval policy in general.",
-   "count": 5
+   "count": 4
   },
   {
    "id": "mcp-plugins",
@@ -35,14 +35,14 @@
    "label": "Telemetry, logs and storage",
    "kind": "topic",
    "definition": "Settings and environment variables for observability and local state: OpenTelemetry exporters and trace context, analytics and feedback, log levels and formats, transcript/history persistence, rollout and session files, and Codex home or database paths. It applies in any group, including features.* flags and requirements: variants. It does not cover the model's memory of past sessions or lifecycle hooks.",
-   "count": 26
+   "count": 27
   },
   {
    "id": "ui",
    "label": "Terminal and desktop UI",
    "kind": "topic",
    "definition": "Settings and environment variables that change how the terminal UI or desktop app looks and behaves for the user: TUI options, keymaps and vim mode, themes and rendering, notices and prompts, desktop-app window or runtime behavior, and terminal detection. It applies in any group. It does not cover what the model can do, or third-party library variables that only happen to be read by the desktop bundle.",
-   "count": 27
+   "count": 24
   },
   {
    "id": "documented",
@@ -635,7 +635,8 @@
   ],
   "env:CODEX_CLI_PATH": [
    "undocumented",
-   "desktop-app"
+   "desktop-app",
+   "telemetry-storage"
   ],
   "env:CODEX_DESKTOP_NETWORK_POLICY": [
    "undocumented",
@@ -684,13 +685,11 @@
   "env:CODEX_MAX_LOG_LEVEL": [
    "undocumented",
    "desktop-app",
-   "telemetry-storage",
-   "ui"
+   "telemetry-storage"
   ],
   "env:CODEX_MCP_APP_SANDBOX_URL": [
    "undocumented",
    "desktop-app",
-   "auth-providers",
    "sandbox-approvals",
    "mcp-plugins"
   ],
@@ -701,8 +700,7 @@
   ],
   "env:CODEX_PREFERRED_GIT_EXECUTABLE": [
    "undocumented",
-   "desktop-app",
-   "built-in-tools"
+   "desktop-app"
   ],
   "env:CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": [
    "undocumented",
@@ -736,8 +734,7 @@
   ],
   "env:SPARKLE_UPDATE_INTERVAL_MINUTES": [
    "undocumented",
-   "desktop-app",
-   "ui"
+   "desktop-app"
   ],
   "env:VITE_CODEX_DESKTOP_AUTH_ORIGIN": [
    "undocumented",
@@ -780,20 +777,19 @@
    "undocumented",
    "cli",
    "child-env",
-   "auth-providers"
+   "auth-providers",
+   "sandbox-approvals"
   ],
   "env:CODEX_NETWORK_PROXY_SNAPSHOT_BROKERED_UNSET_": [
    "undocumented",
    "cli",
    "child-env",
-   "auth-providers",
-   "sandbox-approvals"
+   "auth-providers"
   ],
   "env:CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_BASH_ENV": [
    "undocumented",
    "cli",
-   "child-env",
-   "sandbox-approvals"
+   "child-env"
   ],
   "env:CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_POSIX_ENV": [
    "undocumented",
@@ -808,8 +804,7 @@
   "env:CODEX_NON_INTERACTIVE": [
    "documented",
    "cli",
-   "child-env",
-   "ui"
+   "child-env"
   ],
   "env:CODEX_PERMISSION_PROFILE": [
    "undocumented",

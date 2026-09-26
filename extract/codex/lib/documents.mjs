@@ -92,8 +92,8 @@ function fenced(text) {
 function otherModelsMarkdown(others) {
   const seen = new Map();
   const blocks = [
-    "# Other models in the Codex catalog\n\n" +
-      "Base instructions and model messages for every model in the live authenticated Codex catalog other than GPT-6 Astra, Sol and Luna, in catalog order. " +
+    "# Other models in the Codex/ChatGPT catalog\n\n" +
+      "Base instructions and model messages for every model in the live authenticated Codex/ChatGPT catalog other than GPT-6 Astra, Sol and Luna, in catalog order. " +
       "Each text is exact and fenced, so its own headings stay inside it. A text identical to one shown earlier points back to it instead of repeating it."
   ];
   for (const model of others) {
@@ -135,7 +135,7 @@ function comparison(gpt6, cli) {
   const identical = fields.filter(field => new Set(gpt6.map(model => models[model.slug][field]?.sha256 ?? "absent")).size === 1);
   return {
     source: `${cli.entrypoint} debug models`,
-    surface: "Authenticated Codex model catalog; this is not the ChatGPT Work model catalog.",
+    surface: "Authenticated Codex/ChatGPT model catalog; this is not the ChatGPT Work model catalog.",
     hash_rule: "SHA-256 over the UTF-8 bytes of Python json.dumps(value, sort_keys=True, ensure_ascii=False) for each model_messages field.",
     models,
     common_fields_identical: identical,
@@ -144,7 +144,7 @@ function comparison(gpt6, cli) {
 }
 
 const helperHeader = version =>
-  `# Codex desktop helper prompt inventory\n\nExact bundled helper prompts recovered from ChatGPT desktop ${version}. These are separate from ChatGPT Work model instructions and the Codex voice orchestration prompts. Dynamic values are replaced with angle-bracket placeholders before hashing. "Bundled default" means the client contains the template; it does not prove a particular helper ran during a particular user turn.`;
+  `# Codex/ChatGPT desktop helper prompt inventory\n\nExact bundled helper prompts recovered from ChatGPT desktop ${version}. These are separate from ChatGPT Work model instructions and the Codex/ChatGPT voice orchestration prompts. Dynamic values are replaced with angle-bracket placeholders before hashing. "Bundled default" means the client contains the template; it does not prove a particular helper ran during a particular user turn.`;
 
 function helperMarkdown(app, prompts) {
   const statics = prompts.staticHelpers.map(item =>
@@ -159,7 +159,7 @@ function helperMarkdown(app, prompts) {
 function voiceMarkdown(app, prompts) {
   const files = [...new Map(prompts.voice.map(item => [item.file, item.fileSha256])).entries()];
   const fileList = files.map(([file, fileSha]) => `\`${file}\` (SHA-256 \`${fileSha}\`)`).join(", ");
-  const header = `# Codex voice prompt inventory\n\nSource: ChatGPT desktop ${app.version}, \`app.asar\` → ${fileList}. These are bundled prompt strings or fallbacks. Runtime configuration can override several of them; this capture does not prove which variant was active for a specific call. The placeholders are preserved exactly as shipped. These strings belong to **Codex voice**, not the ChatGPT Work instruction stack.`;
+  const header = `# Codex/ChatGPT voice prompt inventory\n\nSource: ChatGPT desktop ${app.version}, \`app.asar\` → ${fileList}. These are bundled prompt strings or fallbacks. Runtime configuration can override several of them; this capture does not prove which variant was active for a specific call. The placeholders are preserved exactly as shipped. These strings belong to **Codex/ChatGPT voice**, not the ChatGPT Work instruction stack.`;
   const sections = prompts.voice.map(item => {
     const identifier = `${item.identifier ?? "anonymous"}${item.fallback ? " fallback" : ""}`;
     const where = files.length > 1 ? ` · \`${item.file}\`` : "";
@@ -185,7 +185,7 @@ function inventory(app, prompts, gpt6) {
   });
   const recordFile = slug => GPT6_DOCUMENTED.includes(slug) ? OUTPUT_NAMES.record(slug) : OUTPUT_NAMES.otherModels;
   return {
-    scope: `Recoverable GPT-6 Codex model-message leaves, bundled Codex desktop helper templates (${OUTPUT_NAMES.helper}) and bundled Codex voice prompts (${OUTPUT_NAMES.voice}).`,
+    scope: `Recoverable GPT-6 Codex/ChatGPT model-message leaves, bundled Codex/ChatGPT desktop helper templates (${OUTPUT_NAMES.helper}) and bundled Codex/ChatGPT voice prompts (${OUTPUT_NAMES.voice}).`,
     hash_rule: "SHA-256 over exact UTF-8 prompt text. Dynamic helper values use the documented angle-bracket placeholders.",
     helper_prompts: [...prompts.staticHelpers, ...prompts.functionHelpers].map(helperItem),
     voice_prompts: prompts.voice.map(item => ({
@@ -204,7 +204,7 @@ function inventory(app, prompts, gpt6) {
       stringLeaves(model.model_messages, "model_messages").map(({ path: field, value }) => ({
         id: `${model.slug}:${field}`,
         model: model.slug,
-        source: "current Codex model catalog response",
+        source: "current Codex/ChatGPT model catalog response",
         source_file: recordFile(model.slug),
         field,
         source_type: "authenticated remote catalog record",
@@ -216,7 +216,7 @@ function inventory(app, prompts, gpt6) {
     detectable_omissions: [
       "ChatGPT Work service-side system/developer instructions are not present in the authenticated model catalog or observed client generation requests.",
       "Remote configuration can override bundled voice and desktop defaults; bundled presence is not proof of runtime activation.",
-      "Playwright test-agent prompt files in the bundled computer-use dependency are third-party dependency prompts, not Codex model defaults; they are inventoried as excluded dependency material.",
+      "Playwright test-agent prompt files in the bundled computer-use dependency are third-party dependency prompts, not Codex/ChatGPT model defaults; they are inventoried as excluded dependency material.",
       "User-authored drafts, conversation history, credentials, and private cache payloads were intentionally excluded."
     ],
     excluded_dependency_prompts: app.dependencyPrompts

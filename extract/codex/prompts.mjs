@@ -192,13 +192,13 @@ export const voicePrompts = [
   },
   {
     id: "voice-realtime-start",
-    title: "Existing Codex task: realtime start",
+    title: "Existing Codex/ChatGPT task: realtime start",
     anchor: "Realtime voice is active for this existing Codex task.",
     fallback: true
   },
   {
     id: "voice-realtime-end",
-    title: "Existing Codex task: realtime end",
+    title: "Existing Codex/ChatGPT task: realtime end",
     anchor: "Realtime voice mode has ended.",
     fallback: true
   }

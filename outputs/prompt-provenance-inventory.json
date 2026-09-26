@@ -1,5 +1,5 @@
 {
-  "scope": "Recoverable GPT-6 Codex model-message leaves, bundled Codex desktop helper templates (desktop-helper-prompts.md) and bundled Codex voice prompts (voice-prompts.md).",
+  "scope": "Recoverable GPT-6 Codex/ChatGPT model-message leaves, bundled Codex/ChatGPT desktop helper templates (desktop-helper-prompts.md) and bundled Codex/ChatGPT voice prompts (voice-prompts.md).",
   "hash_rule": "SHA-256 over exact UTF-8 prompt text. Dynamic helper values use the documented angle-bracket placeholders.",
   "helper_prompts": [
     {
@@ -287,7 +287,7 @@
     },
     {
       "id": "voice-realtime-start",
-      "title": "Existing Codex task: realtime start",
+      "title": "Existing Codex/ChatGPT task: realtime start",
       "source": "ChatGPT desktop 26.924.20706 app.asar -> app-initial-0a6dd402dd72.js",
       "source_file_sha256": "30e60012a6dc5efe7840000600af30d49697c74152180ee615409e53469b25ef",
       "field": "z7n string literal",
@@ -299,7 +299,7 @@
     },
     {
       "id": "voice-realtime-end",
-      "title": "Existing Codex task: realtime end",
+      "title": "Existing Codex/ChatGPT task: realtime end",
       "source": "ChatGPT desktop 26.924.20706 app.asar -> app-initial-0a6dd402dd72.js",
       "source_file_sha256": "30e60012a6dc5efe7840000600af30d49697c74152180ee615409e53469b25ef",
       "field": "B7n string literal",
@@ -314,7 +314,7 @@
     {
       "id": "gpt-6-astra:model_messages.persistent_instructions",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.persistent_instructions",
       "source_type": "authenticated remote catalog record",
@@ -325,7 +325,7 @@
     {
       "id": "gpt-6-astra:model_messages.instructions_template",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.instructions_template",
       "source_type": "authenticated remote catalog record",
@@ -336,7 +336,7 @@
     {
       "id": "gpt-6-astra:model_messages.approvals.on_request_auto_review",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.approvals.on_request_auto_review",
       "source_type": "authenticated remote catalog record",
@@ -347,7 +347,7 @@
     {
       "id": "gpt-6-astra:model_messages.collaboration_modes.default",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.collaboration_modes.default",
       "source_type": "authenticated remote catalog record",
@@ -358,7 +358,7 @@
     {
       "id": "gpt-6-astra:model_messages.auto_review.rejection_instructions",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.auto_review.rejection_instructions",
       "source_type": "authenticated remote catalog record",
@@ -369,7 +369,7 @@
     {
       "id": "gpt-6-astra:model_messages.multi_agent.role.root",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.multi_agent.role.root",
       "source_type": "authenticated remote catalog record",
@@ -380,7 +380,7 @@
     {
       "id": "gpt-6-astra:model_messages.multi_agent.role.subagent",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.multi_agent.role.subagent",
       "source_type": "authenticated remote catalog record",
@@ -391,7 +391,7 @@
     {
       "id": "gpt-6-astra:model_messages.token_budget.reminder_message_template",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.token_budget.reminder_message_template",
       "source_type": "authenticated remote catalog record",
@@ -402,7 +402,7 @@
     {
       "id": "gpt-6-astra:model_messages.token_budget.guidance_message",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.token_budget.guidance_message",
       "source_type": "authenticated remote catalog record",
@@ -413,7 +413,7 @@
     {
       "id": "gpt-6-astra:model_messages.token_budget.auto_compact_fallback_prompt",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.token_budget.auto_compact_fallback_prompt",
       "source_type": "authenticated remote catalog record",
@@ -424,7 +424,7 @@
     {
       "id": "gpt-6-astra:model_messages.guardian_v2.classifier_instructions",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.guardian_v2.classifier_instructions",
       "source_type": "authenticated remote catalog record",
@@ -435,7 +435,7 @@
     {
       "id": "gpt-6-astra:model_messages.confirmation_policies.browser_use",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.confirmation_policies.browser_use",
       "source_type": "authenticated remote catalog record",
@@ -446,7 +446,7 @@
     {
       "id": "gpt-6-astra:model_messages.confirmation_policies.computer_use",
       "model": "gpt-6-astra",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-astra-model-record.json",
       "field": "model_messages.confirmation_policies.computer_use",
       "source_type": "authenticated remote catalog record",
@@ -457,7 +457,7 @@
     {
       "id": "gpt-6-sol:model_messages.persistent_instructions",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.persistent_instructions",
       "source_type": "authenticated remote catalog record",
@@ -468,7 +468,7 @@
     {
       "id": "gpt-6-sol:model_messages.instructions_template",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.instructions_template",
       "source_type": "authenticated remote catalog record",
@@ -479,7 +479,7 @@
     {
       "id": "gpt-6-sol:model_messages.approvals.on_request_auto_review",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.approvals.on_request_auto_review",
       "source_type": "authenticated remote catalog record",
@@ -490,7 +490,7 @@
     {
       "id": "gpt-6-sol:model_messages.collaboration_modes.default",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.collaboration_modes.default",
       "source_type": "authenticated remote catalog record",
@@ -501,7 +501,7 @@
     {
       "id": "gpt-6-sol:model_messages.auto_review.rejection_instructions",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.auto_review.rejection_instructions",
       "source_type": "authenticated remote catalog record",
@@ -512,7 +512,7 @@
     {
       "id": "gpt-6-sol:model_messages.multi_agent.role.root",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.multi_agent.role.root",
       "source_type": "authenticated remote catalog record",
@@ -523,7 +523,7 @@
     {
       "id": "gpt-6-sol:model_messages.multi_agent.role.subagent",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.multi_agent.role.subagent",
       "source_type": "authenticated remote catalog record",
@@ -534,7 +534,7 @@
     {
       "id": "gpt-6-sol:model_messages.token_budget.reminder_message_template",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.token_budget.reminder_message_template",
       "source_type": "authenticated remote catalog record",
@@ -545,7 +545,7 @@
     {
       "id": "gpt-6-sol:model_messages.token_budget.guidance_message",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.token_budget.guidance_message",
       "source_type": "authenticated remote catalog record",
@@ -556,7 +556,7 @@
     {
       "id": "gpt-6-sol:model_messages.token_budget.auto_compact_fallback_prompt",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.token_budget.auto_compact_fallback_prompt",
       "source_type": "authenticated remote catalog record",
@@ -567,7 +567,7 @@
     {
       "id": "gpt-6-sol:model_messages.guardian_v2.classifier_instructions",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.guardian_v2.classifier_instructions",
       "source_type": "authenticated remote catalog record",
@@ -578,7 +578,7 @@
     {
       "id": "gpt-6-sol:model_messages.confirmation_policies.browser_use",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.confirmation_policies.browser_use",
       "source_type": "authenticated remote catalog record",
@@ -589,7 +589,7 @@
     {
       "id": "gpt-6-sol:model_messages.confirmation_policies.computer_use",
       "model": "gpt-6-sol",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-sol-model-record.json",
       "field": "model_messages.confirmation_policies.computer_use",
       "source_type": "authenticated remote catalog record",
@@ -600,7 +600,7 @@
     {
       "id": "gpt-6-luna:model_messages.persistent_instructions",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.persistent_instructions",
       "source_type": "authenticated remote catalog record",
@@ -611,7 +611,7 @@
     {
       "id": "gpt-6-luna:model_messages.instructions_template",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.instructions_template",
       "source_type": "authenticated remote catalog record",
@@ -622,7 +622,7 @@
     {
       "id": "gpt-6-luna:model_messages.approvals.on_request_auto_review",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.approvals.on_request_auto_review",
       "source_type": "authenticated remote catalog record",
@@ -633,7 +633,7 @@
     {
       "id": "gpt-6-luna:model_messages.collaboration_modes.default",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.collaboration_modes.default",
       "source_type": "authenticated remote catalog record",
@@ -644,7 +644,7 @@
     {
       "id": "gpt-6-luna:model_messages.auto_review.rejection_instructions",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.auto_review.rejection_instructions",
       "source_type": "authenticated remote catalog record",
@@ -655,7 +655,7 @@
     {
       "id": "gpt-6-luna:model_messages.multi_agent.role.root",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.multi_agent.role.root",
       "source_type": "authenticated remote catalog record",
@@ -666,7 +666,7 @@
     {
       "id": "gpt-6-luna:model_messages.multi_agent.role.subagent",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.multi_agent.role.subagent",
       "source_type": "authenticated remote catalog record",
@@ -677,7 +677,7 @@
     {
       "id": "gpt-6-luna:model_messages.token_budget.reminder_message_template",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.token_budget.reminder_message_template",
       "source_type": "authenticated remote catalog record",
@@ -688,7 +688,7 @@
     {
       "id": "gpt-6-luna:model_messages.token_budget.guidance_message",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.token_budget.guidance_message",
       "source_type": "authenticated remote catalog record",
@@ -699,7 +699,7 @@
     {
       "id": "gpt-6-luna:model_messages.token_budget.auto_compact_fallback_prompt",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.token_budget.auto_compact_fallback_prompt",
       "source_type": "authenticated remote catalog record",
@@ -710,7 +710,7 @@
     {
       "id": "gpt-6-luna:model_messages.guardian_v2.classifier_instructions",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.guardian_v2.classifier_instructions",
       "source_type": "authenticated remote catalog record",
@@ -721,7 +721,7 @@
     {
       "id": "gpt-6-luna:model_messages.confirmation_policies.browser_use",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.confirmation_policies.browser_use",
       "source_type": "authenticated remote catalog record",
@@ -732,7 +732,7 @@
     {
       "id": "gpt-6-luna:model_messages.confirmation_policies.computer_use",
       "model": "gpt-6-luna",
-      "source": "current Codex model catalog response",
+      "source": "current Codex/ChatGPT model catalog response",
       "source_file": "gpt-6-luna-model-record.json",
       "field": "model_messages.confirmation_policies.computer_use",
       "source_type": "authenticated remote catalog record",
@@ -744,7 +744,7 @@
   "detectable_omissions": [
     "ChatGPT Work service-side system/developer instructions are not present in the authenticated model catalog or observed client generation requests.",
     "Remote configuration can override bundled voice and desktop defaults; bundled presence is not proof of runtime activation.",
-    "Playwright test-agent prompt files in the bundled computer-use dependency are third-party dependency prompts, not Codex model defaults; they are inventoried as excluded dependency material.",
+    "Playwright test-agent prompt files in the bundled computer-use dependency are third-party dependency prompts, not Codex/ChatGPT model defaults; they are inventoried as excluded dependency material.",
     "User-authored drafts, conversation history, credentials, and private cache payloads were intentionally excluded."
   ],
   "excluded_dependency_prompts": [

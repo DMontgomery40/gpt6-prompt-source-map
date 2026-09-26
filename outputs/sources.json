@@ -10,7 +10,7 @@
     "binary_sha256": "c3e30211bd454da70ceb4d9cbc2e05fe6466812ab05c311c3bbff6addeb14202"
   },
   "catalog": {
-    "fetched_at": "2026-09-25T22:01:56.620630Z",
+    "fetched_at": "2026-09-26T01:09:25.362735Z",
     "client_version": "0.158.0",
     "models": [
       "gpt-6-astra",
@@ -80,28 +80,28 @@
       "bytes": 77466
     },
     "model-comparison.json": {
-      "sha256": "c2ea72cada68d2b00ff640b879fcff3c69878c8678ab8dbb70b5eae360892346",
-      "bytes": 5650
+      "sha256": "4f3e930c5d8c35245a36d4aa8a2712e21d13fb0cb5e7ec1263added82f9e5351",
+      "bytes": 5658
     },
     "capture-metadata.json": {
       "sha256": "9094a8ff6986e922501b5c0e13d6d48cb64fa4bb0b6509e4b07170f7017bfec8",
       "bytes": 1811
     },
     "desktop-helper-prompts.md": {
-      "sha256": "8e23c84a6fddd22568dba8873b2df62920e2ef0f2eca2f89eadabcb930d57d37",
-      "bytes": 59932
+      "sha256": "e744f7e937e7557f67a06900042bedb307a034da4c64d0ddac5d92660e43f5a0",
+      "bytes": 59948
     },
     "voice-prompts.md": {
-      "sha256": "49565c2d737431e2a2d8dad26e6dde2098c428e599092b5149006916e1522a52",
-      "bytes": 13816
+      "sha256": "0b09c8fb1f0f7db029b8b6c231fdb22e94a6f398111cadd533ea3296f70726ea",
+      "bytes": 13848
     },
     "prompt-provenance-inventory.json": {
-      "sha256": "384ef744664003e49806288c26e9db75cc4a398e76cd4fb2325e9a7a007ed2f7",
-      "bytes": 37925
+      "sha256": "d19713f2652285cc3bc18557971cdcae8c7935c5ae8903192c831f1fadfd5d4b",
+      "bytes": 38285
     },
     "other-catalog-models.md": {
-      "sha256": "e99b03185cac2243ea8d044d692f0f95ce561ef6de9ab6b391cc4188be9321c3",
-      "bytes": 73295
+      "sha256": "adf13df172becaafb62afdd190b31a25f087e57116069e4f47f4738a632dfe1e",
+      "bytes": 73311
     }
   }
 }

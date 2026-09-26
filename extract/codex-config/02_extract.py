@@ -568,7 +568,7 @@ def when_for(path: str) -> str | None:
     if m:
         return f"read when features.{m.group(1)} is enabled"
     if path.startswith("notice."):
-        return "internal state written by Codex"
+        return "internal state written by Codex/ChatGPT"
     return None
 
 
@@ -1177,7 +1177,7 @@ def env_docs(name: str):
 def env_group(name: str, rec: dict) -> str:
     only_sets = rec["sets"] and not (rec["reads"] or rec["clap"] or rec["provider_env_key"])
     if only_sets:
-        return "Set or cleared by Codex for child processes"
+        return "Set or cleared by Codex/ChatGPT for child processes"
     if rec["build"] and not (rec["reads"] or rec["clap"] or rec["provider_env_key"]):
         return "Build-time variables (compiled in)"
     rules = [
@@ -1197,7 +1197,7 @@ def env_group(name: str, rec: dict) -> str:
 ENV_GROUP_ORDER = [
     "Authentication, providers and network", "Models, prompts and features", "Sandbox, shell and execution", "MCP",
     "Paths and state", "Logging, telemetry and diagnostics", "Other CLI variables",
-    "Desktop app: Codex-specific", "Set or cleared by Codex for child processes",
+    "Desktop app: Codex/ChatGPT-specific", "Set or cleared by Codex/ChatGPT for child processes",
     "Build-time variables (compiled in)", "Desktop app: platform and bundled-library variables",
     "In source only (not in this macOS binary: other-platform, test or dev builds)",
 ]
@@ -1297,7 +1297,7 @@ def classify_js(ctxs: list[str], name: str) -> tuple[str, str]:
 for name in sorted(desktop):
     d = desktop[name]
     app_owned = bool(re.match(APP_PREFIXES, name))
-    group = "Desktop app: Codex-specific" if app_owned else "Desktop app: platform and bundled-library variables"
+    group = "Desktop app: Codex/ChatGPT-specific" if app_owned else "Desktop app: platform and bundled-library variables"
     read_as, basis = classify_js(d["ctx"], name)
     urls = env_docs(name)
     existing = next((it for it in env_items if it["title"] == name), None)
@@ -1322,7 +1322,7 @@ for name in sorted(desktop):
             "read_as_basis": [basis],
             "default": None,
             "description": None,
-            "origin": "Codex desktop code" if app_owned else "platform variable or bundled third-party library",
+            "origin": "Codex/ChatGPT desktop code" if app_owned else "platform variable or bundled third-party library",
             "docs_urls": urls,
             "binary": None,
         },

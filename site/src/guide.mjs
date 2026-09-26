@@ -48,7 +48,7 @@ export function renderGuide(documents) {
   return `
         <section class="start-here" aria-labelledby="start-here-title">
           <h2 class="start-here-title" id="start-here-title">Start here</h2>
-          <p>Persistent mode is not one prompt. It is a behavior of the whole Codex product, so the text behind it is spread across the harness: the developer message the CLI adds while the mode is on, passages on autonomy, task continuity, delegation, and context carry-over in the base prompts and conditional modules, the voice prompts, and the config keys and environment variables that shape it. This navigator gathers those pieces in one place.</p>
+          <p>Persistent mode is not one prompt. It is a behavior of the whole Codex/ChatGPT product, so the text behind it is spread across the harness: the developer message the CLI adds while the mode is on, passages on autonomy, task continuity, delegation, and context carry-over in the base prompts and conditional modules, the voice prompts, and the config keys and environment variables that shape it. This navigator gathers those pieces in one place.</p>
           <p>Together they keep the model working after it answers: it sends replies mid-turn instead of ending the turn, sleeps and checks back on running work, and owns a finish, monitor, or track request until it is done. None of it widens what the model may do; new authority still needs approval.</p>
           <p>Every prompt is published in full, but you do not need to read it all. The passages that matter are in <span class="start-here-swatch" aria-hidden="true"></span>blue boxes, and these links go straight to them:</p>
           <ul class="start-here-list">${rows.map(row => row.html).join("")}</ul>

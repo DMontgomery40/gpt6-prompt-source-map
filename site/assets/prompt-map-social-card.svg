@@ -28,7 +28,7 @@
     <text x="70" y="192" fill="#f2f5ea" font-family="Avenir Next, Helvetica, sans-serif" font-size="75" font-weight="800" letter-spacing="-2">GPT-6 PROMPT</text>
     <text x="67" y="291" fill="url(#acid)" font-family="Avenir Next, Helvetica, sans-serif" font-size="87" font-weight="800" letter-spacing="-3">SOURCE</text>
     <text x="67" y="385" fill="#f2f5ea" font-family="Avenir Next, Helvetica, sans-serif" font-size="87" font-weight="800" letter-spacing="-3">MAP<tspan fill="#b9f477">.</tspan></text>
-    <text x="72" y="443" fill="#bed0b7" font-family="Avenir Next, Helvetica, sans-serif" font-size="23" font-weight="500">ChatGPT Work · Codex · voice · receipts</text>
+    <text x="72" y="443" fill="#bed0b7" font-family="Avenir Next, Helvetica, sans-serif" font-size="23" font-weight="500">ChatGPT Work · Codex/ChatGPT · voice · receipts</text>
 
     <g transform="rotate(-10 974 298)">
       <circle cx="974" cy="298" r="189" fill="#08110b" stroke="#c0fc83" stroke-opacity=".17" stroke-width="1.5"/>

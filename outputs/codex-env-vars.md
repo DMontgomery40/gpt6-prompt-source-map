@@ -1,6 +1,6 @@
-# Codex environment variables
+# Codex/ChatGPT environment variables
 
-This page lists every environment variable that the Codex CLI bundled in the ChatGPT desktop app (com.openai.codex 26.924.20706; `codex-cli 0.158.0-alpha.2`) or the desktop app's own main-process code reads, sets, or compiles in. CLI entries come from `std::env` read sites, clap `env` attributes and indirect name tables in openai/codex at tag `rust-v0.158.0-alpha.2`, and each name was checked against the shipped binary's strings. Desktop entries come from `process.env` reads in `app.asar` (`.vite/build/*.js`). There are 336 entries. 105 are runtime variables read by the CLI. 166 names are read in the desktop main-process bundles; 60 of those are Codex's own, and the rest are platform or bundled-library names. 32 are set or cleared only for commands Codex spawns. These categories overlap: for example, `CODEX_HOME` is read by both the CLI and the desktop app. The rest are build-time names, and names present only in source for other platforms or tests. 25 appear in the official Codex docs (the environment-variables table or a code span on another docs page), and 311 are undocumented. "Read as" describes what the code does with the value: `presence` means only set versus unset matters. A `(name)` basis means the kind is inferred from the variable's name, not from the code. Descriptions quote the docs or the nearest source comment, and are left out when neither exists.
+This page lists every environment variable that the Codex CLI bundled in the ChatGPT desktop app (com.openai.codex 26.924.20706; `codex-cli 0.158.0-alpha.2`) or the desktop app's own main-process code reads, sets, or compiles in. CLI entries come from `std::env` read sites, clap `env` attributes and indirect name tables in openai/codex at tag `rust-v0.158.0-alpha.2`, and each name was checked against the shipped binary's strings. Desktop entries come from `process.env` reads in `app.asar` (`.vite/build/*.js`). There are 336 entries. 105 are runtime variables read by the CLI. 166 names are read in the desktop main-process bundles; 60 of those are Codex/ChatGPT's own, and the rest are platform or bundled-library names. 32 are set or cleared only for commands Codex/ChatGPT spawns. These categories overlap: for example, `CODEX_HOME` is read by both the CLI and the desktop app. The rest are build-time names, and names present only in source for other platforms or tests. 25 appear in the official Codex docs (the environment-variables table or a code span on another docs page), and 311 are undocumented. "Read as" describes what the code does with the value: `presence` means only set versus unset matters. A `(name)` basis means the kind is inferred from the variable's name, not from the code. Descriptions quote the docs or the nearest source comment, and are left out when neither exists.
 
 ## Contents
 
@@ -10,8 +10,8 @@ This page lists every environment variable that the Codex CLI bundled in the Cha
 - [Paths and state](#paths-and-state) (8)
 - [Logging, telemetry and diagnostics](#logging-telemetry-and-diagnostics) (5)
 - [Other CLI variables](#other-cli-variables) (45)
-- [Desktop app: Codex-specific](#desktop-app-codex-specific) (32)
-- [Set or cleared by Codex for child processes](#set-or-cleared-by-codex-for-child-processes) (32)
+- [Desktop app: Codex/ChatGPT-specific](#desktop-app-codexchatgpt-specific) (32)
+- [Set or cleared by Codex/ChatGPT for child processes](#set-or-cleared-by-codexchatgpt-for-child-processes) (32)
 - [Build-time variables (compiled in)](#build-time-variables-compiled-in) (7)
 - [Desktop app: platform and bundled-library variables](#desktop-app-platform-and-bundled-library-variables) (106)
 - [In source only (not in this macOS binary: other-platform, test or dev builds)](#in-source-only-not-in-this-macos-binary-other-platform-test-or-dev-builds) (54)
@@ -222,7 +222,7 @@ Source: `codex-rs/login/src/auth/revoke.rs:135`
 
 Read by: CLI (bundled codex binary) · Read as: presence (set/unset), string · Undocumented
 
-Value Codex sets: `github.stale.example`
+Value Codex/ChatGPT sets: `github.stale.example`
 
 Used in: `protocol::core_inherit_preserves_windows_startup_vars_case_insensitively`
 
@@ -256,7 +256,7 @@ Source: `codex-rs/cli/src/doctor/network.rs:102`
 
 Read by: CLI (bundled codex binary); desktop app (Electron main process) · Read as: presence (set/unset), string · Documented
 
-Value Codex sets: `secret`
+Value Codex/ChatGPT sets: `secret`
 
 Used in: `cli::stored_auth_issues`, `login::read_openai_api_key_from_env`, `login::collect_auth_env_telemetry`, `protocol::core_inherit_preserves_windows_startup_vars_case_insensitively`, `protocol::core_inherit_preserves_non_windows_core_vars_case_insensitively`
 
@@ -356,7 +356,7 @@ Source: `codex-rs/windows-sandbox-rs/src/setup.rs:793`, `codex-rs/network-proxy/
 
 Read by: CLI (bundled codex binary) · Read as: string (compared to a fixed value) · Undocumented
 
-Value Codex sets: `seatbelt`
+Value Codex/ChatGPT sets: `seatbelt`
 
 Used in: `cli::probe_status`, `login::is_sandboxed`, `cli::run_command_under_sandbox`, `core::from_sandbox_exec_request`
 
@@ -528,7 +528,7 @@ Read by: CLI (bundled codex binary) · Read as: presence (set/unset) · Undocume
 >
 > — `codex-rs/cli/src/daemon_telemetry.rs:14`
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `cli::record_command`, `app-server-daemon::start_inner`, `cli::run_update_action`
 
@@ -948,7 +948,7 @@ Used in: `network-proxy::from_env`
 
 Source: `codex-rs/network-proxy/src/upstream.rs:47`, `app.asar:.vite/build/worker.js`
 
-## Desktop app: Codex-specific
+## Desktop app: Codex/ChatGPT-specific
 
 ### `BUILD_FLAVOR`
 
@@ -1142,15 +1142,15 @@ Read by: desktop app (Electron main process) · Read as: string · Undocumented
 
 Source: `app.asar:.vite/build/main-BefHSPFJ.js`, `app.asar:.vite/build/main-C-Mhak1n.js`
 
-## Set or cleared by Codex for child processes
+## Set or cleared by Codex/ChatGPT for child processes
 
-Codex sets or removes these in the environment of processes it spawns: shell tool commands, hooks, git, installers and the network proxy. Tools and hooks running under Codex can read them.
+Codex/ChatGPT sets or removes these in the environment of processes it spawns: shell tool commands, hooks, git, installers and the network proxy. Tools and hooks running under Codex can read them.
 
 ### `CODEX_CI`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Source: `codex-rs/core/src/unified_exec/process_manager.rs:102`
 
@@ -1190,7 +1190,7 @@ Source: `codex-rs/app-server-daemon/src/update_loop.rs:577`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `network-proxy::apply_proxy_env_overrides`
 
@@ -1244,7 +1244,7 @@ Read by: CLI (bundled codex binary) · Documented
 >
 > — [docs](https://developers.openai.com/codex/config-file/environment-variables)
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `app-server-daemon::run_installer_script`
 
@@ -1270,7 +1270,7 @@ Source: `codex-rs/core-plugins/src/plugin_metrics_sidecar.rs:192`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `latest`
+Value Codex/ChatGPT sets: `latest`
 
 Used in: `app-server-daemon::run_installer_script`
 
@@ -1280,7 +1280,7 @@ Source: `codex-rs/app-server-daemon/src/update_loop.rs:575`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `cli::spawn_debug_sandbox_child`, `core::spawn_child_async`
 
@@ -1338,7 +1338,7 @@ Source: `codex-rs/network-proxy/src/proxy.rs:827`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `tui::run_gh_command`
 
@@ -1372,7 +1372,7 @@ Source: `codex-rs/core-plugins/src/startup_sync.rs:675`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `worktree::base_git_command`
 
@@ -1382,7 +1382,7 @@ Source: `codex-rs/worktree/src/git.rs:178`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `0`
+Value Codex/ChatGPT sets: `0`
 
 Used in: `core-plugins::command`, `core-plugins::git_command`, `git-utils::run_git_command_with_timeout_from`, `tui::run_git_command`
 
@@ -1400,7 +1400,7 @@ Source: `codex-rs/core-plugins/src/startup_sync.rs:676`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `0`
+Value Codex/ChatGPT sets: `0`
 
 Used in: `core-plugins::run_git_output`, `core-plugins::run_git`, `core-plugins::git_command`, `tui::run_gh_command`, `worktree::base_git_command`
 
@@ -1410,7 +1410,7 @@ Source: `codex-rs/core-plugins/src/loader.rs:1889`, `codex-rs/core-plugins/src/m
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `network-proxy::apply_proxy_env_overrides`
 
@@ -1420,7 +1420,7 @@ Source: `codex-rs/network-proxy/src/proxy.rs:831`
 
 Read by: CLI (bundled codex binary) · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `core-plugins::git_command`
 
@@ -2252,7 +2252,7 @@ Read by: Rust source only (not compiled into this macOS binary) · Read as: pres
 >
 > — `codex-rs/app-server/src/lib.rs:786`
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `app-server::run_main_with_transport_options`, `app-server-daemon::start_inner`
 
@@ -2302,7 +2302,7 @@ Source: `codex-rs/app-server/src/bin/exec_server.rs:29`, `codex-rs/exec-server/t
 
 Read by: Rust source only (not compiled into this macOS binary); desktop app (Electron main process) · Read as: string · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `windows-sandbox-rs::registered_core_requested`, `sandboxing::add_windows_sandbox_wrapper_setup_env_from_vars`
 
@@ -2416,7 +2416,7 @@ Source: `codex-rs/rmcp-client/src/bin/test_stdio_server.rs:1032`
 
 Read by: Rust source only (not compiled into this macOS binary) · Read as: number · Undocumented
 
-Value Codex sets: `1`
+Value Codex/ChatGPT sets: `1`
 
 Used in: `rmcp-client::main`
 

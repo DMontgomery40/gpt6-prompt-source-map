@@ -58,7 +58,7 @@ export const categories = [
     ]
   },
   {
-    label: "Codex GPT-6 instructions",
+    label: "Codex/ChatGPT GPT-6 instructions",
     files: [
       {
         path: "outputs/persistent-instructions.md",
@@ -149,7 +149,7 @@ export const categories = [
     ]
   },
   {
-    label: "Codex configuration",
+    label: "Codex/ChatGPT configuration",
     files: [
       {
         path: "outputs/codex-config.md",
@@ -172,14 +172,14 @@ export const categories = [
     ]
   },
   {
-    label: "Codex voice prompts",
+    label: "Codex/ChatGPT voice prompts",
     files: [
       {
         path: "outputs/voice-prompts.md",
         anchor: "codex-voice-prompts-2026-09-24-md",
         slug: "bundled-codex-voice-prompts",
         format: "markdown",
-        title: "Bundled Codex voice prompts",
+        title: "Bundled Codex/ChatGPT voice prompts",
         instructionProfile: "voice",
         defaultOpen: true
       }
@@ -193,7 +193,7 @@ export const categories = [
         anchor: "codex-desktop-helper-prompts-2026-09-24-md",
         slug: "codex-helper-prompt-inventory",
         format: "markdown",
-        title: "Codex helper prompt inventory",
+        title: "Codex/ChatGPT helper prompt inventory",
         promptText: true,
         defaultOpen: false
       },

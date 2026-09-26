@@ -1,6 +1,6 @@
-# Codex desktop helper prompt inventory
+# Codex/ChatGPT desktop helper prompt inventory
 
-Exact bundled helper prompts recovered from ChatGPT desktop 26.924.20706. These are separate from ChatGPT Work model instructions and the Codex voice orchestration prompts. Dynamic values are replaced with angle-bracket placeholders before hashing. "Bundled default" means the client contains the template; it does not prove a particular helper ran during a particular user turn.
+Exact bundled helper prompts recovered from ChatGPT desktop 26.924.20706. These are separate from ChatGPT Work model instructions and the Codex/ChatGPT voice orchestration prompts. Dynamic values are replaced with angle-bracket placeholders before hashing. "Bundled default" means the client contains the template; it does not prove a particular helper ran during a particular user turn.
 
 # Side conversation boundary
 

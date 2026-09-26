@@ -286,7 +286,7 @@ test("production reference publishes the complete current instruction and tool s
       assert(publishedPaths.includes(requiredPath), `${requiredPath} must be published`);
     }
 
-    assert.match(html, />Codex GPT-6 instructions</);
+    assert.match(html, />Codex\/ChatGPT GPT-6 instructions</);
     assert.match(html, /href="#aeon-current-responses-2026-09-24-json"/);
     assert.match(html, />Extraction evidence</);
     assert.match(html, /href="#binwalk-aeon-daybreak-report-md"/);
@@ -308,8 +308,8 @@ test("production reference publishes the complete current instruction and tool s
 
 test("primary evidence opens by default and raw records stay collapsed", () => {
   const map = categories.find(category => category.label === "Findings");
-  const current = categories.find(category => category.label === "Codex GPT-6 instructions");
-  const voice = categories.find(category => category.label === "Codex voice prompts");
+  const current = categories.find(category => category.label === "Codex/ChatGPT GPT-6 instructions");
+  const voice = categories.find(category => category.label === "Codex/ChatGPT voice prompts");
   const supporting = categories.find(category => category.label === "Observed runtime and tools");
   const archive = categories.find(category => category.label === "Historical archive");
 
@@ -393,7 +393,7 @@ test("instruction renderer marks relevant sections and preserves readable hierar
   assert.doesNotMatch(modules, /<context_window_reminder>/);
 
   const voice = renderInstructionMarkdown(
-    "# Codex voice prompt inventory\n\nSource note.\n\n# Voice coordinator: developer prompt\n\n## Mode\n\nDelegate work.\n",
+    "# Codex/ChatGPT voice prompt inventory\n\nSource note.\n\n# Voice coordinator: developer prompt\n\n## Mode\n\nDelegate work.\n",
     "voice", "voice-prompts"
   );
   assert.match(voice, /id="voice-prompts--voice-coordinator-developer-prompt"/);
@@ -446,7 +446,7 @@ test("public copy consistently names ChatGPT Work without inventing a combined m
     const card = await readFile(path.join(root, "site/assets/prompt-map-social-card.svg"), "utf8");
     assert.match(html, /ChatGPT Work/);
     assert.doesNotMatch(html, /ChatGPT Work Luna|Work Luna behavior/);
-    assert.match(card, /ChatGPT Work · Codex · voice · receipts/);
+    assert.match(card, /ChatGPT Work · Codex\/ChatGPT · voice · receipts/);
   } finally {
     await rm(outDir, { recursive: true, force: true });
   }

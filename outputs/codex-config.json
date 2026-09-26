@@ -34681,7 +34681,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.external_config_migration_prompts",
@@ -34730,7 +34730,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.external_config_migration_prompts.home",
@@ -34773,7 +34773,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.external_config_migration_prompts.home_last_prompted_at",
@@ -34816,7 +34816,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.external_config_migration_prompts.project_last_prompted_at",
@@ -34865,7 +34865,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.external_config_migration_prompts.project_last_prompted_at.<key>",
@@ -34905,7 +34905,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.external_config_migration_prompts.projects",
@@ -34954,7 +34954,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.external_config_migration_prompts.projects.<path>",
@@ -34994,7 +34994,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.fast_default_opt_out",
@@ -35037,7 +35037,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": true,
       "details": {
         "path": "notice.hide_full_access_warning",
@@ -35082,7 +35082,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": true,
       "details": {
         "path": "notice.hide_gpt-5.1-codex-max_migration_prompt",
@@ -35127,7 +35127,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": true,
       "details": {
         "path": "notice.hide_gpt5_1_migration_prompt",
@@ -35172,7 +35172,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": true,
       "details": {
         "path": "notice.hide_rate_limit_model_nudge",
@@ -35217,7 +35217,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": true,
       "details": {
         "path": "notice.hide_world_writable_warning",
@@ -35262,7 +35262,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": true,
       "details": {
         "path": "notice.model_migrations",
@@ -35313,7 +35313,7 @@
       "group": "Desktop and terminal UI",
       "kind": "setting",
       "text": null,
-      "when": "internal state written by Codex",
+      "when": "internal state written by Codex/ChatGPT",
       "documented": false,
       "details": {
         "path": "notice.model_migrations.<key>",

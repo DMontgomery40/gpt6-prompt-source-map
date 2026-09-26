@@ -1,6 +1,6 @@
-# Codex voice prompt inventory
+# Codex/ChatGPT voice prompt inventory
 
-Source: ChatGPT desktop 26.924.20706, `app.asar` → `webview/assets/app-initial-0a6dd402dd72.js` (SHA-256 `30e60012a6dc5efe7840000600af30d49697c74152180ee615409e53469b25ef`). These are bundled prompt strings or fallbacks. Runtime configuration can override several of them; this capture does not prove which variant was active for a specific call. The placeholders are preserved exactly as shipped. These strings belong to **Codex voice**, not the ChatGPT Work instruction stack.
+Source: ChatGPT desktop 26.924.20706, `app.asar` → `webview/assets/app-initial-0a6dd402dd72.js` (SHA-256 `30e60012a6dc5efe7840000600af30d49697c74152180ee615409e53469b25ef`). These are bundled prompt strings or fallbacks. Runtime configuration can override several of them; this capture does not prove which variant was active for a specific call. The placeholders are preserved exactly as shipped. These strings belong to **Codex/ChatGPT voice**, not the ChatGPT Work instruction stack.
 
 # New voice thread: planning override
 
@@ -164,7 +164,7 @@ If unsure, start with a brief answer or clarifying question here. Dispatch once 
 
 ---
 
-# Existing Codex task: realtime start
+# Existing Codex/ChatGPT task: realtime start
 
 Source identifier: `z7n fallback` · asset offsets 2,975,806–2,976,902 · 1096 UTF-8 bytes.
 
@@ -178,7 +178,7 @@ During this voice session, these Codex app tools are deferred: capture_screen_co
 
 ---
 
-# Existing Codex task: realtime end
+# Existing Codex/ChatGPT task: realtime end
 
 Source identifier: `B7n fallback` · asset offsets 2,976,909–2,977,315 · 406 UTF-8 bytes.
 

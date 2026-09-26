@@ -85,17 +85,17 @@ function focusSection(html, { anchor, heading, label, archived = false }) {
 }
 
 const baseFocus = new Map([
-  ["Autonomy and persistence", "Persistence · Codex model base"],
-  ["Working with the user", "Task continuity · Codex model base"]
+  ["Autonomy and persistence", "Persistence · Codex/ChatGPT model base"],
+  ["Working with the user", "Task continuity · Codex/ChatGPT model base"]
 ]);
 
 const moduleFocus = new Map([
-  ["collaboration_modes.default", "Collaboration mode · Shared GPT-6 Codex field"],
-  ["multi_agent.role.root", "Agent delegation · Shared GPT-6 Codex field"],
-  ["multi_agent.role.subagent", "Agent delegation · Shared GPT-6 Codex field"],
-  ["token_budget.reminder_message_template", "Context continuity · Shared GPT-6 Codex field"],
-  ["token_budget.guidance_message", "Context continuity · Shared GPT-6 Codex field"],
-  ["token_budget.auto_compact_fallback_prompt", "Context continuity · Shared GPT-6 Codex field"]
+  ["collaboration_modes.default", "Collaboration mode · Shared GPT-6 Codex/ChatGPT field"],
+  ["multi_agent.role.root", "Agent delegation · Shared GPT-6 Codex/ChatGPT field"],
+  ["multi_agent.role.subagent", "Agent delegation · Shared GPT-6 Codex/ChatGPT field"],
+  ["token_budget.reminder_message_template", "Context continuity · Shared GPT-6 Codex/ChatGPT field"],
+  ["token_budget.guidance_message", "Context continuity · Shared GPT-6 Codex/ChatGPT field"],
+  ["token_budget.auto_compact_fallback_prompt", "Context continuity · Shared GPT-6 Codex/ChatGPT field"]
 ]);
 
 const historicalFocus = new Map([
@@ -111,7 +111,7 @@ const voiceFocus = new Map([
   ["Resumed voice thread: continuity", "Voice session continuity"],
   ["Voice memory summary", "Context continuity"],
   ["Voice coordinator: developer prompt", "Agent delegation"],
-  ["Existing Codex task: realtime start", "Ongoing task continuity"]
+  ["Existing Codex/ChatGPT task: realtime start", "Ongoing task continuity"]
 ]);
 
 export function renderInstructionMarkdown(source, profile, anchor) {
@@ -119,7 +119,7 @@ export function renderInstructionMarkdown(source, profile, anchor) {
     return focusSection(renderMarkdown(source, { headingOffset: 1, prompt: true }), {
       anchor,
       heading: "persistent-mode",
-      label: "Persistent mode · Shared GPT-6 Codex model field"
+      label: "Persistent mode · Shared GPT-6 Codex/ChatGPT model field"
     });
   }
 
@@ -146,7 +146,7 @@ ${renderMarkdown(body, { headingOffset: 3, prompt: true })}</section>`;
     return splitAtHeadings(source, token => token.type === "heading" && token.depth === 1)
       .map(chunk => {
         const html = renderMarkdown(chunkSource(chunk), { prompt: true });
-        if (!chunk.heading || chunk.heading === "Codex voice prompt inventory") return html;
+        if (!chunk.heading || chunk.heading === "Codex/ChatGPT voice prompt inventory") return html;
         const label = voiceFocus.get(chunk.heading);
         return label
           ? focusSection(html, { anchor, heading: chunk.heading, label })
@@ -279,8 +279,8 @@ function renderPage({ categories, rendered, routes, current = null, status = nul
     return path === current.path ? `#${id ?? anchor}` : `../${routes.slug(anchor)}/`;
   };
   const siteTitle = "GPT-6 Prompt Source Map";
-  const pageTitle = current ? `${current.title} · ${siteTitle}` : `${siteTitle} · Work, Codex, Voice`;
-  const shareTitle = current ? `${current.title} · ${siteTitle}` : `${siteTitle}: Work, Codex, Voice 😎`;
+  const pageTitle = current ? `${current.title} · ${siteTitle}` : `${siteTitle} · Work, Codex/ChatGPT, Voice`;
+  const shareTitle = current ? `${current.title} · ${siteTitle}` : `${siteTitle}: Work, Codex/ChatGPT, Voice 😎`;
   const pageUrl = `https://gpt6aeon.dtmont.com/${current ? `${routes.slug(current.anchor)}/` : ""}`;
   const icon = encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#f2f2ed"/><path d="M8 23 15.4 7h1.3L24 23h-3.4l-1.5-3.7h-6.4L11.2 23H8Zm5.8-6.5H18l-2.1-5.3-2.1 5.3Z" fill="#111210"/></svg>'
@@ -292,14 +292,14 @@ function renderPage({ categories, rendered, routes, current = null, status = nul
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(pageTitle)}</title>
-  <meta name="description" content="ChatGPT Work evidence, Codex GPT-6 instructions, desktop helper prompts, and voice tool evidence.">
+  <meta name="description" content="ChatGPT Work evidence, Codex/ChatGPT GPT-6 instructions, desktop helper prompts, and voice tool evidence.">
   <link rel="canonical" href="${pageUrl}">
   <meta name="theme-color" content="#101710">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GPT-6 Prompt Source Map">
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:title" content="${escapeHtml(shareTitle)}">
-  <meta property="og:description" content="ChatGPT Work evidence, Codex GPT-6 instruction texts, desktop helper prompts, and voice tool evidence.">
+  <meta property="og:description" content="ChatGPT Work evidence, Codex/ChatGPT GPT-6 instruction texts, desktop helper prompts, and voice tool evidence.">
   <meta property="og:image" content="https://gpt6aeon.dtmont.com/prompt-map-social-card.png">
   <meta property="og:image:secure_url" content="https://gpt6aeon.dtmont.com/prompt-map-social-card.png">
   <meta property="og:image:type" content="image/png">
@@ -309,7 +309,7 @@ function renderPage({ categories, rendered, routes, current = null, status = nul
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:creator" content="@_DMontgomery40">
   <meta name="twitter:title" content="${escapeHtml(shareTitle)}">
-  <meta name="twitter:description" content="ChatGPT Work evidence, Codex GPT-6 instruction texts, desktop helper prompts, and voice tool evidence.">
+  <meta name="twitter:description" content="ChatGPT Work evidence, Codex/ChatGPT GPT-6 instruction texts, desktop helper prompts, and voice tool evidence.">
   <meta name="twitter:image" content="https://gpt6aeon.dtmont.com/prompt-map-social-card.png">
   <meta name="twitter:image:alt" content="Dark GPT-6 prompt source map card with a lime green winking face and Good takes detected stamp.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,${icon}">
@@ -434,7 +434,7 @@ ${current ? "" : `  <div class="intro" id="intro" role="dialog" aria-modal="true
 ${current ? documentArticle(current, routes) : `      <header>
         <div class="date">${escapeHtml(statusLine(status))}</div>
         <h1 class="page-title">${escapeHtml(SITE_NAME)}</h1>
-        <p class="dek">ChatGPT Work, Codex GPT-6 instructions, desktop helpers, and voice evidence in one reference.</p>
+        <p class="dek">ChatGPT Work, Codex/ChatGPT GPT-6 instructions, desktop helpers, and voice evidence in one reference.</p>
 ${renderGuide(rendered)}
       </header>
 ${rendered.map(documentPanel).join("\n")}`}

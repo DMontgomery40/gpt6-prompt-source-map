@@ -6080,7 +6080,7 @@
     {
       "id": "env:BUILD_FLAVOR",
       "title": "BUILD_FLAVOR",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6096,7 +6096,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6134,7 +6134,7 @@
     {
       "id": "env:CODEX_API_BASE_URL",
       "title": "CODEX_API_BASE_URL",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6150,7 +6150,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6184,7 +6184,7 @@
     {
       "id": "env:CODEX_API_ENDPOINT",
       "title": "CODEX_API_ENDPOINT",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6200,7 +6200,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6234,7 +6234,7 @@
     {
       "id": "env:CODEX_APP_SERVER_FORCE_CLI",
       "title": "CODEX_APP_SERVER_FORCE_CLI",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6250,7 +6250,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6276,7 +6276,7 @@
     {
       "id": "env:CODEX_APP_SERVER_USE_LOCAL_DAEMON",
       "title": "CODEX_APP_SERVER_USE_LOCAL_DAEMON",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6292,7 +6292,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6310,7 +6310,7 @@
     {
       "id": "env:CODEX_APP_SERVER_WS_URL",
       "title": "CODEX_APP_SERVER_WS_URL",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6326,7 +6326,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6344,7 +6344,7 @@
     {
       "id": "env:CODEX_APP_TOOLS_PIPE_PATH",
       "title": "CODEX_APP_TOOLS_PIPE_PATH",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6360,7 +6360,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6378,7 +6378,7 @@
     {
       "id": "env:CODEX_APP_VERSION",
       "title": "CODEX_APP_VERSION",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6394,7 +6394,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6412,7 +6412,7 @@
     {
       "id": "env:CODEX_BUILD_NUMBER",
       "title": "CODEX_BUILD_NUMBER",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6428,7 +6428,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6446,7 +6446,7 @@
     {
       "id": "env:CODEX_CLI_PATH",
       "title": "CODEX_CLI_PATH",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6462,7 +6462,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6496,7 +6496,7 @@
     {
       "id": "env:CODEX_DESKTOP_NETWORK_POLICY",
       "title": "CODEX_DESKTOP_NETWORK_POLICY",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6512,7 +6512,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6530,7 +6530,7 @@
     {
       "id": "env:CODEX_DESKTOP_RELAUNCH_OPEN_EVENTS",
       "title": "CODEX_DESKTOP_RELAUNCH_OPEN_EVENTS",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6546,7 +6546,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6560,7 +6560,7 @@
     {
       "id": "env:CODEX_ELECTRON_AGENT_RUN_ID",
       "title": "CODEX_ELECTRON_AGENT_RUN_ID",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6576,7 +6576,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6594,7 +6594,7 @@
     {
       "id": "env:CODEX_ELECTRON_ARTIFACT_SESSION_RUNTIME_ROOT",
       "title": "CODEX_ELECTRON_ARTIFACT_SESSION_RUNTIME_ROOT",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6610,7 +6610,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6628,7 +6628,7 @@
     {
       "id": "env:CODEX_ELECTRON_DEV_DOCK_ICONS_PATH",
       "title": "CODEX_ELECTRON_DEV_DOCK_ICONS_PATH",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6644,7 +6644,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6662,7 +6662,7 @@
     {
       "id": "env:CODEX_ELECTRON_DISABLE_QUIT_CONFIRMATION",
       "title": "CODEX_ELECTRON_DISABLE_QUIT_CONFIRMATION",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6678,7 +6678,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6696,7 +6696,7 @@
     {
       "id": "env:CODEX_ELECTRON_PRIMARY_RUNTIME_UPDATE_MODE",
       "title": "CODEX_ELECTRON_PRIMARY_RUNTIME_UPDATE_MODE",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6712,7 +6712,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6730,7 +6730,7 @@
     {
       "id": "env:CODEX_ELECTRON_START_IN_BACKGROUND",
       "title": "CODEX_ELECTRON_START_IN_BACKGROUND",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6746,7 +6746,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6764,7 +6764,7 @@
     {
       "id": "env:CODEX_ELECTRON_USER_DATA_PATH",
       "title": "CODEX_ELECTRON_USER_DATA_PATH",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6780,7 +6780,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6806,7 +6806,7 @@
     {
       "id": "env:CODEX_MAX_LOG_LEVEL",
       "title": "CODEX_MAX_LOG_LEVEL",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6822,7 +6822,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6840,7 +6840,7 @@
     {
       "id": "env:CODEX_MCP_APP_SANDBOX_URL",
       "title": "CODEX_MCP_APP_SANDBOX_URL",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6856,7 +6856,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6874,7 +6874,7 @@
     {
       "id": "env:CODEX_OTEL_TRACES_ENDPOINT",
       "title": "CODEX_OTEL_TRACES_ENDPOINT",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6890,7 +6890,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6920,7 +6920,7 @@
     {
       "id": "env:CODEX_PREFERRED_GIT_EXECUTABLE",
       "title": "CODEX_PREFERRED_GIT_EXECUTABLE",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6936,7 +6936,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6954,7 +6954,7 @@
     {
       "id": "env:CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE",
       "title": "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -6970,7 +6970,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -6988,7 +6988,7 @@
     {
       "id": "env:CODEX_TECTONIC_PATH",
       "title": "CODEX_TECTONIC_PATH",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7004,7 +7004,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7018,7 +7018,7 @@
     {
       "id": "env:CODEX_TRACE_SHORTCUT",
       "title": "CODEX_TRACE_SHORTCUT",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7034,7 +7034,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7052,7 +7052,7 @@
     {
       "id": "env:ELECTRON_RENDERER_URL",
       "title": "ELECTRON_RENDERER_URL",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7068,7 +7068,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7094,7 +7094,7 @@
     {
       "id": "env:NODE_REPL_ENABLE_AUDIO",
       "title": "NODE_REPL_ENABLE_AUDIO",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7110,7 +7110,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7128,7 +7128,7 @@
     {
       "id": "env:NODE_REPL_HOST_SERVICES_PIPE_PATH",
       "title": "NODE_REPL_HOST_SERVICES_PIPE_PATH",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7144,7 +7144,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7162,7 +7162,7 @@
     {
       "id": "env:SKY_ENABLE_AUDIO",
       "title": "SKY_ENABLE_AUDIO",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7178,7 +7178,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7196,7 +7196,7 @@
     {
       "id": "env:SPARKLE_UPDATE_INTERVAL_MINUTES",
       "title": "SPARKLE_UPDATE_INTERVAL_MINUTES",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7212,7 +7212,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7230,7 +7230,7 @@
     {
       "id": "env:VITE_CODEX_DESKTOP_AUTH_ORIGIN",
       "title": "VITE_CODEX_DESKTOP_AUTH_ORIGIN",
-      "group": "Desktop app: Codex-specific",
+      "group": "Desktop app: Codex/ChatGPT-specific",
       "kind": "env-var",
       "text": null,
       "when": "desktop app (Electron main process)",
@@ -7246,7 +7246,7 @@
         ],
         "default": null,
         "description": null,
-        "origin": "Codex desktop code",
+        "origin": "Codex/ChatGPT desktop code",
         "docs_urls": [],
         "binary": null
       },
@@ -7264,7 +7264,7 @@
     {
       "id": "env:CODEX_CI",
       "title": "CODEX_CI",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7307,7 +7307,7 @@
     {
       "id": "env:CODEX_INSTALL_DAEMON_ONLY",
       "title": "CODEX_INSTALL_DAEMON_ONLY",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7350,7 +7350,7 @@
     {
       "id": "env:CODEX_INSTALL_DEFER_SELECTION",
       "title": "CODEX_INSTALL_DEFER_SELECTION",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7393,7 +7393,7 @@
     {
       "id": "env:CODEX_INSTALL_IF_CURRENT",
       "title": "CODEX_INSTALL_IF_CURRENT",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7436,7 +7436,7 @@
     {
       "id": "env:CODEX_INSTALL_IF_LATEST",
       "title": "CODEX_INSTALL_IF_LATEST",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7479,7 +7479,7 @@
     {
       "id": "env:CODEX_NETWORK_PROXY_ACTIVE",
       "title": "CODEX_NETWORK_PROXY_ACTIVE",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7524,7 +7524,7 @@
     {
       "id": "env:CODEX_NETWORK_PROXY_ATTRIBUTION",
       "title": "CODEX_NETWORK_PROXY_ATTRIBUTION",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7567,7 +7567,7 @@
     {
       "id": "env:CODEX_NETWORK_PROXY_SNAPSHOT_BROKERED_UNSET_",
       "title": "CODEX_NETWORK_PROXY_SNAPSHOT_BROKERED_UNSET_",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7615,7 +7615,7 @@
     {
       "id": "env:CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_BASH_ENV",
       "title": "CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_BASH_ENV",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7662,7 +7662,7 @@
     {
       "id": "env:CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_POSIX_ENV",
       "title": "CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_POSIX_ENV",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7705,7 +7705,7 @@
     {
       "id": "env:CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_ZDOTDIR",
       "title": "CODEX_NETWORK_PROXY_SNAPSHOT_ORIGINAL_ZDOTDIR",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7752,7 +7752,7 @@
     {
       "id": "env:CODEX_NON_INTERACTIVE",
       "title": "CODEX_NON_INTERACTIVE",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7802,7 +7802,7 @@
     {
       "id": "env:CODEX_PERMISSION_PROFILE",
       "title": "CODEX_PERMISSION_PROFILE",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7850,7 +7850,7 @@
     {
       "id": "env:CODEX_PLUGIN_METRICS_OUTPUT",
       "title": "CODEX_PLUGIN_METRICS_OUTPUT",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7893,7 +7893,7 @@
     {
       "id": "env:CODEX_RELEASE",
       "title": "CODEX_RELEASE",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7938,7 +7938,7 @@
     {
       "id": "env:CODEX_SANDBOX_NETWORK_DISABLED",
       "title": "CODEX_SANDBOX_NETWORK_DISABLED",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -7989,7 +7989,7 @@
     {
       "id": "env:CODEX_SESSION_ID",
       "title": "CODEX_SESSION_ID",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8032,7 +8032,7 @@
     {
       "id": "env:CODEX_THREAD_ID",
       "title": "CODEX_THREAD_ID",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8086,7 +8086,7 @@
     {
       "id": "env:CODEX_UPDATE_FROM_RELEASE",
       "title": "CODEX_UPDATE_FROM_RELEASE",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8129,7 +8129,7 @@
     {
       "id": "env:CODEX_VERSION",
       "title": "CODEX_VERSION",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8181,7 +8181,7 @@
     {
       "id": "env:DEVELOPER_DIR",
       "title": "DEVELOPER_DIR",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8224,7 +8224,7 @@
     {
       "id": "env:ELECTRON_GET_USE_PROXY",
       "title": "ELECTRON_GET_USE_PROXY",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8267,7 +8267,7 @@
     {
       "id": "env:GH_PROMPT_DISABLED",
       "title": "GH_PROMPT_DISABLED",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8312,7 +8312,7 @@
     {
       "id": "env:GIT_CONFIG_COUNT",
       "title": "GIT_CONFIG_COUNT",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8355,7 +8355,7 @@
     {
       "id": "env:GIT_DIR",
       "title": "GIT_DIR",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8408,7 +8408,7 @@
     {
       "id": "env:GIT_EXEC_PATH",
       "title": "GIT_EXEC_PATH",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8451,7 +8451,7 @@
     {
       "id": "env:GIT_LFS_SKIP_SMUDGE",
       "title": "GIT_LFS_SKIP_SMUDGE",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8496,7 +8496,7 @@
     {
       "id": "env:GIT_OPTIONAL_LOCKS",
       "title": "GIT_OPTIONAL_LOCKS",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8554,7 +8554,7 @@
     {
       "id": "env:GIT_TEMPLATE_DIR",
       "title": "GIT_TEMPLATE_DIR",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8597,7 +8597,7 @@
     {
       "id": "env:GIT_TERMINAL_PROMPT",
       "title": "GIT_TERMINAL_PROMPT",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8656,7 +8656,7 @@
     {
       "id": "env:NODE_USE_ENV_PROXY",
       "title": "NODE_USE_ENV_PROXY",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,
@@ -8701,7 +8701,7 @@
     {
       "id": "env:NoDefaultCurrentDirectoryInExePath",
       "title": "NoDefaultCurrentDirectoryInExePath",
-      "group": "Set or cleared by Codex for child processes",
+      "group": "Set or cleared by Codex/ChatGPT for child processes",
       "kind": "env-var",
       "text": null,
       "when": null,

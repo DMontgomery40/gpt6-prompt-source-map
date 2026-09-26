@@ -1,4 +1,4 @@
-# Codex `config.toml` reference
+# Codex/ChatGPT `config.toml` reference
 
 This reference covers every `config.toml` key accepted by the Codex CLI bundled in the ChatGPT desktop app (com.openai.codex 26.924.20706; `codex-cli 0.158.0-alpha.2`, binary sha256 `c3e30211bd454da7…`). Keys come from the generated `ConfigToml` JSON Schema and config structs in openai/codex at tag `rust-v0.158.0-alpha.2` (the exact release tag for this binary), the feature registry, and probes of the shipped binary with a throwaway `CODEX_HOME`. It lists 966 `config.toml` entries. 502 appear in the official Codex docs, and 464 are undocumented. The entries include 150 feature flags (57 under development, 47 stable, 39 removed, 4 deprecated, 3 experimental), 12 hidden, legacy, or alias keys that the generated schema leaves out, and 7 keys that the official reference lists but this build rejects. The last section lists 158 `requirements.toml` keys for admin-managed policy. Labels: **documented** means the key is in the official config reference or another Codex docs page; **undocumented** means it is only in source and the binary; **hidden** means the schema generator skips it, but the deserializer still recognizes it (sometimes only to raise a targeted error). Descriptions quote the docs where they exist, and the Rust doc comment otherwise. Defaults are shown only where a source states them.
 
@@ -6971,7 +6971,7 @@ Source: `codex-rs/config/src/config_toml.rs:553`, `codex-rs/core/config.schema.j
 
 ### `notice.external_config_migration_prompts`
 
-Type: `table` · Default: `{"home": null, "home_last_prompted_at": null, "project_last_prompted_at": {}, "projects": {}}` · Status: internal state · When: internal state written by Codex
+Type: `table` · Default: `{"home": null, "home_last_prompted_at": null, "project_last_prompted_at": {}, "projects": {}}` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Tracks scopes where external config migration prompts should be suppressed.
 >
@@ -6981,7 +6981,7 @@ Source: `codex-rs/config/src/types.rs:925`, `codex-rs/core/config.schema.json` �
 
 ### `notice.external_config_migration_prompts.home`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Tracks whether home-level external config migration prompts are hidden.
 >
@@ -6991,7 +6991,7 @@ Source: `codex-rs/config/src/types.rs:893`, `codex-rs/core/config.schema.json` �
 
 ### `notice.external_config_migration_prompts.home_last_prompted_at`
 
-Type: `integer (int64)` · Status: internal state · When: internal state written by Codex
+Type: `integer (int64)` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Tracks the last time the home-level external config migration prompt was shown.
 >
@@ -7001,7 +7001,7 @@ Source: `codex-rs/config/src/types.rs:895`, `codex-rs/core/config.schema.json` �
 
 ### `notice.external_config_migration_prompts.project_last_prompted_at`
 
-Type: `map<string, integer (int64)>` · Default: `{}` · Status: internal state · When: internal state written by Codex
+Type: `map<string, integer (int64)>` · Default: `{}` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Tracks the last time a project-level external config migration prompt was shown.
 >
@@ -7011,13 +7011,13 @@ Source: `codex-rs/config/src/types.rs:901`, `codex-rs/core/config.schema.json` �
 
 ### `notice.external_config_migration_prompts.project_last_prompted_at.<key>`
 
-Type: `integer (int64)` · Status: internal state · When: internal state written by Codex
+Type: `integer (int64)` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 Source: `codex-rs/config/src/types.rs:891`, `codex-rs/core/config.schema.json` · In binary: yes (distinctive match)
 
 ### `notice.external_config_migration_prompts.projects`
 
-Type: `map<string, boolean>` · Default: `{}` · Status: internal state · When: internal state written by Codex
+Type: `map<string, boolean>` · Default: `{}` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Tracks which project paths have opted out of external config migration prompts.
 >
@@ -7027,13 +7027,13 @@ Source: `codex-rs/config/src/types.rs:898`, `codex-rs/core/config.schema.json` �
 
 ### `notice.external_config_migration_prompts.projects.<path>`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 Source: `codex-rs/config/src/types.rs:891`, `codex-rs/core/config.schema.json` · In binary: yes (generic match)
 
 ### `notice.fast_default_opt_out`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Tracks whether the user opted out of Codex-managed fast defaults.
 >
@@ -7043,7 +7043,7 @@ Source: `codex-rs/config/src/types.rs:912`, `codex-rs/core/config.schema.json` �
 
 ### `notice.hide_full_access_warning`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Track acknowledgement of the full access warning prompt.
 >
@@ -7053,7 +7053,7 @@ Source: `codex-rs/config/src/types.rs:908`, `codex-rs/core/config.schema.json` �
 
 ### `notice.hide_gpt-5.1-codex-max_migration_prompt`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Track acknowledgement of the gpt-5.1-codex-max migration prompt.
 >
@@ -7063,7 +7063,7 @@ Source: `codex-rs/config/src/types.rs:919`, `codex-rs/core/config.schema.json` �
 
 ### `notice.hide_gpt5_1_migration_prompt`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Track acknowledgement of the GPT-5.1 migration prompt.
 >
@@ -7073,7 +7073,7 @@ Source: `codex-rs/config/src/types.rs:916`, `codex-rs/core/config.schema.json` �
 
 ### `notice.hide_rate_limit_model_nudge`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Track opt-out of the rate limit model switch reminder.
 >
@@ -7083,7 +7083,7 @@ Source: `codex-rs/config/src/types.rs:914`, `codex-rs/core/config.schema.json` �
 
 ### `notice.hide_world_writable_warning`
 
-Type: `boolean` · Status: internal state · When: internal state written by Codex
+Type: `boolean` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Track acknowledgement of the Windows world-writable directories warning.
 >
@@ -7093,7 +7093,7 @@ Source: `codex-rs/config/src/types.rs:910`, `codex-rs/core/config.schema.json` �
 
 ### `notice.model_migrations`
 
-Type: `map<string, string>` · Default: `{}` · Status: internal state · When: internal state written by Codex
+Type: `map<string, string>` · Default: `{}` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 > Track acknowledged model migrations as old->new mappings.
 >
@@ -7103,7 +7103,7 @@ Source: `codex-rs/config/src/types.rs:922`, `codex-rs/core/config.schema.json` �
 
 ### `notice.model_migrations.<key>`
 
-Type: `string` · Status: internal state · When: internal state written by Codex
+Type: `string` · Status: internal state · When: internal state written by Codex/ChatGPT
 
 Source: `codex-rs/config/src/types.rs:906`, `codex-rs/core/config.schema.json` · In binary: yes (distinctive match)
 
@@ -9248,7 +9248,7 @@ Source: `codex-rs/config/src/tui_keymap.rs:364`, `codex-rs/core/config.schema.js
 
 ## Hidden, legacy and alias keys (not in the generated schema)
 
-The generated schema omits these keys, but this build's deserializer still recognizes them. Most are legacy spellings kept so older config files still load. A few are recognized only so Codex can raise a targeted error. Each entry records how the shipped binary treated a one-key test config under `--strict-config`.
+The generated schema omits these keys, but this build's deserializer still recognizes them. Most are legacy spellings kept so older config files still load. A few are recognized only so Codex/ChatGPT can raise a targeted error. Each entry records how the shipped binary treated a one-key test config under `--strict-config`.
 
 ### `agents.job_max_runtime_seconds`
 
@@ -9396,7 +9396,7 @@ Source: `codex-rs/config/src/profile_toml.rs:49` · In binary: yes (distinctive 
 
 ## Documented but not accepted by this build
 
-The official reference lists these keys, but they are absent from this build's generated schema. Each entry shows whether a config struct has a field of the same name, and what the binary did with a `--strict-config` test. The docs are a live snapshot and probably describe a newer Codex release than the one bundled here.
+The official reference lists these keys, but they are absent from this build's generated schema. Each entry shows whether a config struct has a field of the same name, and what the binary did with a `--strict-config` test. The docs are a live snapshot and probably describe a newer Codex/ChatGPT release than the one bundled here.
 
 ### `computer_use.windows.always_allowed_app_ids`
 

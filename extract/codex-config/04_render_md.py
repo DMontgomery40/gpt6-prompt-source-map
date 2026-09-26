@@ -63,7 +63,7 @@ def render_config():
     feats = [i for i in cfg if i["details"].get("feature_id")]
     stages = collections.Counter(i["details"]["stage"] for i in feats)
     out = []
-    out.append("# Codex `config.toml` reference\n")
+    out.append("# Codex/ChatGPT `config.toml` reference\n")
     out.append(
         f"This reference covers every `config.toml` key accepted by the Codex CLI bundled in the ChatGPT desktop app "
         f"({v['desktop_app']}; `{v['codex_cli']}`, binary sha256 `{v['codex_binary_sha256'][:16]}…`). "
@@ -92,13 +92,13 @@ def render_config():
         out.append(f"## {g}\n")
         if g.startswith("Hidden"):
             out.append("The generated schema omits these keys, but this build's deserializer still recognizes them. Most "
-                       "are legacy spellings kept so older config files still load. A few are recognized only so Codex "
+                       "are legacy spellings kept so older config files still load. A few are recognized only so Codex/ChatGPT "
                        "can raise a targeted error. Each entry records how the shipped binary treated a one-key test "
                        "config under `--strict-config`.\n")
         if g.startswith("Documented but not"):
             out.append("The official reference lists these keys, but they are absent from this build's generated schema. "
                        "Each entry shows whether a config struct has a field of the same name, and what the binary did "
-                       "with a `--strict-config` test. The docs are a live snapshot and probably describe a newer Codex "
+                       "with a `--strict-config` test. The docs are a live snapshot and probably describe a newer Codex/ChatGPT "
                        "release than the one bundled here.\n")
         if g.startswith("Managed requirements"):
             out.append("`requirements.toml` is the admin-managed policy file. It constrains what `config.toml` may set. "
@@ -177,9 +177,9 @@ def render_env():
     cli_read = [i for i in items if i["details"]["read_by"].startswith("CLI") and not i["group"].startswith(("Set or", "Build-time"))]
     desktop = [i for i in items if "desktop app" in i["details"]["read_by"]]
     desktop_own = [i for i in desktop if i["group"] != "Desktop app: platform and bundled-library variables"]
-    child = groups.get("Set or cleared by Codex for child processes", [])
+    child = groups.get("Set or cleared by Codex/ChatGPT for child processes", [])
     documented = sum(1 for i in items if i["documented"])
-    out = ["# Codex environment variables\n"]
+    out = ["# Codex/ChatGPT environment variables\n"]
     out.append(
         f"This page lists every environment variable that the Codex CLI bundled in the ChatGPT desktop app "
         f"({v['desktop_app']}; `{v['codex_cli']}`) or the desktop app's own main-process code reads, sets, or compiles "
@@ -187,8 +187,8 @@ def render_env():
         f"at tag `{v['source_tag']}`, and each name was checked against the shipped binary's strings. Desktop entries "
         f"come from `process.env` reads in `app.asar` (`.vite/build/*.js`). There are {len(items)} entries. "
         f"{len(cli_read)} are runtime variables read by the CLI. {len(desktop)} names are read in the desktop "
-        f"main-process bundles; {len(desktop_own)} of those are Codex's own, and the rest are platform or "
-        f"bundled-library names. {len(child)} are set or cleared only for commands Codex spawns. These categories "
+        f"main-process bundles; {len(desktop_own)} of those are Codex/ChatGPT's own, and the rest are platform or "
+        f"bundled-library names. {len(child)} are set or cleared only for commands Codex/ChatGPT spawns. These categories "
         f"overlap: for example, `CODEX_HOME` is read by both the CLI and the desktop app. The rest are build-time "
         f"names, and names present only in source for other platforms or tests. {documented} appear in the official "
         f"Codex docs (the environment-variables table or a code span on another docs page), and "
@@ -203,7 +203,7 @@ def render_env():
         out.append(f"- [{g}](#{anchor}) ({len(its)})")
     out.append("")
     notes = {
-        "Set or cleared by Codex for child processes": "Codex sets or removes these in the environment of processes it spawns: shell tool commands, hooks, git, installers and the network proxy. Tools and hooks running under Codex can read them.",
+        "Set or cleared by Codex/ChatGPT for child processes": "Codex/ChatGPT sets or removes these in the environment of processes it spawns: shell tool commands, hooks, git, installers and the network proxy. Tools and hooks running under Codex can read them.",
         "Build-time variables (compiled in)": "These are read by `env!` or `option_env!` when the binary is built. Setting them at runtime has no effect.",
         "Desktop app: platform and bundled-library variables": "These are generic platform variables, or variables read by third-party libraries bundled into the desktop app's main-process JavaScript, such as Sentry release detection, OpenTelemetry, and `ws`. They are listed for completeness.",
         "In source only (not in this macOS binary: other-platform, test or dev builds)": "These are read in openai/codex at this tag, but the name string is absent from the macOS binary. They are Windows-only or Linux-only, test harnesses, or dev builds.",
@@ -227,7 +227,7 @@ def render_env():
             if dl:
                 out.append(dl + "\n")
             if d.get("values_set_for_child"):
-                out.append("Value Codex sets: " + ", ".join(code(x) for x in d["values_set_for_child"]) + "\n")
+                out.append("Value Codex/ChatGPT sets: " + ", ".join(code(x) for x in d["values_set_for_child"]) + "\n")
             if d.get("used_in_functions"):
                 out.append("Used in: " + ", ".join(code(f) for f in d["used_in_functions"][:5]) + "\n")
             if d.get("clap_subcommands"):
