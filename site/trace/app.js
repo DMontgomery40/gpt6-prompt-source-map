@@ -168,7 +168,7 @@ function describePaste(v) {
   const pathRow = (p, note) => {
     const b = el("button", { class: "btn small", type: "button", text: "Copy" });
     b.addEventListener("click", () => navigator.clipboard?.writeText(p).then(() => { b.textContent = "Copied"; }, () => { b.textContent = "Select and copy"; }));
-    return [el("div", { class: "path" }, el("code", { text: p }), b), note ? el("p", { text: note }) : null];
+    return note ? [el("div", { class: "path" }, el("code", { text: p }), b), el("p", { text: note })] : [el("div", { class: "path" }, el("code", { text: p }), b)];
   };
   const uuid = (v.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i) || [])[0];
   if (/^codex:\/\//i.test(v) || (uuid && uuid[14] === "7" && !/\.claude\//.test(v))) {
@@ -191,7 +191,7 @@ function describePaste(v) {
     const folder = file.replace(/\.jsonl$/, "/");
     out.append(el("p", { text: "Claude Code session log:" }), ...pathRow(file),
       el("p", { text: "Drop it together with its same-named folder, which holds the subagents:" }), ...pathRow(folder),
-      file.includes("<project>") ? el("p", { class: "note", text: "<project> is the working directory with each / replaced by -, for example -Users-you-code-app." }) : null);
+      ...(file.includes("<project>") ? [el("p", { class: "note", text: "<project> is the working directory with each / replaced by -, for example -Users-you-code-app." })] : []));
     return;
   }
   out.append(el("p", { text: "Paste a codex://threads/… link, a thread id, or a Claude Code session id or path." }));
