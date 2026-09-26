@@ -9,12 +9,15 @@
 //   array-join        [a, b, …].join(separator), the anchor in one element
 //   function          a function evaluated with placeholder arguments, as in prompts.mjs
 // `fallback` marks a default that remote configuration can replace. `use` states how the app
-// sends the text, where the code shows it.
+// sends the text, where the code shows it. Both are published only while every `context` phrase
+// is still in the source near the anchor.
 
 const P = name => `<${name}>`;
 
 const HANDOFF_FALLBACK = "Default of the ChatGPT-to-Codex handoff config (dynamic config 2668276729); the server can replace it.";
+const HANDOFF_CONTEXT = ["2668276729", "acceptedResponse", "rejectedResponse"];
 const GPT_BUILDER_USE = "Sent as a hidden system message in the GPT builder conversation.";
+const GPT_BUILDER_CONTEXT = ["role:`system`", "is_visually_hidden_from_conversation"];
 const gptConfig = profilePicId => [{
   display: { name: P("NAME"), description: P("DESCRIPTION"), prompt_starters: [P("PROMPT_STARTER")], profile_pic_id: profilePicId, profile_picture_url: null },
   instructions: P("INSTRUCTIONS"),
@@ -29,7 +32,7 @@ export const chatgptPages = [
     summary: "Text the app adds to ChatGPT conversations: the regenerate-with-feedback instruction, the sponsored-ad system message, the onboarding kickoff, image-edit and flight-search requests, and the tool results of the ChatGPT-to-Codex handoff.",
     entries: [
       { group: "Conversation turns", id: "regenerate-with-feedback", mode: "static", title: "Regenerate with feedback", anchor: "The user provided feedback on a previous completion." },
-      { group: "Conversation turns", id: "sponsored-ad-reference", mode: "static", title: "Ask ChatGPT about a sponsored ad", anchor: "The user is referring to a sponsored ad:", fallback: "Default of the `ask_chatgpt_system_message` remote config value; the server can replace it. The app fills `{LABEL}` and `{DATA}` from the ad." },
+      { group: "Conversation turns", id: "sponsored-ad-reference", mode: "static", title: "Ask ChatGPT about a sponsored ad", anchor: "The user is referring to a sponsored ad:", fallback: "Default of the `ask_chatgpt_system_message` remote config value; the server can replace it. The app fills `{LABEL}` and `{DATA}` from the ad.", context: ["ask_chatgpt_system_message", "{LABEL}"] },
       { group: "Conversation turns", id: "conversational-onboarding-kickoff", mode: "formatjs", title: "Conversational onboarding kickoff", anchor: "Write the first assistant message for this onboarding", messageId: "chatgpt.new-onboarding.conversational-onboarding.bootstrap.kickoff-prompt" },
       { group: "Images", id: "image-remove-background", mode: "formatjs", title: "Image edit: remove background", anchor: "Remove the background from this image. Keep all", messageId: "imageSidePanel.removeBackgroundPrompt" },
       { group: "Images", id: "image-remove-selection", mode: "formatjs", title: "Image edit: remove selection", anchor: "Remove the selected area from this image", messageId: "imageSidePanel.removeSelectionPrompt" },
@@ -37,8 +40,8 @@ export const chatgptPages = [
       { group: "Images", id: "imagegen-uploaded-file", mode: "formatjs", title: "Image questionnaire: attached file", anchor: "Use the attached file: {fileName}", messageId: "chatgpt.imagegenInput.uploadedFileAnswer" },
       { group: "Images", id: "imagegen-questions-skipped", mode: "formatjs", title: "Image questionnaire: skipped", anchor: "Questions skipped", messageId: "chatgpt.imagegenInput.questionsSkipped" },
       { group: "Flights", id: "flight-search-adjustment", mode: "formatjs", title: "Flight search adjustment", anchor: "Please update my flight search. Current details:", messageId: "flightSearch.submission.adjustment" },
-      { group: "ChatGPT to Codex handoff", id: "handoff-accepted", mode: "array-join", title: "Handoff accepted: tool result", anchor: "User chose to hand off:", fallback: HANDOFF_FALLBACK },
-      { group: "ChatGPT to Codex handoff", id: "handoff-rejected", mode: "static", title: "Handoff declined: tool result", anchor: "The user chose not to hand off.", fallback: HANDOFF_FALLBACK }
+      { group: "ChatGPT to Codex handoff", id: "handoff-accepted", mode: "array-join", title: "Handoff accepted: tool result", anchor: "User chose to hand off:", fallback: HANDOFF_FALLBACK, context: HANDOFF_CONTEXT },
+      { group: "ChatGPT to Codex handoff", id: "handoff-rejected", mode: "static", title: "Handoff declined: tool result", anchor: "The user chose not to hand off.", fallback: HANDOFF_FALLBACK, context: HANDOFF_CONTEXT }
     ]
   },
   {
@@ -48,16 +51,16 @@ export const chatgptPages = [
     entries: [
       {
         group: "Current GPT fields", id: "gpt-fields-no-picture", mode: "function", title: "Current fields: no profile picture", anchor: "current set of fields",
-        field: name => `${name}(gpt)`, args: gptConfig(null), use: GPT_BUILDER_USE,
+        field: name => `${name}(gpt)`, args: gptConfig(null), use: GPT_BUILDER_USE, context: GPT_BUILDER_CONTEXT,
         note: "Branch for a GPT with no profile picture."
       },
       {
         group: "Current GPT fields", id: "gpt-fields-with-picture", mode: "function", title: "Current fields: with profile picture", anchor: "current set of fields",
-        field: name => `${name}(gpt)`, args: gptConfig(P("PROFILE_PIC_ID")), use: GPT_BUILDER_USE,
+        field: name => `${name}(gpt)`, args: gptConfig(P("PROFILE_PIC_ID")), use: GPT_BUILDER_USE, context: GPT_BUILDER_CONTEXT,
         note: "Branch for a GPT with a profile picture."
       },
-      { group: "Builder updates", id: "gpt-settings-changed", mode: "template", title: "Settings changed directly", anchor: "The user changed these settings directly. Treat these", use: `${GPT_BUILDER_USE} The leading <…> is the current-fields text above.` },
-      { group: "Builder updates", id: "gpt-files-uploaded", mode: "template", title: "Files uploaded to the GPT", anchor: "The user uploaded these files to the GPT:", use: GPT_BUILDER_USE }
+      { group: "Builder updates", id: "gpt-settings-changed", mode: "template", title: "Settings changed directly", anchor: "The user changed these settings directly. Treat these", use: `${GPT_BUILDER_USE} The leading <…> is the current-fields text above.`, context: GPT_BUILDER_CONTEXT },
+      { group: "Builder updates", id: "gpt-files-uploaded", mode: "template", title: "Files uploaded to the GPT", anchor: "The user uploaded these files to the GPT:", use: GPT_BUILDER_USE, context: GPT_BUILDER_CONTEXT }
     ]
   },
   {
@@ -97,7 +100,7 @@ export const chatgptPages = [
       { group: "Manual accounts", id: "manual-debt", mode: "formatjs", title: "Manual account: debt", anchor: "Help me track a debt manually. Ask one" },
       { group: "Manual accounts", id: "manual-insurance", mode: "formatjs", title: "Manual account: insurance", anchor: "Help me track an insurance policy manually. First" },
       { group: "Connected accounts", id: "finance-connected-accounts", mode: "formatjs", title: "Newly connected accounts", anchor: "What can I do with my newly connected", messageId: ["personalFinance.homeBeacon.onboardingPrompt", "mattress.prompts.ledger_onboarding.prompt"] },
-      { group: "Health", id: "health-record-context", mode: "concat", title: "Selected Health record", anchor: "The user is asking about the currently selected", use: "Sent as a hidden tool-role message (author `olympic.context`); <…> is the Health-generated link as JSON." }
+      { group: "Health", id: "health-record-context", mode: "concat", title: "Selected Health record", anchor: "The user is asking about the currently selected", use: "Sent as a hidden tool-role message (author `olympic.context`); <…> is the Health-generated link as JSON.", context: ["olympic.context", "role:`tool`", "is_visually_hidden_from_conversation"] }
     ]
   },
   {
@@ -112,10 +115,10 @@ export const chatgptPages = [
       { group: "Library and writing blocks", id: "writing-block-open", mode: "template", title: "Open writing block context", anchor: "The user currently has the writing block backed" },
       { group: "Library and writing blocks", id: "writing-block-selection", mode: "template", title: "Writing block selected text", anchor: "instruction is referring to the following selected text" },
       { group: "Library and writing blocks", id: "presentation-outline-revise", mode: "template", title: "Revise presentation outline", anchor: "slides total. Preserve its presentation title, cover-slide choice," },
-      { group: "New-chat suggestions (product unconfirmed)", id: "create-document", mode: "formatjs", title: "Create document", anchor: "Create a new document with {artifact}.", messageId: "home.newChatPageSuggestions.createDocument.prompt.v5" },
-      { group: "New-chat suggestions (product unconfirmed)", id: "create-presentation", mode: "formatjs", title: "Create presentation", anchor: "Create a new presentation with {artifact}.", messageId: "home.newChatPageSuggestions.createPresentation.prompt.v5" },
-      { group: "New-chat suggestions (product unconfirmed)", id: "create-spreadsheet", mode: "formatjs", title: "Create spreadsheet", anchor: "Create a new spreadsheet with {artifact}.", messageId: "home.newChatPageSuggestions.createSpreadsheet.prompt.v5" },
-      { group: "New-chat suggestions (product unconfirmed)", id: "create-site", mode: "formatjs", title: "Create site", anchor: "Create a new site with {artifact}.", messageId: "home.newChatPageSuggestions.createSite.prompt.v5" },
+      { group: "New-chat suggestions (product unconfirmed)", id: "create-document", mode: "formatjs", title: "Create document", anchor: "Create a new document with {artifact}." },
+      { group: "New-chat suggestions (product unconfirmed)", id: "create-presentation", mode: "formatjs", title: "Create presentation", anchor: "Create a new presentation with {artifact}." },
+      { group: "New-chat suggestions (product unconfirmed)", id: "create-spreadsheet", mode: "formatjs", title: "Create spreadsheet", anchor: "Create a new spreadsheet with {artifact}." },
+      { group: "New-chat suggestions (product unconfirmed)", id: "create-site", mode: "formatjs", title: "Create site", anchor: "Create a new site with {artifact}." },
       { group: "New-chat suggestions (product unconfirmed)", id: "create-website-product", mode: "formatjs", title: "Create website: product", anchor: "a new website to launch a product with", messageId: "home.newChatPageSuggestions.createSiteProduct.prompt" },
       { group: "New-chat suggestions (product unconfirmed)", id: "create-website-portfolio", mode: "formatjs", title: "Create website: portfolio", anchor: "Create a new website for a portfolio with", messageId: "home.newChatPageSuggestions.createSitePortfolio.prompt" },
       { group: "New-chat suggestions (product unconfirmed)", id: "create-website-business", mode: "formatjs", title: "Create website: business", anchor: "Create a new website for a business with", messageId: "home.newChatPageSuggestions.createSiteBusiness.prompt" },

@@ -77,6 +77,23 @@ function renderEntry(item) {
   return lines;
 }
 
+// A not-found reason without build-specific file names and offsets, so a still-missing entry
+// does not change the page on every build. The coverage JSON keeps the full reason.
+const pageReason = reason => reason
+  .replace(/^\[[^\]]+\] /, "")
+  .replace(/(?:webview\/assets|\.vite\/build)\/[\w.-]+\.js(?:@\d+)?/g, "a bundle file")
+  .replace(/ at \d+/g, "");
+
+// The phrases an entry's `use` and `fallback` sentences rely on, near the anchor in its file.
+function contextHolds(asar, item) {
+  if (!item.context?.length) return true;
+  const entry = asar.appScripts.find(candidate => candidate.path === item.file);
+  const source = entry ? asar.textOf(entry) : "";
+  const at = source.indexOf(item.anchor);
+  const near = at < 0 ? "" : source.slice(Math.max(0, at - 1500), at + 1500);
+  return item.context.every(phrase => near.includes(phrase));
+}
+
 function renderPage(page, items, missing, context) {
   const lines = [`# ${page.title}`, "",
     `Source: \`app.asar\` of the Codex/ChatGPT desktop app ${context.version} (build ${context.build}), SHA-256 \`${context.asarSha256}\`.`, "",
@@ -93,7 +110,7 @@ function renderPage(page, items, missing, context) {
   }
   if (missing.length) {
     lines.push(`## ${NOT_FOUND}`, "", "These entries' anchors did not resolve in this build.", "");
-    for (const entry of missing) lines.push(`- \`${entry.id}\` (${entry.title}), anchor ${code(entry.anchor)}: ${entry.reason.replace(/^\[[^\]]+\] /, "")}`);
+    for (const entry of missing) lines.push(`- \`${entry.id}\` (${entry.title}), anchor ${code(entry.anchor)}: ${pageReason(entry.reason)}`);
     lines.push("");
   }
   return `${lines.join("\n").trimEnd()}\n`;
@@ -122,6 +139,12 @@ export function buildPages(asar, context, pages = chatgptPages, distinct = chatg
       extracted.delete(id);
     }
   }
+  const unconfirmed = [];
+  for (const [id, item] of extracted) {
+    if (contextHolds(asar, item)) continue;
+    extracted.set(id, { ...item, use: null, fallback: null });
+    unconfirmed.push(id);
+  }
   const withheld = [];
   for (const [id, item] of extracted) {
     const reason = withheldReason(item);
@@ -136,8 +159,10 @@ export function buildPages(asar, context, pages = chatgptPages, distinct = chatg
     docs.set(page.page, renderPage(page, items, pageMissing, context));
     coverage.set(page.page.replace(/\.md$/, ".json"), `${JSON.stringify({
       page: `outputs/${page.page}`,
-      app: { version: context.version, build: context.build, asar_sha256: context.asarSha256 },
-      items: items.map(item => ({ id: item.id, title: item.title, label: item.label, message_id: item.messageId ?? null, file: item.file, offset: item.offset, sha256: item.sha256, text: item.text })),
+      app_version: context.version,
+      app_build: context.build,
+      source: { asar_sha256: context.asarSha256 },
+      items: items.map(item => ({ id: item.id, title: item.title, label: item.label, message_id: item.messageId ?? null, source_file: item.file, byte_offset: item.offset, sha256: item.sha256, text: item.text })),
       not_found: pageMissing.map(entry => ({ id: entry.id, anchor: entry.anchor, reason: entry.reason }))
     }, null, 1)}\n`);
   }
@@ -150,6 +175,7 @@ export function buildPages(asar, context, pages = chatgptPages, distinct = chatg
       exact: published.filter(item => item.label === "exact").length,
       assembled: published.filter(item => item.label === "assembled").length,
       not_found: [...missing.keys()],
+      context_unconfirmed: unconfirmed,
       withheld
     }
   };

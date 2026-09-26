@@ -123,7 +123,9 @@ test("buildPages: a missing anchor, identical branches and a privacy hit never t
   const asar = one([
     "a={id:`m.one`,defaultMessage:`Found message text.`,description:`Sent to ChatGPT.`};",
     "b=`Branch text one.`;c=`Branch text one.`;",
-    "d=`Leaky text for someone@example.com here.`;"
+    "d=`Leaky text for someone@example.com here.`;",
+    "e={id:`m.renamed`,defaultMessage:`Renamed message text.`};",
+    "f={role:`system`,parts:[`Hidden builder text.`]};g=`Unbacked claim text.`;"
   ].join(""));
   const pages = [{
     page: "test-page.md",
@@ -134,7 +136,10 @@ test("buildPages: a missing anchor, identical branches and a privacy hit never t
       { group: "Found", id: "gone", mode: "static", title: "Gone", anchor: "Removed in this build" },
       { group: "Branches", id: "b1", mode: "static", title: "B1", anchor: "Branch text" },
       { group: "Branches", id: "b2", mode: "static", title: "B2", anchor: "Branch text" },
-      { group: "Leak", id: "leak", mode: "static", title: "Leak", anchor: "Leaky text" }
+      { group: "Leak", id: "leak", mode: "static", title: "Leak", anchor: "Leaky text" },
+      { group: "Found", id: "renamed", mode: "formatjs", title: "Renamed", anchor: "Renamed message", messageId: "m.old" },
+      { group: "Claims", id: "backed", mode: "static", title: "Backed", anchor: "Hidden builder", use: "Sent as a system message.", context: ["role:`system`"] },
+      { group: "Claims", id: "unbacked", mode: "static", title: "Unbacked", anchor: "Unbacked claim", fallback: "Remote default.", use: "Sent hidden.", context: ["is_visually_hidden_from_conversation"] }
     ]
   }];
   const context = { version: "1.0", build: "1", asarSha256: "0".repeat(64), youAreChatgpt: 0 };
@@ -146,10 +151,18 @@ test("buildPages: a missing anchor, identical branches and a privacy hit never t
   assert.match(doc, /## Not found in this build\n\n.*\n\n- `gone` \(Gone\), anchor `Removed in this build`: anchor not found/);
   assert.match(doc, /- `b1` \(B1\).*identical text/);
   assert.doesNotMatch(doc, /example\.com/);
-  assert.deepEqual(summary.not_found.sort(), ["b1", "b2", "gone"]);
+  const renamed = doc.split("\n").find(line => line.startsWith("- `renamed`"));
+  assert.match(renamed, /message id in a bundle file is m\.renamed, expected m\.old$/);
+  assert.match(doc, /### Backed\n\nSource: [^\n]+\n\nExact text from the bundle\. Sent as a system message\.\n/);
+  assert.match(doc, /### Unbacked\n\nSource: [^\n]+\n\nExact text from the bundle\.\n/);
+  assert.doesNotMatch(doc, /Remote default|Sent hidden/);
+  assert.deepEqual(summary.context_unconfirmed, ["unbacked"]);
+  assert.deepEqual(summary.not_found.sort(), ["b1", "b2", "gone", "renamed"]);
   assert.deepEqual(summary.withheld.map(w => w.id), ["leak"]);
   const cover = JSON.parse(coverage.get("test-page.json"));
-  assert.deepEqual(cover.items.map(i => [i.id, i.sha256]), [["found", sha("Found message text.")]]);
+  assert.deepEqual(cover.items.map(i => [i.id, i.sha256]), [["found", sha("Found message text.")], ["backed", sha("Hidden builder text.")], ["unbacked", sha("Unbacked claim text.")]]);
+  assert.match(cover.not_found.find(n => n.id === "renamed").reason, /webview\/assets\/chunk-0123456789ab\.js/);
+  assert.equal(cover.items[0].source_file, "webview/assets/chunk-0123456789ab.js");
 });
 
 const plist = entries => `<?xml version="1.0" encoding="UTF-8"?>
