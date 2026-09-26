@@ -12,7 +12,13 @@ const VOLATILE_JSON_KEYS = new Set([
 // blocks never count.
 // Two-level documents: a group heading, then one unit per item one level below it. The value
 // is the group heading's level ("# group" + "## item", or "## group" + "### item").
-const TWO_LEVEL = { "other-catalog-models.md": 1, "codex-cli-prompts.md": 2, "codex-cli-bundled-skills.md": 2, "desktop-model-facing-text.md": 2 };
+const TWO_LEVEL = {
+  "other-catalog-models.md": 1,
+  "codex-cli-prompts.md": 2, "codex-cli-bundled-skills.md": 2, "desktop-model-facing-text.md": 2,
+  "chatgpt-conversation-prompts.md": 2, "chatgpt-gpt-builder-prompts.md": 2, "chatgpt-work-prompts.md": 2,
+  "chatgpt-finance-health-prompts.md": 2, "chatgpt-sites-artifacts-prompts.md": 2,
+  "chatgpt-bundled-plugins.md": 2, "computer-use-prompts.md": 2, "desktop-tool-manifest.md": 2
+};
 
 function unitHeading(name, line) {
   if (name === "gpt-6-instruction-modules.md") return /^## [a-z_]+\.[a-z0-9_.]+$/.test(line);
