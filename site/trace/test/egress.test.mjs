@@ -116,6 +116,10 @@ test("egress: js calls whose arguments arrive as JSON, and browser state reads",
   const open = classifyCodexCall("js", JSON.stringify({ code: "let tab = await cua.createBrowserTab('b', 'https://example.test/releases')", title: "Open" }));
   assert.deepEqual([open.class, open.target, open.egress], ["outward", "https://example.test/releases", "network"]);
   assert.equal(classifyCodexCall("js", JSON.stringify({ code: "await cua.getState()", title: "Inspect" })).class, "read");
+  // A page on this machine (a local dev server) isn't egress; a remote one next to it is.
+  assert.equal(classifyCodexCall("js", `let tab = await cua.createBrowserTab('b', 'http://127.0.0.1:5173/')`).class, "read");
+  const both = classifyCodexCall("js", `await cua.createBrowserTab('b', 'http://localhost:5173/'); await tab.goto('https://docs.example.test/x')`);
+  assert.deepEqual([both.class, both.target], ["outward", "https://docs.example.test/x"]);
   assert.equal(classifyCodexCall("exec", "const s = await cua.listTabs(); text(JSON.stringify(s));").class, "read");
   assert.equal(classifyCodexCall("exec", "const t = await cua.getTab('b'); await cua.click({ x: 1, y: 2 });").class, "outward");
 });

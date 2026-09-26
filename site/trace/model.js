@@ -779,8 +779,14 @@ export function patchAdds(text) {
 }
 
 // Records written scripts into a path -> text map (an Add replaces, an Update appends).
+// Only files that can run are kept: script extensions, no extension, or a shebang.
+const RUNNABLE = /(\.(py|js|mjs|cjs|ts|mts|sh|bash|zsh|rb|pl|php)|\/[^./]+)$/i;
 export function recordScripts(map, writes) {
-  for (const w of writes) map.set(w.path, w.op === "Update" && map.has(w.path) ? map.get(w.path) + "\n" + w.added : w.added ?? w.body);
+  for (const w of writes) {
+    const text = w.added ?? w.body;
+    if (!RUNNABLE.test("/" + w.path) && !map.has(w.path) && !/^#!/.test(text)) continue;
+    map.set(w.path, w.op === "Update" && map.has(w.path) ? map.get(w.path) + "\n" + text : text);
+  }
   return map;
 }
 
@@ -1130,8 +1136,9 @@ export function classifyCodexCall(name, input, completed = [], files = null) {
   const n = name || "";
   if (n === "exec" || n === "js") {
     const p = parseCodexSource(input);
-    const known = recordScripts(new Map(), p.patches);
-    if (files) for (const [k, v] of files) if (!known.has(k)) known.set(k, v);
+    const own = recordScripts(new Map(), p.patches);
+    // This call's own writes first, then the thread's earlier ones, without copying either.
+    const known = own.size ? { size: own.size + (files ? files.size : 0), *[Symbol.iterator]() { yield* own; if (files) yield* files; } } : files;
     let best = { class: n === "js" ? "read" : "internal", kind: null, target: null, via: null };
     let toolNet = false;
     const cmds = p.cmds.slice();
@@ -1145,7 +1152,9 @@ export function classifyCodexCall(name, input, completed = [], files = null) {
       if (RANK[best.class] <= RANK.write) best = { class: "write", kind: null, target: (fc && Object.keys(fc.changes || {}).join(", ")) || best.target, via: null };
     }
     const netTarget = (t) => { toolNet = true; if (!(best.class === "outward" && KIND_RANK[best.kind] > KIND_RANK.network)) best = { class: "outward", kind: "network", target: t, via: null }; };
-    if (p.urls.length && (p.browser || p.webRun || n === "js")) netTarget(p.urls[0]);
+    // A page on this machine (a local dev server) isn't egress.
+    const remote = p.urls.filter((u) => !LOOPBACK.test(urlHosts(u)[0] || ""));
+    if (remote.length && (p.browser || p.webRun || n === "js")) netTarget(remote[0]);
     if (p.webSearch || p.webRun || completed.some((it) => it.type === "Extension" && /web/.test(it.kind || ""))) {
       toolNet = true;
       if (RANK[best.class] < RANK.outward) best = { class: "outward", kind: "network", target: (completed.find((it) => it.type === "Extension") || {}).query || "web search", via: null };
