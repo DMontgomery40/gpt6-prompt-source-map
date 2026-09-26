@@ -226,8 +226,12 @@ button { font: inherit; color: inherit; }
 .lbl.cliff { border-left: 2px solid #eef1f5; font-weight: 600; }
 .lbl.cliff.soft { border-left-style: dotted; font-weight: 500; color: var(--ink-2); }
 .lbl.gap { color: var(--ink-2); font-size: 12px; }
-.lbl.event { border-left: 2px solid #ff5ccd; }
+.lbl.event { border-left: 3px solid #ff5ccd; }
 .lbl.event.mine { border-left-color: var(--you); }
+.lbl.event.more { color: var(--ink-2); font-size: 11.5px; border-left-style: dotted; }
+button.lbl { pointer-events: auto; cursor: pointer; border-top: 0; border-right: 0; border-bottom: 0; text-align: left; }
+button.lbl.event:hover { background: #1c2a3d; }
+button.lbl:focus-visible { outline: 2px solid #9cc7f5; outline-offset: 1px; }
 .lbl.tick { color: var(--ink-2); font-size: 11.5px; padding: 1px 5px; }
 .lbl.tick.cap { color: var(--ink-3); }
 .lbl.row { font-size: 12.5px; font-weight: 650; color: var(--ink); }

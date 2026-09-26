@@ -616,18 +616,26 @@ function buildHud() {
     $(".hud-title").append(sel);
   }
   const stat = (b, s) => el("span", {}, el("b", { text: b }), s);
-  $("#stats").replaceChildren(
+  // Only what the session has: no subagent slots for a single-agent session.
+  $("#stats").replaceChildren(...[
     stat(fmtDur(st.wall), "wall clock"),
     stat(fmtInt(st.rootRequests), "main-thread requests"),
-    stat(fmtInt(st.subagents), `subagents, ${fmtInt(st.subRequests)} requests`),
-    stat(`${fmtTok(st.rootFresh)} vs ${fmtTok(st.subFresh)}`, "fresh tokens, main vs subagents"),
-    stat(`${Math.round(st.cacheShare * 100)}%`, "of context read from cache"));
+    st.subagents ? stat(fmtInt(st.subagents), `subagents, ${fmtInt(st.subRequests)} requests`) : null,
+    st.subFresh ? stat(`${fmtTok(st.rootFresh)} vs ${fmtTok(st.subFresh)}`, "fresh tokens, main vs subagents") : stat(fmtTok(st.rootFresh), "fresh tokens"),
+    stat(`${Math.round(st.cacheShare * 100)}%`, "of context read from cache")].filter(Boolean));
   const lg = $("#legend");
   legend(lg);
-  lg.append(el("span", { class: "k sym" }, el("i", { style: `background:${STRATA[STRATUM_INDEX.you].color}` }), "flag: your ask"),
-    el("span", { class: "k sym" }, el("i", { style: `background:${STATUS.outward.color}` }), "left the machine"),
-    el("span", { class: "k sym" }, el("i", { style: `background:${STATUS.write.color}` }), "wrote"),
-    el("span", { class: "k sym" }, el("i", { style: `background:${STATUS.read.color}` }), "read"));
+  // legend() lists every stratum; keep the ones this session has, and the landmarks it has.
+  const has = new Set(), acts = new Set();
+  for (const a of t.agents) for (const r of a.requests) {
+    for (const k in r.strata || {}) if (r.strata[k] > 0) has.add(k);
+    if (r.action?.class) acts.add(r.action.class);
+  }
+  [...lg.children].forEach((c, j) => { if (STRATA[j] && !has.has(STRATA[j].key)) c.remove(); });
+  const key = (color, text) => el("span", { class: "k sym" }, el("i", { style: `background:${color}` }), text);
+  lg.append(...[
+    t.agents.some(a => a.asks.length) ? key(STRATA[STRATUM_INDEX.you].color, "flag: your ask") : null,
+    ...["outward", "write", "read"].map(k => (acts.has(k) ? key(STATUS[k].color, k === "outward" ? "left the machine" : k === "write" ? "wrote" : "read") : null))].filter(Boolean));
   $("#lenses").replaceChildren(...LENSES.map((l, i) => el("button", {
     type: "button", "aria-pressed": String(S.lens === l.key), "data-lens": l.key,
     onclick: () => { S.lens = l.key; render(); }
@@ -663,7 +671,7 @@ function set(patch) {
   render(prev.level !== S.level || prev.agentId !== S.agentId);
 }
 function pick(p) {
-  if (p.level === 3) return set({ level: 3, agentId: p.agentId, reqIdx: p.reqIdx, stratum: p.stratum, block: null });
+  if (p.level === 3) return set({ level: 3, agentId: p.agentId, reqIdx: p.reqIdx, stratum: p.stratum, block: p.block ?? null });
   if (p.level === 2) return set({ level: 2, agentId: p.agentId, reqIdx: p.reqIdx, stratum: null, block: null });
   set({ level: 1, agentId: p.agentId, reqIdx: p.reqIdx ?? 0, stratum: null, block: null });
 }
@@ -753,7 +761,8 @@ function renderMinimap() {
   host.hidden = false;
   const w = Math.min(520, Math.max(280, innerWidth - sideW - 16 * 4 - 120));
   renderOverview(host, S.trace, S.layout, { width: w, height: 132, full: false, lens: S.lens, focus: { agentId: S.agentId, reqIdx: S.level >= 1 ? S.reqIdx : null },
-    onPick: p => (p.reqIdx != null ? A.focusRequest(p.agentId, p.reqIdx) : A.focusAgent(p.agentId)) });
+    // From the session, a lane opens that agent with the cursor on the request; inside an open agent it opens the request.
+    onPick: p => (p.reqIdx != null && S.level >= 2 && p.agentId === S.agentId ? A.focusRequest(p.agentId, p.reqIdx) : A.focusAgent(p.agentId, p.reqIdx)) });
 }
 
 function renderFlat() {
