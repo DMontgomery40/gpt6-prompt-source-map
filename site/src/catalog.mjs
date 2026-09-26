@@ -248,6 +248,14 @@ export const categories = [
     label: "Observed runtime and tools",
     files: [
       {
+        path: "outputs/desktop-tool-manifest.md",
+        anchor: "desktop-tool-manifest-md",
+        slug: "tool-manifest",
+        format: "markdown",
+        title: "Tool manifest (live)",
+        defaultOpen: false
+      },
+      {
         path: "outputs/aeon-current-responses-2026-09-24.json",
         anchor: "aeon-current-responses-2026-09-24-json",
         slug: "current-response-samples",
