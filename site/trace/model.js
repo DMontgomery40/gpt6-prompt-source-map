@@ -210,8 +210,69 @@ export function templateChars(ix, text) {
 
 // A copy of a block (carried across a compaction) keeps what the original was.
 export function inheritTraits(b, src) {
-  for (const k of ["own", "ownEst", "source", "hash"]) if (src[k] !== undefined) b[k] = src[k];
+  for (const k of ["own", "ownEst", "harnessEst", "userSpans", "source", "hash"]) if (src[k] !== undefined) b[k] = src[k];
   return b;
+}
+
+// Sorted, clipped, non-overlapping spans; null when none are usable.
+function cleanSpans(spans, len) {
+  if (!Array.isArray(spans)) return null;
+  const out = [];
+  for (const [x0, y0] of spans.map((p) => [Math.max(0, p[0] | 0), Math.min(len, p[1] | 0)]).filter(([x, y]) => y > x).sort((p, q) => p[0] - q[0])) {
+    const last = out[out.length - 1];
+    if (last && x0 <= last[1]) last[1] = Math.max(last[1], y0);
+    else out.push([x0, y0]);
+  }
+  return out.length ? out : null;
+}
+
+// Where each part (a string the log gives separately) sits in text, searched in order.
+export function spansOf(text, parts) {
+  const out = [];
+  let from = 0;
+  for (const p of parts || []) {
+    if (typeof p !== "string" || !p.trim()) continue;
+    const core = p.trim();
+    const at = text.indexOf(core, from);
+    if (at < 0) continue;
+    out.push([at, at + core.length]);
+    from = at + core.length;
+  }
+  return out;
+}
+
+// A block's estimate within one stratum: the user's share stays in its kind, the product's wording
+// around it (harnessEst) is Harness.
+export function blockPart(b, kind) {
+  const h = b.harnessEst || 0;
+  if (kind === b.kind) return b.est - h;
+  return kind === "harness" ? h : 0;
+}
+
+// Blocks in context at a request: its window plus any `extra` blocks outside it (for example a
+// Claude Code tools snapshot logged after the first request that used it).
+export function windowBlocks(agent, req) {
+  const [s, e] = req.window || [0, -1];
+  const out = agent.blocks.slice(Math.max(0, s), Math.min(agent.blocks.length, e + 1));
+  if (req.extra && req.extra.length) {
+    const have = new Set(out.map((b) => b.i));
+    for (const j of req.extra) if (agent.blocks[j] && !have.has(j)) out.push(agent.blocks[j]);
+    out.sort((a, b) => a.i - b.i);
+  }
+  return out;
+}
+
+// What a stratum holds at a request, on the same scale as request.strata: one row per block part,
+// plus the harness the log doesn't carry (sized by harnessEst). Rows sum to request.strata[kind].
+export function stratumRows(agent, req, kind) {
+  const f = (req.scale && req.scale[kind]) || 0;
+  const rows = [];
+  for (const b of windowBlocks(agent, req)) {
+    const p = blockPart(b, kind);
+    if (p > 0) rows.push({ b, tok: p * f, wrapper: kind !== b.kind });
+  }
+  const unlogged = kind === "harness" && agent.harnessSource !== "logged" ? (agent.harnessEst || 0) * f : 0;
+  return { rows, unlogged };
 }
 
 // The page holding most of the text's indexed lines: at least 2 matching lines, or
@@ -270,7 +331,11 @@ export function newAgent(fields, ix = null) {
 // own: the text comes from the user's own setup (instruction and memory files, their skills list,
 // hook output, their MCP servers). source: what the text is, so a second copy of the same thing in
 // one context window can be flagged as a re-send (see markResends).
-export function addBlock(agent, { t, kind, label, ref, text = "", est, image, render, carried, flagText, site, own, source, identity }) {
+// own blocks: userSpans ([start, end] in text) are the user's own characters, from boundaries the log
+// gives (a file's content, the memory summary, skill entries); userWhole: all of it is theirs.
+// Without either, lines the site publishes are taken as the product's. The product's wording
+// inside an own block counts under Harness (harnessEst); the user's share stays in `kind`.
+export function addBlock(agent, { t, kind, label, ref, text = "", est, image, render, carried, flagText, site, own, source, identity, userSpans, userWhole }) {
   const chars = image ? 0 : text.length;
   const b = { i: agent.blocks.length, t, kind, label, chars, est: est != null ? est : image ? estImage(image) : estText(chars), ref, site: null };
   if (site !== undefined) b.site = site;
@@ -283,8 +348,12 @@ export function addBlock(agent, { t, kind, label, ref, text = "", est, image, re
   if (!image && (identity != null || text) && (source || own)) b.hash = fnv1a64(utf8.encode(identity != null ? String(identity).trim() : text));
   if (own) {
     b.own = true;
-    // Lines published on the site are the product's template around the user's text.
-    b.ownEst = text ? Math.round(b.est * (1 - templateChars(agent._ix, text) / text.length)) : b.est;
+    let share = 1;
+    const spans = userWhole || !text ? null : cleanSpans(userSpans, text.length);
+    if (spans) { share = spans.reduce((n, [x, y]) => n + y - x, 0) / text.length; if (share < 1) b.userSpans = spans; }
+    else if (!userWhole && text) share = 1 - templateChars(agent._ix, text) / text.length;
+    b.ownEst = Math.round(b.est * Math.max(0, Math.min(1, share)));
+    if (b.est - b.ownEst > 0) b.harnessEst = b.est - b.ownEst;
   }
   if ((kind === "outside" || kind === "agents") && !image) {
     const hits = instructionLike(flagText != null ? flagText : text);
@@ -335,28 +404,42 @@ export function computeStrata(agent) {
   for (const k of KINDS) PO[k] = new Float64Array(n + 1);
   for (let j = 0; j < n; j++) {
     const b = agent.blocks[j];
-    for (const k of KINDS) P[k][j + 1] = P[k][j] + (b.kind === k ? b.est : 0);
-    for (const k of KINDS) PO[k][j + 1] = PO[k][j] + (b.kind === k && b.own ? b.ownEst : 0);
+    for (const k of KINDS) P[k][j + 1] = P[k][j] + blockPart(b, k);
+    for (const k of KINDS) PO[k][j + 1] = PO[k][j] + (b.kind === k && b.own ? blockPart(b, k) : 0);
     const inView = b.kind === "outside" || b.kind === "agents";
     PV[j + 1] = PV[j] + (inView ? 1 : 0);
     PF[j + 1] = PF[j] + (inView && b.flags ? 1 : 0);
   }
   agent._prefix = { PV, PF };
+  const raw = (r) => {
+    const [a, b] = r.window;
+    const est = {}, own = {};
+    for (const k of KINDS) { est[k] = b >= a ? P[k][b + 1] - P[k][a] : 0; own[k] = b >= a ? PO[k][b + 1] - PO[k][a] : 0; }
+    for (const j of r.extra || []) { const x = agent.blocks[j]; for (const k of KINDS) { est[k] += blockPart(x, k); if (x.own && k === x.kind) own[k] += blockPart(x, k); } }
+    return { est, own };
+  };
+  // harnessSource: "logged" (the system prompt and tools are blocks in the log); "inferred" (not
+  // logged; harnessEst from the reference index for this version); "residual" (not logged and no
+  // index size) and "partial" (instructions logged, tool definitions not, as in Codex): harnessEst is
+  // the first request's context minus everything the log shows, held for the whole session, so the
+  // missing harness isn't spread over every stratum and later estimation misses don't pile into Harness.
+  if (agent.harnessSource === "residual" || agent.harnessSource === "partial") {
+    const first = agent.requests.find((r) => r.window && r.tokens.context > 0);
+    const e = first ? raw(first).est : null;
+    agent.harnessEst = e ? Math.max(0, first.tokens.context - KINDS.reduce((sum, k) => sum + e[k], 0)) : 0;
+  }
   for (const r of agent.requests) {
     if (!r.window) continue;
-    const [a, b] = r.window;
-    const est = {};
-    for (const k of KINDS) est[k] = b >= a ? P[k][b + 1] - P[k][a] : 0;
-    const own = {};
-    for (const k of KINDS) own[k] = b >= a ? PO[k][b + 1] - PO[k][a] : 0;
-    for (const j of r.extra || []) { const x = agent.blocks[j]; est[x.kind] += x.est; if (x.own) own[x.kind] += x.ownEst; }
-    // harnessSource: "logged" (blocks in the log), "inferred" (reference index size
-    // for the logged version), "residual" (default: harness = context − other strata).
-    if (agent.harnessSource === "inferred" && agent.harnessEst) est.harness += agent.harnessEst;
-    r.strata = scaleStrata(est, r.tokens.context, agent.harnessSource === "residual");
-    // The user's own share of each stratum, on the same scale as the stratum.
+    const { est, own } = raw(r);
+    if (agent.harnessSource !== "logged" && agent.harnessEst) est.harness += agent.harnessEst;
+    r.strata = scaleStrata(est, r.tokens.context, false);
+    // One scale per stratum: every block's share of a stratum is est × scale[kind], so the rows
+    // listed under a stratum add up to its total.
+    r.scale = {};
+    for (const k of KINDS) r.scale[k] = est[k] > 0 ? r.strata[k] / est[k] : 0;
+    // The user's own share of each stratum, on the same scale.
     r.own = null;
-    for (const k of KINDS) if (own[k] > 0 && est[k] > 0) (r.own ||= {})[k] = Math.min(r.strata[k], Math.round(own[k] * r.strata[k] / est[k]));
+    for (const k of KINDS) if (own[k] > 0 && est[k] > 0) (r.own ||= {})[k] = Math.min(r.strata[k], Math.round(own[k] * r.scale[k]));
   }
 }
 

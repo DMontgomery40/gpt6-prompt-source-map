@@ -45,6 +45,15 @@ function splitLeadingTags(s) {
   return out;
 }
 
+// The text between two markers, as one span; null when either marker is missing.
+function between(text, open, close) {
+  const a = open.exec(text);
+  if (!a) return null;
+  const from = a.index + a[0].length;
+  const b = close.exec(text.slice(from));
+  return b ? [[from, from + b.index]] : null;
+}
+
 const firstLine = (s) => (s.match(/^\s*(?:<([\w-]+)|#+\s*(.+)|(.{0,60}))/) || []).slice(1).find(Boolean) || "";
 
 // Parses one rollout file. Returns a thread record: { meta, agent, ... } with the
@@ -94,10 +103,10 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
         // before the first request are the harness; later ones were injected between turns.
         const ref = { ...lineRef, path: tpath };
         const source = kind0 ? `developer:${kind0}` : null;
-        if (kind0 === "memories.instructions") { made.push(addBlock(agent, { t, kind: "you", label: "memories", ref, text, carried, own: true, source })); return; }
+        if (kind0 === "memories.instructions") { made.push(addBlock(agent, { t, kind: "you", label: "memories", ref, text, carried, own: true, source, userSpans: between(text, /=+ MEMORY_SUMMARY BEGINS =+\n?/, /\n?=+ MEMORY_SUMMARY ENDS =+/) })); return; }
         if (kind0 === "host_skills.instructions") {
-          const n = (text.match(/^- [^\n]+\(file: /gm) || []).length;
-          made.push(addBlock(agent, { t, kind: "injected", label: `skills list${n ? ` (${n})` : ""}`, ref, text, carried, own: true, source }));
+          const entries = [...text.matchAll(/^- [^\n]+\(file: [^\n]*$/gm)].map((m) => [m.index, m.index + m[0].length]);
+          made.push(addBlock(agent, { t, kind: "injected", label: `skills list${entries.length ? ` (${entries.length})` : ""}`, ref, text, carried, own: true, source, userSpans: entries }));
           return;
         }
         const kind = requestsInWindow === 0 ? "harness" : "injected";
@@ -119,7 +128,7 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
         if (h.startsWith(">>> APPROVAL REQUEST END")) gs.planned = false;
         return;
       }
-      if (kind0 === "agents_md.instructions") { made.push(addBlock(agent, { t, kind: "you", label: "AGENTS.md", ref: { ...lineRef, path: tpath }, text, carried, own: true, source: "agents_md" })); return; }
+      if (kind0 === "agents_md.instructions") { made.push(addBlock(agent, { t, kind: "you", label: "AGENTS.md", ref: { ...lineRef, path: tpath }, text, carried, own: true, source: "agents_md", userSpans: between(text, /<INSTRUCTIONS>\n?/, /\n?<\/INSTRUCTIONS>/) || [[0, text.length]] })); return; }
       // The app brackets a pasted image with <image name=… path=…> and </image> text items; they are
       // its markers, not something the user typed.
       if (/^\s*(?:<image\b[^>]*>|<\/image>)\s*$/.test(text)) { made.push(addBlock(agent, { t, kind: "injected", label: "image marker", ref: { ...lineRef, path: tpath }, text, carried })); return; }
@@ -143,10 +152,10 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
       // A skill the user picked, and the user's goal objective (wrapped by the product): theirs.
       if (kind0 === "skills.selected_skill_instructions") {
         const name = (text.match(/<name>([^<]+)<\/name>/) || [])[1];
-        made.push(addBlock(agent, { t, kind: "injected", label: name ? `skill · ${name}` : "selected skill", ref: { ...lineRef, path: tpath }, text, carried, own: true, source: name ? `skill:${name}` : null }));
+        made.push(addBlock(agent, { t, kind: "injected", label: name ? `skill · ${name}` : "selected skill", ref: { ...lineRef, path: tpath }, text, carried, own: true, userWhole: true, source: name ? `skill:${name}` : null }));
         return;
       }
-      if (kind0 === "goal.internal_context") { made.push(addBlock(agent, { t, kind: "you", label: "goal (your objective)", ref: { ...lineRef, path: tpath }, text, carried, own: true, source: "goal" })); return; }
+      if (kind0 === "goal.internal_context") { made.push(addBlock(agent, { t, kind: "you", label: "goal (your objective)", ref: { ...lineRef, path: tpath }, text, carried, own: true, source: "goal", userSpans: between(text, /<objective>\n?/, /\n?<\/objective>/) })); return; }
       const label = kind0 === "environments.environment_context" ? "environment_context" : kind0 || firstLine(text);
       made.push(addBlock(agent, { t, kind: "injected", label, ref: { ...lineRef, path: tpath }, text, carried }));
     });
@@ -370,7 +379,9 @@ export function buildCodexTrace(threads, files) {
     a.name = th === root ? th.title || "root" : a.kind === "guardian" ? "guardian" : [m.agent_nickname || (spawn && spawn.agent_nickname), m.agent_path || (spawn && spawn.agent_path)].filter(Boolean).join(" ") || m.id;
     a.path = m.agent_path || (spawn && spawn.agent_path) || (th === root ? "/root" : null);
     a.model = (a.requests.find((r) => r.model) || {}).model || null;
-    a.harnessSource = "logged";
+    // Base and developer instructions are logged; the tool definitions are not ("partial": the
+    // missing part is sized at the first request and held, see model.js computeStrata).
+    a.harnessSource = "partial";
     finalizeAgent(a, permissionAtFor(th));
   }
   const depthOf = (th, seen = new Set()) => {

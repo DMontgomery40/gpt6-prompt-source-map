@@ -5,7 +5,7 @@
 import * as THREE from "./vendor/three.module.min.js";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { CSS2DRenderer, CSS2DObject } from "./vendor/CSS2DRenderer.js";
-import { STRATA, STRATUM_INDEX, STATUS, fmtTok, fmtClock, fmtDur, fmtTick, spansDays, freshTokens, unloggedShrinks, agentStats, clip } from "./panels.js";
+import { STRATA, STRATUM_INDEX, STATUS, fmtTok, fmtClock, fmtDur, fmtTick, spansDays, freshTokens, unloggedShrinks, agentStats, clip, scaledTokens } from "./panels.js";
 
 const W = 220;            // world width of the whole session
 const H = 32;             // world height of the tallest context
@@ -609,7 +609,7 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
       if (!(b.est >= 900 || (b.resendOf != null && b.est >= 150))) continue;
       let e = byReq.get(b.seenBy);
       if (!e) byReq.set(b.seenBy, e = { i: b.seenBy, est: 0, top: null, n: 0, own: false });
-      e.est += b.est; e.n++;
+      e.est += scaledTokens(L.root, b); e.n++;
       if (!e.top || b.est > e.top.est) e.top = b;
       if (b.own) e.own = true;
     }
@@ -707,7 +707,7 @@ export function createScene(host, { trace, layout: L, reducedMotion, onHover, on
     for (const m of markLines) label(m.text, m.dashed ? "cliff" : "cliff soft", new THREE.Vector3(m.x, m.y1 + 1.8, 0.1), [0, 1], g);
     // "developer: model_switch.instructions" reads as "model switch"
     const name = l => l.replace(/^developer: /, "").replace(/\.instructions$/, "").replace(/_/g, " ");
-    for (const e of events) label(`${clip(name(e.top.label), 34)}${e.n > 1 ? ` +${e.n - 1}` : ""} · ≈ ${fmtTok(e.est)}${e.top.resendOf != null ? " · sent again" : ""}`,
+    for (const e of events) label(`${clip(name(e.top.label), 34)}${e.n > 1 ? ` +${e.n - 1}` : ""} · ≈ ${fmtTok(e.est)}${e.top.resendOf != null ? (e.top.resendSame ? " · sent again, identical" : " · sent again, changed") : ""}`,
       `event${e.own ? " mine" : ""}`, new THREE.Vector3(xOf(L.root, e.i), crest(L.root, e.i) + 2.3, 0.12), [xOf(L.root, e.i) > W * 0.8 ? 1 : xOf(L.root, e.i) < W * 0.2 ? 0 : 0.5, 1], g);
     for (const gap of L.gaps) {
       const xm = (gap.x0 + gap.x1) / 2;

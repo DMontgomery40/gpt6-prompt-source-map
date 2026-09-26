@@ -1,5 +1,6 @@
 // Shared vocabulary (strata, statuses, formatting) and the HTML side panels for every level.
 // All trace strings are untrusted: they reach the DOM through textContent only, never innerHTML.
+import { stratumRows, blockPart, windowBlocks as modelWindowBlocks } from "./model.js";
 
 export const STRATA = [
   { key: "harness", name: "Harness", long: "The harness: system prompt, tools, base instructions", color: "#8b97a8" },
@@ -83,24 +84,22 @@ export function el(tag, attrs = {}, ...kids) {
 
 // ---------- token maths shared by the scene, minimap and panels ----------
 export const freshTokens = r => (r.tokens.uncached || 0) + (r.tokens.cacheWrite || 0) + (r.tokens.output || 0);
+// A block's tokens on the scale of a request (the one that first saw it, by default), so every
+// number shown for a block matches the strata it belongs to.
+export function scaledTokens(agent, b, req) {
+  const r = req || (agent && b.seenBy != null ? agent.requests[b.seenBy] : null);
+  const sc = r && r.scale;
+  if (!sc) return blockTokens(b);
+  return blockPart(b, b.kind) * (sc[b.kind] ?? 1) + blockPart(b, "harness") * (b.kind === "harness" ? 0 : sc.harness ?? 1);
+}
 export function blockTokens(b) {
   if (b.est != null) return b.est;
   if (b.tokens != null) return b.tokens;
   if (/image|screenshot/i.test(b.label || "")) return 1600;
   return (b.chars || 0) / 4;
 }
-// The blocks in context at a request: its window plus any `extra` blocks outside it (for example a
-// Claude Code tools snapshot logged after the first request that used it). Carried copies are kept.
-export function windowBlocks(agent, req) {
-  const [s, e] = req.window || [0, -1];
-  const out = agent.blocks.slice(Math.max(0, s), Math.min(agent.blocks.length, e + 1));
-  if (req.extra && req.extra.length) {
-    const have = new Set(out.map(b => b.i));
-    for (const j of req.extra) if (agent.blocks[j] && !have.has(j)) out.push(agent.blocks[j]);
-    out.sort((a, b) => a.i - b.i);
-  }
-  return out;
-}
+// The blocks in context at a request (see model.js).
+export const windowBlocks = modelWindowBlocks;
 export function agentStats(agent) {
   let fresh = 0, peak = 0, cacheRead = 0, context = 0;
   for (const r of agent.requests) {
@@ -190,7 +189,7 @@ export function deriveCustody(trace, agent, req) {
     askedBy: ask ? { agent: askAgent, ask, block: askAgent.blocks[ask.block] } : null,
     permittedBy: { blocks: permitted, guardians },
     guidedBy: req.action ? { tool: req.action.tool, site: req.action.site || null } : null,
-    inView: { count: inView.length, tokens: inView.reduce((s, b) => s + blockTokens(b), 0), flagged },
+    inView: { count: inView.length, tokens: inView.reduce((s, b) => s + scaledTokens(agent, b, req), 0), flagged },
     did: req.action ? { tool: req.action.tool, target: req.action.target, cls: req.action.class, kind: req.action.kind } : null
   };
 }
@@ -261,7 +260,7 @@ function lensPanel(S, A) {
         strataList(peak.strata, peak.tokens.context, k => A.focusStratum(root.id, peak.i, k), null, harnessNote(trace, root), peak.own),
         btn(`Open request ${peak.i + 1}`, () => A.focusRequest(root.id, peak.i))));
     }
-    const setup = setupSection(trace, root, A);
+    const setup = setupSection(trace, root, A, peak);
     if (setup) out.push(setup);
     const shr = unloggedShrinks(root);
     const marks = [
@@ -299,7 +298,7 @@ function lensPanel(S, A) {
       for (const b of a.blocks) {
         if (b.kind !== "outside") continue;
         if (b.flags && b.flags.includes("instruction-like")) flagged.push({ a, b });
-        big.push({ a, b, tok: blockTokens(b) });
+        big.push({ a, b, tok: scaledTokens(a, b) });
       }
     }
     big.sort((x, y) => y.tok - x.tok);
@@ -332,13 +331,13 @@ export function reportTokens(trace, agent) {
   if (!parent) return null;
   if (Array.isArray(agent.returns)) {
     if (!agent.returns.length) return null;
-    return agent.returns.reduce((s, r) => s + (parent.blocks[r.block] ? blockTokens(parent.blocks[r.block]) : 0), 0);
+    return agent.returns.reduce((s, r) => s + (parent.blocks[r.block] ? scaledTokens(parent, parent.blocks[r.block]) : 0), 0);
   }
   const want = (agent.name || "").toLowerCase();
   let sum = 0, found = false;
   for (const b of parent.blocks) {
     if (b.kind !== "agents") continue;
-    if (want && (b.label || "").toLowerCase().includes(want)) { sum += blockTokens(b); found = true; }
+    if (want && (b.label || "").toLowerCase().includes(want)) { sum += scaledTokens(parent, b); found = true; }
   }
   return found ? sum : null;
 }
@@ -357,8 +356,9 @@ function agentTable(trace, agents, S, A) {
 
 function harnessNote(trace, agent) {
   const src = agent?.harnessSource;
-  if (src === "inferred") return "Inferred: Claude Code does not log its system prompt; the size comes from the ccprompts data for this version.";
-  if (src === "residual") return "The remainder: exact context minus every layer the log shows.";
+  if (src === "inferred") return "Claude Code's system prompt and tools, sized from the ccprompts data for this version.";
+  if (src === "residual") return "The system prompt and tools, sized at the first request: its exact context minus everything the log shows.";
+  if (src === "partial") return "The tool definitions, which the log doesn't carry, sized at the first request: its exact context minus everything the log shows.";
   if (src) return null;
   return trace.product === "claude-code" ? "Inferred: Claude Code does not log its system prompt; the size comes from the ccprompts data for this version." : null;
 }
@@ -520,7 +520,8 @@ export function clip(s, n) {
 function stratumPanel(trace, agent, req, S, A) {
   const s = STRATA[STRATUM_INDEX[S.stratum]];
   if (!req || !s) return [el("p", { text: "No stratum selected." })];
-  const blocks = windowBlocks(agent, req).filter(b => b.kind === s.key);
+  // Rows are block parts on the request's scale, so they add up to the stratum total shown.
+  const { rows, unlogged } = stratumRows(agent, req, s.key);
   const out = [
     el("p", { class: "kicker", text: `${agent.kind === "root" ? "Main thread" : agent.name} · request ${req.i + 1}` }),
     el("h2", {}, chip(s.color), ` ${s.name}: ≈ ${fmtTok(req.strata?.[s.key] || 0)}`),
@@ -530,67 +531,88 @@ function stratumPanel(trace, agent, req, S, A) {
     const b = agent.blocks[S.block];
     if (b) out.push(blockReader(agent, b, A));
   }
-  if (s.key === "harness" && !blocks.length) {
-    out.push(el("p", { class: "note", text: harnessNote(trace, agent) || "No harness blocks in this request's window." }));
+  if (unlogged >= 0.5) {
     const hs = trace.harnessSite && siteHref(trace.harnessSite);
-    if (hs) out.push(el("a", { href: hs, text: `Read it on the site: ${trace.harnessSite.title || "system prompt"}` }));
-    return out;
+    out.push(section(`Not in this log: ≈ ${fmtTok(unlogged)}`, el("p", { class: "note", text: harnessNote(trace, agent) || "" }),
+      hs ? el("a", { href: hs, text: `Read it on the site: ${trace.harnessSite.title || "system prompt"}` }) : null));
   }
-  const mine = blocks.filter(b => b.own), rest = blocks.filter(b => !b.own);
+  if (!rows.length && unlogged < 0.5) out.push(el("p", { class: "note", text: "Nothing of this kind in context at this request." }));
+  const isMine = x => x.b.own && !x.wrapper;
+  const mine = rows.filter(isMine), rest = rows.filter(x => !isMine(x));
   if (mine.length) out.push(section(`From your setup: ≈ ${fmtTok(req.own?.[s.key] || 0)} in ${fmtInt(mine.length)} block${mine.length === 1 ? "" : "s"}`, blockGroups(trace, agent, mine, S, A, true)));
   if (rest.length) {
-    const title = !mine.length ? "blocks in context at this request" : s.key === "you" ? "typed or pasted by you" : "from the product";
+    const title = !mine.length ? "in context at this request" : s.key === "you" ? "typed or pasted by you" : "from the product";
     out.push(section(`${fmtInt(rest.length)} ${title}, grouped by label`, blockGroups(trace, agent, rest, S, A, false)));
   }
   return out;
 }
 
+// "sent again" wording shared by every surface: identical copies and changed ones said as such.
+export function resendWords(n, same) {
+  if (!n) return "";
+  return same === n ? `sent again ${n}×, identical` : same === 0 ? `sent again ${n}×, changed` : `sent again ${n}× (${same} identical, ${n - same} changed)`;
+}
+
+// "skills list (132)" then "skills list (129)" reads "skills list (132 → 129)".
+function labelSpan(first, last) {
+  if (first === last) return last;
+  const a = /^(.*) \((\d+)\)$/.exec(first), b = /^(.*) \((\d+)\)$/.exec(last);
+  return a && b && a[1] === b[1] ? `${a[1]} (${a[2]} → ${b[2]})` : last;
+}
+
 // Session view of the user's own setup in one agent: each file, memory, skills list or hook
-// output, how often it was sent, and how often a new copy arrived while an older one was still
-// in context. Also: how many subagents received the setup too.
-function setupSection(trace, agent, A) {
+// output, how much of it is theirs (on the scale of the request that first saw it), the product's
+// wording around it (counted under Harness), how often it was sent, and how often a new copy
+// arrived while an older one was still in context. Also: how much of it went into subagents.
+function setupSection(trace, agent, A, ref) {
+  // Sized on the scale of the request the panel describes when the block is in its context, else
+  // the request that first saw it.
+  const inRef = b => ref && ref.window && ((b.i >= ref.window[0] && b.i <= ref.window[1]) || (ref.extra || []).includes(b.i));
+  const at = (b, k) => blockPart(b, k) * (((inRef(b) ? ref : agent.requests[b.seenBy])?.scale || {})[k] ?? 1);
   const groups = new Map();
   for (const b of agent.blocks) {
     if (!b.own) continue;
     const key = b.source || b.label;
     let g = groups.get(key);
-    if (!g) groups.set(key, g = { label: b.label, sent: 0, carried: 0, resent: 0, same: 0, est: 0, own: 0, last: b.i });
+    if (!g) groups.set(key, g = { first: b.label, label: b.label, sent: 0, carried: 0, resent: 0, same: 0, own: 0, wrap: 0, last: b.i, open: null, nested: false });
     if (b.carried) g.carried++; else g.sent++;
-    if (b.resendOf != null) { g.resent++; if (b.resendSame) g.same++; }
-    g.est = Math.max(g.est, b.est); g.own = Math.max(g.own, b.ownEst ?? b.est);
-    g.label = b.label; g.last = b.i;
+    if (b.resendOf != null) { g.resent++; if (b.resendSame) g.same++; if (g.open == null) g.open = b.i; }
+    if (/^nested memory/.test(b.label)) g.nested = true;
+    g.own = Math.max(g.own, at(b, b.kind)); g.wrap = Math.max(g.wrap, at(b, "harness"));
+    if (!/^nested memory/.test(b.label)) g.label = b.label;
+    g.last = b.i;
   }
   if (!groups.size) return null;
   const list = [...groups.values()].sort((x, y) => y.own - x.own);
   const subs = trace.agents.filter(a => a !== agent && a.kind === "subagent" && a.blocks.some(b => b.own));
   const subOwn = subs.reduce((sum, a) => { const r = a.requests.find(q => q.own); return sum + (r ? Object.values(r.own).reduce((x, y) => x + y, 0) : 0); }, 0);
   const ul = el("ul", { class: "items setup" }, list.map(g => el("li", {},
-    el("button", { class: "item", type: "button", onclick: () => A.openBlockAt(agent.id, g.last) },
-      el("span", { class: "tool", text: g.label }),
+    el("button", { class: "item", type: "button", onclick: () => A.openBlockAt(agent.id, g.open ?? g.last) },
+      el("span", { class: "tool", text: labelSpan(g.first, g.label) }),
       el("span", { class: "meta", text: [
-        `≈ ${fmtTok(g.own)}${g.own < g.est ? ` of ≈ ${fmtTok(g.est)}` : ""}`,
+        `≈ ${fmtTok(g.own)} yours${g.wrap >= 0.5 ? ` + ≈ ${fmtTok(g.wrap)} product wording (Harness)` : ""}`,
         `sent ${g.sent}×${g.carried ? `, carried ${g.carried}×` : ""}`,
-        g.resent ? `${g.resent}× while ${g.same === g.resent ? "an identical" : "an earlier"} copy was still in context` : ""
+        g.resent ? `${resendWords(g.resent, g.same)} while a copy was still in context${g.nested ? " (as nested memory)" : ""}` : ""
       ].filter(Boolean).join(" · ") })))));
   return section(`From your setup (${agent.kind === "root" ? "main thread" : agent.name})`, ul,
-    subs.length ? el("p", { class: "note", text: `Also sent to ${fmtInt(subs.length)} subagent${subs.length === 1 ? "" : "s"}: ≈ ${fmtTok(subOwn)} in their first requests.` }) : null);
+    subs.length ? el("p", { class: "note", text: `Your setup also went into ${fmtInt(subs.length)} subagent${subs.length === 1 ? "" : "s"}: ≈ ${fmtTok(subOwn)} at their first requests.` }) : null);
 }
 
 // One row per label (count, total ≈ tokens, first–last time, site badge), largest first. A row expands
 // to its instances, most recent first; a single-instance row opens its block directly.
 const expandedGroups = new Set();
-function blockGroups(trace, agent, blocks, S, A, mine) {
+function blockGroups(trace, agent, rows, S, A, mine) {
   const long = spansDays(trace);
   const when = t => (long ? fmtWhen(t) : fmtClock(t));
   const groups = new Map();
-  for (const b of blocks) {
-    const key = b.label || b.kind;
+  for (const x of rows) {
+    const b = x.b;
+    const key = x.wrapper ? `${b.label} · product wording` : (b.label || b.kind);
     let g = groups.get(key);
-    if (!g) groups.set(key, g = { label: key, items: [], tok: 0, own: 0, resent: 0, t0: Infinity, t1: -Infinity, site: null, flagged: 0 });
-    g.items.push(b);
-    g.tok += blockTokens(b);
-    if (b.own) g.own += b.ownEst ?? blockTokens(b);
-    if (b.resendOf != null) g.resent++;
+    if (!g) groups.set(key, g = { label: key, items: [], tok: 0, resent: 0, same: 0, t0: Infinity, t1: -Infinity, site: null, flagged: 0 });
+    g.items.push(x);
+    g.tok += x.tok;
+    if (b.resendOf != null && !x.wrapper) { g.resent++; if (b.resendSame) g.same++; }
     g.t0 = Math.min(g.t0, b.t); g.t1 = Math.max(g.t1, b.t);
     if (!g.site && siteHref(b.site)) g.site = b.site;
     if (b.flags?.includes("instruction-like")) g.flagged++;
@@ -599,15 +621,15 @@ function blockGroups(trace, agent, blocks, S, A, mine) {
   const ul = el("ul", { class: "groups" });
   for (const g of list) {
     const key = `${agent.id}|${S.stratum}|${g.label}`;
-    const open = expandedGroups.has(key) || (S.block != null && g.items.some(b => b.i === S.block));
+    const open = expandedGroups.has(key) || (S.block != null && g.items.some(x => x.b.i === S.block));
     const inner = el("ul", { class: "items blocks", hidden: !open });
     const fill = () => {
       if (inner.childElementCount) return;
-      const items = g.items.slice().sort((x, y) => y.t - x.t || y.i - x.i);
-      inner.append(...items.slice(0, 300).map(b => el("li", { class: S.block === b.i ? "on" : "" },
+      const items = g.items.slice().sort((x, y) => y.b.t - x.b.t || y.b.i - x.b.i);
+      inner.append(...items.slice(0, 300).map(({ b, tok, wrapper }) => el("li", { class: S.block === b.i ? "on" : "" },
         el("button", { class: "item", type: "button", onclick: () => { expandedGroups.add(key); A.openBlock(b.i); } },
           el("span", { class: "tool", text: when(b.t) }),
-          el("span", { class: "meta", text: `≈ ${fmtTok(blockTokens(b))}${b.carried ? " · carried" : ""}${b.resendOf != null ? (b.resendSame ? " · sent again, identical" : " · sent again, changed") : ""}${b.flags?.includes("instruction-like") ? " · instruction-like (heuristic)" : ""}` })))));
+          el("span", { class: "meta", text: `≈ ${fmtTok(tok)}${b.carried ? " · carried" : ""}${b.resendOf != null && !wrapper ? (b.resendSame ? " · sent again, identical" : " · sent again, changed") : ""}${b.flags?.includes("instruction-like") ? " · instruction-like (heuristic)" : ""}` })))));
       if (items.length > 300) inner.append(el("li", { class: "note", text: `Showing the latest 300 of ${fmtInt(items.length)}.` }));
     };
     if (open) fill();
@@ -615,7 +637,7 @@ function blockGroups(trace, agent, blocks, S, A, mine) {
     const head = el("button", {
       class: "ghead", type: "button", "aria-expanded": g.items.length > 1 ? String(open) : null,
       onclick: () => {
-        if (g.items.length === 1) return A.openBlock(g.items[0].i);
+        if (g.items.length === 1) return A.openBlock(g.items[0].b.i);
         const now = inner.hidden;
         inner.hidden = !now;
         head.setAttribute("aria-expanded", String(now));
@@ -625,7 +647,7 @@ function blockGroups(trace, agent, blocks, S, A, mine) {
       el("span", { class: "gcount", text: `${fmtInt(g.items.length)} ×` }),
       el("span", { class: "tool", text: g.label }),
       el("span", { class: "gtok", text: `≈ ${fmtTok(g.tok)}` }),
-      el("span", { class: "meta", text: `${range}${g.own && g.own < g.tok - 0.5 ? ` · yours ≈ ${fmtTok(g.own)}` : ""}${g.resent ? ` · ${g.resent} sent again while an earlier copy was in context` : ""}${g.flagged ? ` · ${g.flagged} instruction-like (heuristic)` : ""}` }));
+      el("span", { class: "meta", text: `${range}${g.resent ? ` · ${resendWords(g.resent, g.same)} while a copy was in context` : ""}${g.flagged ? ` · ${g.flagged} instruction-like (heuristic)` : ""}` }));
     const href = g.site && siteHref(g.site);
     ul.append(el("li", { class: `group${open ? " open" : ""}${mine ? " mine" : ""}` },
       el("div", { class: "grow" }, head, href ? el("a", { class: "badge", href, title: g.site.title || g.site.slug, text: "on the site" }) : null),

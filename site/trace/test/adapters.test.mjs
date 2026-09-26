@@ -257,7 +257,8 @@ test("claude-code: instructions split per file, own setup labelled, nested memor
   assert.ok((await readRef(sources[0], claude.ref)).startsWith(`Contents of ${files[0].path}`));
   assert.ok((await readRef(sources[0], claude.ref)).includes("No emojis — naïve ☃"));
   assert.ok((await readRef(sources[0], mem.ref)).includes("a memory"));
-  assert.equal(root.blocks.find((b) => b.label === "instructions wrapper").kind, "injected");
+  // the product's wording around the user's files is part of the harness
+  assert.equal(root.blocks.find((b) => b.label === "instructions wrapper").kind, "harness");
   assert.deepEqual([root.blocks.find((b) => b.label === "skills list (2)").kind, root.blocks.find((b) => b.label === "skills list (2)").own], ["injected", true]);
   const nested = root.blocks.find((b) => b.label === "nested memory · ~/.claude/CLAUDE.md");
   assert.equal(nested.resendOf, claude.i);
