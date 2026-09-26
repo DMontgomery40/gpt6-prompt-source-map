@@ -149,6 +149,51 @@ export const categories = [
     ]
   },
   {
+    label: "ChatGPT prompts",
+    files: [
+      {
+        path: "outputs/chatgpt-conversation-prompts.md",
+        anchor: "chatgpt-conversation-prompts-md",
+        slug: "chatgpt-conversation-prompts",
+        format: "markdown",
+        title: "Conversation prompts",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/chatgpt-gpt-builder-prompts.md",
+        anchor: "chatgpt-gpt-builder-prompts-md",
+        slug: "chatgpt-gpt-builder-prompts",
+        format: "markdown",
+        title: "GPT builder prompts",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/chatgpt-work-prompts.md",
+        anchor: "chatgpt-work-prompts-md",
+        slug: "chatgpt-work-prompts",
+        format: "markdown",
+        title: "Work prompts",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/chatgpt-finance-health-prompts.md",
+        anchor: "chatgpt-finance-health-prompts-md",
+        slug: "chatgpt-finance-health-prompts",
+        format: "markdown",
+        title: "Finance and health prompts",
+        defaultOpen: false
+      },
+      {
+        path: "outputs/chatgpt-sites-artifacts-prompts.md",
+        anchor: "chatgpt-sites-artifacts-prompts-md",
+        slug: "chatgpt-sites-artifacts-prompts",
+        format: "markdown",
+        title: "Sites and artifacts prompts",
+        defaultOpen: false
+      }
+    ]
+  },
+  {
     label: "Codex/ChatGPT configuration",
     files: [
       {
