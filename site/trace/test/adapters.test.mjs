@@ -157,6 +157,25 @@ test("codex: memories and skills are the user's own, product developer text is h
   await assertRoundTrip(trace, sources, 8);
 });
 
+test("codex: a picked skill and the goal objective are the user's own", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "trace-own2-"));
+  const id = uuid7(CODEX_T0, 7);
+  mkdirSync(join(dir, "2026/01/01"), { recursive: true });
+  writeFileSync(join(dir, `2026/01/01/rollout-2026-01-01T00-00-00-${id}.jsonl`), rows([
+    { type: "session_meta", payload: { id, session_id: id, cwd: "/tmp/p", cli_version: "0.1.0", source: "vscode", thread_source: "user", base_instructions: { text: "You are a test agent." } } },
+    { type: "event_msg", payload: { type: "task_started", model_context_window: 100000 } },
+    msg("user", ["<skill>\n<name>review</name>\n<path>~/.codex/skills/review/SKILL.md</path>\nReview carefully — naïve ☃\n</skill>", "<codex_internal_context source=\"goal\">\nContinue.\n<objective>\nship the thing\n</objective>\n</codex_internal_context>", "do it"], ["skills.selected_skill_instructions", "goal.internal_context", "user.text"]),
+    usage("r1", 3000, 0)
+  ], CODEX_T0));
+  const { trace } = await loadTrace(await entriesFor([dir]));
+  const root = trace.agents[0];
+  const skill = root.blocks.find((b) => b.label === "skill · review");
+  const goal = root.blocks.find((b) => b.label === "goal (your objective)");
+  assert.deepEqual([skill.kind, skill.own, goal.kind, goal.own], ["injected", true, "you", true]);
+  assert.equal(root.asks.length, 1);
+  assertStrata(trace);
+});
+
 test("codex: actions from exec/js sources, images, custody", async () => {
   const { trace } = await load("codex");
   const root = trace.agents[0];
@@ -246,6 +265,60 @@ test("claude-code: instructions split per file, own setup labelled, nested memor
   assert.ok(root.requests[1].own.you > root.requests[0].own.you);
   assertStrata(trace);
   await assertRoundTrip(trace, sources, 8);
+});
+
+// Older Claude Code versions log these attachments without `rendered`: the literal text is taken
+// from the row's fields, and the user's own setup is still recognised. An instructions reminder
+// whose per-file headers can't be found stays one block, still the user's.
+test("claude-code: unrendered rows read from their fields; instructions without headers stay the user's", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "trace-cc-fields-"));
+  const sid = "33333333-3333-4333-8333-333333333333";
+  const t0 = Date.parse("2026-01-04T00:00:00Z");
+  let n = 0;
+  const base = (sec) => ({ sessionId: sid, uuid: `w${++n}`, parentUuid: null, timestamp: new Date(t0 + sec * 1000).toISOString(), version: "2.1.200", isSidechain: false });
+  const att = (sec, a, rendered) => ({ ...base(sec), type: "attachment", attachment: a, ...(rendered ? { rendered: [{ content: rendered }] } : {}) });
+  const asst = (sec, rid, u) => ({ ...base(sec), type: "assistant", requestId: rid, message: { id: "m" + rid, model: "claude-test", role: "assistant", content: [{ type: "text", text: "ok" }], usage: u } });
+  const CL = "/Users/tester/.claude/CLAUDE.md";
+  const rows = [
+    att(1, { type: "prompt_snapshot", systemPrompt: ["You are a test."] }),
+    att(1, { type: "instructions", files: [{ path: CL, type: "User", content: "# Prefs — naïve ☃\nuse uv\n" }, { path: "/Users/tester/.claude/projects/p/memory/MEMORY.md", type: "AutoMem", content: "- old memory\n" }] }),
+    att(1, { type: "skill_listing", content: "- a: does a\n- b: does b", skillCount: 2, names: ["a", "b"] }),
+    att(1, { type: "hook_additional_context", content: ["You have superpowers."], hookName: "SessionStart", hookEvent: "SessionStart" }),
+    att(1, { type: "mcp_instructions_delta", addedNames: ["srv"], addedBlocks: ["## srv\nUse srv carefully."] }),
+    att(1, { type: "total_tokens_reminder", text: "<total_tokens>9 left</total_tokens>" }),
+    { ...base(2), type: "user", message: { role: "user", content: "hi" } },
+    asst(3, "r1", { input_tokens: 10, cache_read_input_tokens: 0, cache_creation_input_tokens: 2000, output_tokens: 5 }),
+    att(4, { type: "nested_memory", path: CL, displayPath: ".claude/CLAUDE.md", content: { path: CL, type: "User", content: "# Prefs — naïve ☃\nuse uv" } }),
+    att(4, { type: "invoked_skills", skills: [{ name: "a", path: "/s/a/SKILL.md", content: "Skill a body" }] }),
+    att(4, { type: "instructions", files: [{ path: "/Users/tester/x/CLAUDE.md", type: "Project", content: "project rules" }] }, "<system-reminder>\nFiles:\n=== x/CLAUDE.md ===\nproject rules\n</system-reminder>"),
+    { ...base(5), type: "user", message: { role: "user", content: "again" } },
+    asst(6, "r2", { input_tokens: 10, cache_read_input_tokens: 2000, cache_creation_input_tokens: 300, output_tokens: 5 })
+  ];
+  writeFileSync(join(dir, `${sid}.jsonl`), rows.map((l) => JSON.stringify(l)).join("\n") + "\n");
+  const { trace, sources } = await loadTrace(await entriesFor([dir]));
+  const root = trace.agents[0];
+  const one = (label) => { const b = root.blocks.find((x) => x.label === label); assert.ok(b, label); return b; };
+  const expect = [
+    ["instructions file · ~/.claude/CLAUDE.md", "you", true, "# Prefs — naïve ☃\nuse uv\n"],
+    ["memory index · ~/.claude/projects/p/memory/MEMORY.md", "you", true, "- old memory\n"],
+    ["skills list (2)", "injected", true, "- a: does a\n- b: does b"],
+    ["hook output · SessionStart", "injected", true, "You have superpowers."],
+    ["MCP server instructions: srv", "injected", true, "## srv\nUse srv carefully."],
+    ["total_tokens_reminder", "injected", undefined, "<total_tokens>9 left</total_tokens>"],
+    ["invoked skill re-sent · a", "injected", true, "Skill a body"],
+    ["instructions (CLAUDE.md files and memory)", "you", true, "<system-reminder>\nFiles:\n=== x/CLAUDE.md ===\nproject rules\n</system-reminder>"]
+  ];
+  for (const [label, kind, own, text] of expect) {
+    const b = one(label);
+    assert.deepEqual([b.kind, b.own], [kind, own], label);
+    assert.equal(await readRef(sources[0], b.ref), text, label);
+    assert.ok(!b.rebuilt, label);
+  }
+  const nested = one("nested memory · ~/.claude/CLAUDE.md");
+  assert.equal(nested.resendOf, one("instructions file · ~/.claude/CLAUDE.md").i);
+  assert.equal(nested.resendSame, true);
+  assertStrata(trace);
+  await assertRoundTrip(trace, sources, 10);
 });
 
 test("claude-code: iterations split, advisor side agent, harness snapshot pair", async () => {

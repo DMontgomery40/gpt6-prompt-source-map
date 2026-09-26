@@ -29,7 +29,39 @@ function ownAttachment(type, a) {
     case "invoked_skills": return { label: `invoked skills re-sent: ${listOf((a.skills || []).map((x) => (x && x.name) || x))}`, source: null };
     case "hook_additional_context": return { label: `hook output · ${a.hookEvent || a.hookName || "hook"}`, source: `hook:${a.hookEvent || a.hookName || ""}` };
     case "mcp_instructions_delta": return { label: `MCP server instructions: ${listOf(a.addedNames)}`, source: null };
+    // instructions whose per-file headers weren't found: still the user's files, as one block
+    case "instructions": return { label: "instructions (CLAUDE.md files and memory)", source: "instructions" };
     default: return null;
+  }
+}
+
+// Older Claude Code versions log many attachments without `rendered`; the text the model got is
+// then in the row's own fields. One entry per block: { path (under attachment), text, and the
+// label/kind/own/source/identity that differ from the defaults }. Null: no literal text here.
+function fieldBlocks(type, a) {
+  const str = (v) => (typeof v === "string" && v.trim() ? v : null);
+  const strs = (v) => (Array.isArray(v) && v.length && v.every((x) => typeof x === "string") ? v : null);
+  const mine = (extra) => ({ own: true, ...ownAttachment(type, a), ...extra });
+  switch (type) {
+    case "instructions": {
+      const out = (a.files || []).map((f, k) => f && str(f.content) && { path: ["files", k, "content"], text: f.content, kind: "you", own: true,
+        label: `${/mem/i.test(f.type || "") ? "memory index" : "instructions file"} · ${shortPath(f.path)}`, source: `file:${f.path}`, identity: f.content }).filter(Boolean);
+      return out.length ? out : null;
+    }
+    case "nested_memory": { const c = a.content && a.content.content; return str(c) ? [mine({ path: ["content", "content"], text: c, kind: "you", identity: c })] : null; }
+    case "skill_listing": return str(a.content) ? [mine({ path: ["content"], text: a.content })] : null;
+    case "invoked_skills": {
+      const out = (a.skills || []).map((x, k) => x && str(x.content) && { path: ["skills", k, "content"], text: x.content, own: true, label: `invoked skill re-sent · ${x.name}`, source: `skill:${x.name}` }).filter(Boolean);
+      return out.length ? out : null;
+    }
+    case "hook_additional_context": return strs(a.content) || str(a.content) ? [mine({ path: ["content"], text: partText(a.content) })] : null;
+    case "hook_blocking_error": { const t = a.blockingError && a.blockingError.blockingError; return str(t) ? [{ path: ["blockingError", "blockingError"], text: t, own: true, label: `hook blocked · ${a.hookEvent || a.hookName || "hook"}` }] : null; }
+    case "mcp_instructions_delta": return strs(a.addedBlocks) ? [mine({ path: ["addedBlocks"], text: partText(a.addedBlocks) })] : null;
+    case "agent_listing_delta": case "deferred_tools_delta": return strs(a.addedLines) ? [{ path: ["addedLines"], text: partText(a.addedLines) }] : null;
+    case "edited_text_file": return str(a.snippet) ? [{ path: ["snippet"], text: a.snippet }] : null;
+    case "file": { const c = a.content && a.content.file && a.content.file.content; return str(c) ? [{ path: ["content", "file", "content"], text: c }] : null; }
+    case "read_truncation_notice": return str(a.banner) ? [{ path: ["banner"], text: a.banner }] : null;
+    default: return str(a.text) ? [{ path: ["text"], text: a.text }] : null;
   }
 }
 
@@ -256,6 +288,16 @@ export async function parseClaudeFile(source, fileIndex, { meta = null, agentId 
           continue;
         }
         if (NOT_IN_CONTEXT.has(type) || type === "queued_command") { tally.skipped++; continue; }
+        const fields = fieldBlocks(type, a);
+        if (fields) {
+          const rm = agent._ix && agent._ix.reminders[type];
+          for (const f of fields) {
+            const { path, text, label, kind, ...rest } = f;
+            track(r.uuid, addBlock(agent, { t, kind: kind || ATT_KIND[type] || "injected", label: label || type, ref: { ...lineRef, path: ["attachment", ...path] }, text, render: "from the row's fields", ...(rm ? { site: { ...rm } } : {}), ...rest }));
+          }
+          tally.literal++;
+          continue;
+        }
         // Unknown attachment with no rendered text: show its data, labelled structured.
         const rm = agent._ix && agent._ix.reminders[type];
         const b = addBlock(agent, { t, kind: "injected", label: type, ref: { ...lineRef, path: ["attachment"] }, text: JSON.stringify(a), render: "structured", site: rm ? { ...rm } : null });

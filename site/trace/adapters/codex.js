@@ -140,6 +140,13 @@ export async function parseCodexThread(source, fileIndex, { onProgress, index = 
         }
         return;
       }
+      // A skill the user picked, and the user's goal objective (wrapped by the product): theirs.
+      if (kind0 === "skills.selected_skill_instructions") {
+        const name = (text.match(/<name>([^<]+)<\/name>/) || [])[1];
+        made.push(addBlock(agent, { t, kind: "injected", label: name ? `skill · ${name}` : "selected skill", ref: { ...lineRef, path: tpath }, text, carried, own: true, source: name ? `skill:${name}` : null }));
+        return;
+      }
+      if (kind0 === "goal.internal_context") { made.push(addBlock(agent, { t, kind: "you", label: "goal (your objective)", ref: { ...lineRef, path: tpath }, text, carried, own: true, source: "goal" })); return; }
       const label = kind0 === "environments.environment_context" ? "environment_context" : kind0 || firstLine(text);
       made.push(addBlock(agent, { t, kind: "injected", label, ref: { ...lineRef, path: tpath }, text, carried }));
     });
