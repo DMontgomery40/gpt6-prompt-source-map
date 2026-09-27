@@ -1,3 +1,8 @@
+> **This repo has moved.** The GPT-6 / Codex/ChatGPT prompt source map now lives with the Claude Code one
+> in a single repo, **[DMontgomery40/harness-source-map](https://github.com/DMontgomery40/harness-source-map)**
+> (`codex/`), with its full history. The site is **https://harness.dtmont.com/codex/**, and
+> `gpt6aeon.dtmont.com` redirects there path for path. This repository is archived and read-only.
+
 # GPT-6 Prompt Source Map
 
 Source for [gpt6aeon.dtmont.com](https://gpt6aeon.dtmont.com): the instructions, helper prompts, voice prompts, and tool surfaces that ship inside OpenAI's Codex desktop app and GPT-6 model records, captured on September 24, 2026 from ChatGPT desktop 26.917.71314.
